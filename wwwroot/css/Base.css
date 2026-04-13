@@ -1,0 +1,70 @@
+﻿/* =========================================
+           1. CSS VARIABLES (KHÔNG HARDCODE MÀU/FONT)
+           ========================================= */
+:root {
+    /* Bảng màu chính (Theme Colors) */
+    --primary-color: #d4af37; /* Màu vàng Gold sang trọng */
+    --primary-hover: #b5952f;
+    --secondary-color: #1a252f; /* Xanh đen đậm */
+    /* Màu nền (Backgrounds) */
+    --bg-body: #f8f9fa;
+    --bg-white: #ffffff;
+    --bg-dark: #222222;
+    --bg-overlay: rgba(0, 0, 0, 0.6);
+    --bg-transparent: rgba(255, 255, 255, 0.95);
+    /* Màu chữ (Text Colors) */
+    --text-main: #333333;
+    --text-light: #666666;
+    --text-white: #ffffff;
+    --text-dark: #111111;
+    /* Viền và Bóng (Borders & Shadows) */
+    --border-color: #e0e0e0;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-dark: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    /* Font chữ */
+    --font-heading: "Playfair Display", serif;
+    --font-body: "Poppins", sans-serif;
+    /* Transition */
+    --transition-fast: all 0.3s ease;
+    --sidebar-width: 280px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+    .btn:hover {
+        background-color: var(--primary-hover);
+    }
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+    .section-title span {
+        color: var(--primary-color);
+    }
+
+section {
+    padding: 5rem 0;
+}

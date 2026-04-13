@@ -1,0 +1,25 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Đăng nhập thành công</title>
+</head>
+<body style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+    <h1 style="color: green;">ĐĂNG NHẬP THÀNH CÔNG!</h1>
+
+    <!-- Hiển thị tên người dùng đang đăng nhập -->
+    <h3>Xin chào, @User.Identity.Name!</h3>
+
+    <!-- Dùng form method="post" để gọi hàm HttpPost Logout -->
+    <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline-block; margin-left: 10px;">
+
+        <!-- Nút button này được CSS giả dạng trông giống như một thẻ link hoặc button bình thường -->
+        <button type="submit" style="padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer; font-size: 1rem;">
+            Đăng xuất
+        </button>
+
+    </form>
+</body>
+</html>

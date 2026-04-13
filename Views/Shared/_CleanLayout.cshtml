@@ -1,0 +1,32 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Hotel Vip</title>
+
+    <!-- Thư viện Font và Icon (Trang nào cũng cần nên để đây luôn) -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="~/css/Reset.css" rel="stylesheet" />
+    <link href="~/css/Base.css" rel="stylesheet" />
+    <!-- Render các đoạn CSS riêng của từng trang -->
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <!-- TRANG CỦA BẠN SẼ CHUI VÀO ĐÂY (Không có Header hay Footer thừa thãi nào cả) -->
+    @RenderBody()
+
+    <!-- ========================================== -->
+    <!-- ĐẶT KHUNG MODAL VÀ SCRIPT DÙNG CHUNG TẠI ĐÂY -->
+    <div id="roomModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+        <div id="roomModalContent" style="background: #fff; width: 900px; max-width: 95%; padding: 30px; border-radius: 12px; position: relative;">
+        </div>
+    </div>
+    <script src="~/js/RoomResult.js"></script>
+    <!-- ========================================== -->
+    <!-- Render các script riêng của từng trang -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

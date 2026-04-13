@@ -1,0 +1,224 @@
+﻿body {
+    font-family: var(--font-body);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* LAYOUT CHÍNH DÙNG GRID */
+.dashboard-wrapper {
+    display: grid !important;
+    /* Cột 1 là Sidebar, Cột 2 chiếm hết phần còn lại */
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
+
+/* 1. SIDEBAR STYLES (CỘT TRÁI) */
+.sidebar {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header {
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
+}
+
+.logo-text {
+    font-family: var(--font-heading);
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.user-box {
+    padding: 1.5rem;
+    text-align: center;
+    background: rgba(255,255,255,0.03);
+    margin: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.user-box h3 {
+    font-size: 1rem;
+    color: var(--text-white);
+    margin-bottom: 5px;
+}
+
+.user-box p {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    text-transform: uppercase;
+}
+
+.nav-menu {
+    flex: 1;
+    padding: 1rem 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+    .nav-link i {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        color: var(--text-white);
+        background: rgba(212, 175, 55, 0.1);
+        border-right: 4px solid var(--primary-color);
+    }
+
+.logout-section {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-logout {
+    width: 100%;
+    background: none;
+    border: 1px solid rgba(255,77,77,0.3);
+    color: #ff4d4d;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+    .btn-logout:hover {
+        background: #ff4d4d;
+        color: white;
+    }
+
+/* 2. MAIN CONTENT STYLES (CỘT PHẢI) */
+.main-content {
+
+    overflow-y: auto;
+    min-width: 0;
+    padding: 3rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+}
+
+.welcome-msg h2 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+}
+
+.welcome-msg p {
+    color: var(--text-light);
+}
+
+.btn-action {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-fast);
+}
+
+    .btn-action:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+/* STATS GRID */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-light);
+    border-bottom: 3px solid transparent;
+    transition: var(--transition-fast);
+}
+
+    .stat-card:hover {
+        border-bottom-color: var(--primary-color);
+        transform: translateY(-5px);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .stat-card h4 {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .stat-card span {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+
+/* RECENT ACTIVITY */
+.activity-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-light);
+}
+
+.activity-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .stats-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: none;
+    }
+    /* Thường mobile sẽ dùng menu lướt */
+}

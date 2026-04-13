@@ -1,0 +1,47 @@
+﻿@model PBL3_Hotel_System.Models.Room
+@{
+    // Logic chọn ảnh dựa trên loại phòng
+    string hinhAnh = "https://anviethouse.vn/2021/12/29/thiet-ke-phong-ngu-khach-san-dep/"; // Ảnh mặc định
+
+    switch (Model.LoaiPhong)
+    {
+        case RoomType.Standard:
+            hinhAnh = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
+            break;
+        case RoomType.Deluxe:
+            hinhAnh = "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
+            break;
+        case RoomType.Suite:
+            hinhAnh = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
+            break;
+    }
+}
+<!-- Nút tắt Popup (Dấu X) -->
+<button type="button" onclick="closeRoomModal()" style="position: absolute; top: 15px; right: 20px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: #333;">&times;</button>
+
+<!-- Nội dung chi tiết phòng -->
+<div style="display: flex; gap: 20px;">
+    <!-- Cột ảnh -->
+    <div style="flex: 1;">
+        <img src="@hinhAnh" alt="Phòng @Model.SoPhong" style="width: 100%; border-radius: 8px; object-fit: cover; height: 100%;" />
+    </div>
+
+    <!-- Cột Thông tin -->
+    <div style="flex: 1;">
+        <h2 style="font-family: var(--font-heading); color: var(--primary-color);">Phòng @Model.SoPhong</h2>
+        <h3 style="color: red; margin: 10px 0;">1.500.000 ₫ / đêm</h3>
+
+        <ul style="list-style: none; padding: 0; line-height: 2;">
+            <li><strong>Hạng phòng:</strong> @Model.LoaiPhong</li>
+            <li><strong>Sức chứa:</strong> @Model.Size người</li>
+            <li><strong>Trạng thái:</strong> @Model.TrangThai</li>
+        </ul>
+
+        <p style="color: gray; margin-top: 15px;">Mô tả: Phòng rộng rãi, ban công hướng biển, miễn phí buffet sáng...</p>
+
+        <!-- Nút Đặt phòng thực sự (Chuyển sang trang Booking) -->
+        <a asp-controller="Booking" asp-action="Book" asp-route-roomId="@Model.SoPhong" class="btn btn-primary" style="margin-top: 20px; display: block; text-align: center;">
+            ĐẶT PHÒNG NGAY
+        </a>
+    </div>
+</div>

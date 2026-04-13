@@ -1,0 +1,173 @@
+﻿@{
+    Layout = null;
+}
+@model PBL3_Hotel_System.ViewModels.LoginViewModel
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập / Đăng ký - Hotel Vip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="~/css/Reset.css" rel="stylesheet" />
+    <link href="~/css/Base.css" rel="stylesheet" />
+    <link href="~/css/login.css" rel="stylesheet" />
+</head>
+<body>
+    <a asp-controller="Home" asp-action="Index" class="back-home">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
+    <a asp-controller="Home" asp-action="Index" class="logo auth-logo">Hotel Vip</a>
+
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Đăng nhập</button>
+            <button class="tab-btn" onclick="switchTab('register')">Đăng ký</button>
+        </div>
+
+        <div class="auth-form-wrapper">
+            <!-- =======================
+                 FORM ĐĂNG NHẬP (Sử dụng asp-for)
+                 ======================= -->
+            <form asp-controller="Account" asp-action="Login" method="post" id="form-login" class="auth-form active">
+
+                <!-- Hiển thị lỗi tổng quát (Sai user/pass) -->
+                @* <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>  *@
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="auth-error-container" style="display: block;">
+                        <div class="validation-summary-errors">
+                            <i class="fas fa-exclamation-circle error-icon"></i>
+                            <div asp-validation-summary="ModelOnly"></div>
+                        </div>
+                    </div>
+                }
+
+                <div class="floating-group">
+                    <input asp-for="UsernameOrEmail" placeholder=" " required />
+                    <label asp-for="UsernameOrEmail">Tên đăng nhập / Email</label>
+                    <span asp-validation-for="UsernameOrEmail" class="field-validation-error"></span>
+                </div>
+
+                <div class="floating-group">
+                    <input asp-for="Password" type="password" placeholder=" " required />
+                    <label asp-for="Password">Mật khẩu</label>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('Password', this)"></i>
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input asp-for="RememberMe" type="checkbox" /> Ghi nhớ đăng nhập
+                    </label>
+                    <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="btn-submit">Đăng nhập ngay</button>
+            </form>
+
+            <script>
+                // Sửa ID input mật khẩu trong Javascript cho khớp với asp-for sinh ra (ID mặc định sẽ là tên property: 'Password')
+                function switchTab(tabId) {
+                    const buttons = document.querySelectorAll(".tab-btn");
+                    buttons.forEach((btn) => btn.classList.remove("active"));
+                    event.target.classList.add("active");
+
+                    const forms = document.querySelectorAll(".auth-form");
+                    forms.forEach((form) => form.classList.remove("active"));
+
+                    if (tabId === "login") {
+                        document.getElementById("form-login").classList.add("active");
+                    } else {
+                        document.getElementById("form-register").classList.add("active");
+                    }
+                }
+
+                                
+
+                function togglePassword(inputId, iconElement) {
+                    const inputField = document.getElementById(inputId);
+                    if (inputField.type === "password") {
+                        inputField.type = "text";
+                        iconElement.classList.remove("fa-eye");
+                        iconElement.classList.add("fa-eye-slash");
+                    } else {
+                        inputField.type = "password";
+                        iconElement.classList.remove("fa-eye-slash");
+                        iconElement.classList.add("fa-eye");
+                    }
+                }
+                document.getElementById("form-login").onsubmit = function() {
+                    const btn = this.querySelector(".btn-submit");
+                    btn.innerHTML = "Đang kiểm tra...";
+                    btn.style.opacity = "0.7";
+                    btn.style.cursor = "not-allowed";
+                };
+            </script>
+
+
+            <!-- =======================
+            FORM ĐĂNG KÝ
+            ======================= -->
+            <form asp-controller="Account" asp-action="Register" method="post" id="form-register" class="auth-form">
+
+                <div class="floating-group">
+                    <input name="Email" type="email" placeholder=" " required />
+                    <label>Email của bạn</label>
+                </div>
+
+                <div class="floating-group">
+                    <input name="Username" type="text" placeholder=" " required />
+                    <label>Tên đăng nhập</label>
+                </div>
+
+                <div class="floating-group">
+                    <input name="Password" type="password" id="reg-password" placeholder=" " required />
+                    <label>Tạo mật khẩu</label>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('reg-password', this)"></i>
+                </div>
+
+                <div class="floating-group">
+                    <input name="ConfirmPassword" type="password" id="reg-confirm" placeholder=" " required />
+                    <label>Xác nhận mật khẩu</label>
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('reg-confirm', this)"></i>
+                </div>
+
+                <button type="submit" class="btn-submit">Tạo tài khoản</button>
+            </form>
+        </div>
+    </div>
+    @if (TempData["Success"] != null)
+    {
+        <div id="auto-close-toast" class="alert-success-luxury" style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #28a745; animation: fadeIn 0.5s; position:fixed; bottom:10px">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+
+    <!-- Thông báo lỗi trùng lặp -->
+    @if (TempData["Error"] != null)
+    {
+        <div id="auto-close-toast" class="alert-error-luxury" style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #dc3545; animation: shake 0.5s; position:fixed; bottom:10px">
+            <i class="fas fa-times-circle"></i> @TempData["Error"]
+        </div>
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    // Nếu có thông báo Success hoặc Error liên quan đến đăng ký, hãy mở tab Register
+            @if (TempData["Success"] != null || TempData["Error"] != null)
+            {
+                <text>
+                    switchTab('register');
+                    // Tìm button tab register và add class active
+                    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                    document.querySelectorAll('.tab-btn')[0].classList.remove('active');
+                </text>
+            }
+        });
+    </script>
+    
+    
+    <script src="~/js/login.js"></script>
+</body>
+</html>

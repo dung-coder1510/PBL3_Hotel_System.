@@ -1,0 +1,136 @@
+﻿body { /* =========================================
+   STYLE CHO DANH SÁCH TÌM KIẾM PHÒNG
+   ========================================= */
+    /* 1. MẶC ĐỊNH LÀ MOBILE (Điện thoại nhỏ) */
+    .room-grid {
+        display: grid;
+        grid-template-columns: 1fr; /* Mặc định hiển thị 1 cột */
+        gap: 20px; /* Khoảng cách giữa các thẻ nhỏ lại trên điện thoại */
+        margin-top: 30px;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 1.8rem; /* Chữ tiêu đề nhỏ lại trên điện thoại */
+        margin-top: 10px;
+        margin-bottom: 2rem;
+        padding: 0 15px; /* Tránh chữ dính sát lề màn hình */
+    }
+    /* Định dạng thẻ phòng (Card) */
+    .room-card {
+        background-color: var(--bg-white);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-light);
+        transition: var(--transition-fast);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-dark);
+        }
+
+    .room-card-accent {
+        height: 4px;
+        background-color: var(--primary-color);
+        width: 100%;
+    }
+
+    .room-content {
+        padding: 20px; /* Padding nhỏ hơn trên điện thoại */
+        flex-grow: 1;
+    }
+
+    .room-number {
+        font-family: var(--font-heading);
+        color: var(--secondary-color);
+        font-size: 1.5rem; /* Font chữ nhỏ hơn trên mobile */
+        margin-bottom: 12px;
+    }
+
+    .room-details {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .room-details li {
+            font-family: var(--font-body);
+            color: var(--text-light);
+            margin-bottom: 10px;
+            font-size: 0.95rem; /* Nhỏ hơn một chút để dễ đọc trên đt */
+            display: flex;
+            align-items: center;
+        }
+
+            .room-details li i {
+                color: var(--primary-color);
+                margin-right: 10px;
+                width: 20px;
+                text-align: center;
+            }
+
+            .room-details li span {
+                margin-right: 5px;
+            }
+
+    .room-action {
+        padding: 15px 20px;
+        background-color: #fdfdfd;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    .btn-book {
+        display: block;
+        width: 100%;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    /* =========================================
+   2. RESPONSIVE (BREAKPOINTS CHUẨN BOOTSTRAP CHO LIST TIM KIEM)
+   ========================================= */
+    /* Small devices (Điện thoại xoay ngang, >= 576px) */
+    @media (min-width: 576px) {
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+    /* Medium devices (Máy tính bảng - Tablets, >= 768px) */
+    @media (min-width: 768px) {
+        .room-grid {
+            grid-template-columns: repeat(2, 1fr); /* Chuyển thành 2 cột */
+            gap: 25px;
+        }
+
+        .room-content {
+            padding: 25px; /* Tăng padding trở lại bình thường */
+        }
+
+        .room-number {
+            font-size: 1.8rem;
+        }
+    }
+    /* Large devices (Màn hình máy tính - Desktops, >= 992px) */
+    @media (min-width: 992px) {
+        .room-grid {
+            grid-template-columns: repeat(3, 1fr); /* Chuyển thành 3 cột */
+            gap: 30px;
+        }
+
+        .section-title {
+            font-size: 2.5rem; /* Trở lại kích thước lớn nhất */
+            margin-bottom: 3rem;
+        }
+    }
+    /* Extra large devices (Màn hình siêu rộng, >= 1200px) */
+    @media (min-width: 1200px) {
+        /* Với màn hình to, bạn có thể tăng khoảng cách giữa các thẻ nếu muốn */
+        .room-grid {
+            gap: 40px;
+        }
+    }

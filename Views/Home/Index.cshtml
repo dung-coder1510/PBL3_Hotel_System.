@@ -1,0 +1,298 @@
+﻿
+@model PBL3_Hotel_System.ViewModels.SearchRoomViewModel
+@{
+    Layout = null;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumina Hotel - Trải nghiệm nghỉ dưỡng đẳng cấp</title>
+    <!-- Thư viện Font và Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/reset.css" />
+    <link rel="stylesheet" href="~/css/base.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="#" class="logo">Hotel Vip</a>
+
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#rooms">Phòng Nghỉ</a></li>
+                <li><a href="#services">Dịch vụ</a></li>
+                <!-- <li><a href="#about">Về chúng tôi</a></li> -->
+                <li><a href="#contact">Liên hệ</a></li>
+            </ul>
+
+            <div class="header-right">
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+                <a asp-controller="Account" asp-action="Login" class="btn">Đăng nhập</a>
+                <i class="fas fa-bars menu-toggle" id="menu-to  ggle"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content container">
+            <h1>Tận Hưởng Sự Sang Trọng & Bình Yên</h1>
+            <p>
+                Trải nghiệm dịch vụ đẳng cấp 5 sao với không gian nghỉ dưỡng tuyệt vời
+                nhất dành riêng cho bạn.
+            </p>
+            <a href="#booking" class="btn">Khám phá ngay</a>
+        </div>
+    </section>
+
+
+
+    <partial name="_SearchRoom" model="new PBL3_Hotel_System.ViewModels.SearchRoomViewModel()" />
+
+    <!-- FEATURED ROOMS SECTION -->
+    <section id="rooms" class="room-wrap container">
+        <h2 class="section-title">Phòng <span>Nổi Bật</span></h2>
+
+        <!-- BỔ SUNG: Bọc grid lại và thêm 2 nút -->
+        <div class="rooms-wrapper">
+
+
+
+            <!-- Giữ nguyên id cho thẻ rooms-grid -->
+            <div class="rooms-grid">
+                <!-- Room 1 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Deluxe Room"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Phòng Deluxe Hướng Biển</h3>
+                        <div class="room-price">2.500.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> King Bed</span>
+                            <span><i class="fas fa-users"></i> 2 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 45m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Tầm nhìn bao quát đại dương, ban công rộng rãi và bồn tắm thư
+                            giãn.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+
+                <!-- Room 2 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Executive Suite"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Executive Suite</h3>
+                        <div class="room-price">5.000.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> King Bed</span>
+                            <span><i class="fas fa-users"></i> 3 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 75m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Phòng khách tách biệt, trang thiết bị nội thất hoàng gia nhập
+                            khẩu.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+
+                <!-- Room 3 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Family Room"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Phòng Gia Đình</h3>
+                        <div class="room-price">3.800.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> 2 Queen Beds</span>
+                            <span><i class="fas fa-users"></i> 4 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 60m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Không gian hoàn hảo cho gia đình, bao gồm khu vui chơi nhỏ cho trẻ
+                            em.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+                <!-- BỔ SUNG: Room 4 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Standard Room"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Phòng Tiêu Chuẩn</h3>
+                        <div class="room-price">1.500.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> 1 Double Bed</span>
+                            <span><i class="fas fa-users"></i> 2 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 30m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Lựa chọn tiết kiệm với đầy đủ tiện nghi cơ bản, cửa sổ hướng vườn
+                            xanh mát.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+
+                <!-- BỔ SUNG: Room 5 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Pool Villa"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Villa Hồ Bơi Riêng</h3>
+                        <div class="room-price">8.500.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> 2 King Beds</span>
+                            <span><i class="fas fa-users"></i> 4 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 120m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Biệt thự riêng tư tuyệt đối với hồ bơi cá nhân, sân vườn và dịch
+                            vụ quản gia 24/7.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+
+                <!-- BỔ SUNG: Room 6 -->
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                         alt="Rooftop Penthouse"
+                         class="room-img" />
+                    <div class="room-info">
+                        <h3>Penthouse Thượng Đỉnh</h3>
+                        <div class="room-price">15.000.000₫ / đêm</div>
+                        <div class="room-features">
+                            <span><i class="fas fa-bed"></i> 3 King Beds</span>
+                            <span><i class="fas fa-users"></i> 6 Khách</span>
+                            <span><i class="fas fa-vector-square"></i> 250m²</span>
+                        </div>
+                        <p style="
+                color: var(--text-light);
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+              ">
+                            Căn hộ cao cấp nhất tầng thượng, phòng khách siêu lớn, view 360 độ
+                            toàn thành phố.
+                        </p>
+                        <a href="#" class="btn" style="width: 100%; text-align: center">Đặt Ngay</a>
+                    </div>
+                </div>
+            </div>
+    </section>
+    <!-- SERVICES SECTION -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Tiện Ích <span>Đẳng Cấp</span></h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Nhà Hàng 5 Sao</h4>
+                    <p>
+                        Tinh hoa ẩm thực Á - Âu được chế biến bởi các đầu bếp danh tiếng.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-swimming-pool"></i>
+                    <h4>Hồ Bơi Vô Cực</h4>
+                    <p>
+                        Thư giãn tại hồ bơi trên tầng thượng với góc nhìn toàn cảnh thành
+                        phố.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-spa"></i>
+                    <h4>Spa & Massage</h4>
+                    <p>
+                        Liệu trình làm đẹp, thư giãn cơ thể và tâm hồn với thảo mộc tự
+                        nhiên.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-dumbbell"></i>
+                    <h4>Phòng Gym Yogo</h4>
+                    <p>Trang bị máy móc hiện đại nhất mở cửa phục vụ khách 24/7.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div id="contact" class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="logo" style="color: var(--primary-color)">Hotel Vip</h3>
+                    <p>
+                        Khách sạn Hotel Vip cam kết mang đến cho quý khách trải nghiệm lưu
+                        trú sang trọng, tiện nghi và ấm áp nhất.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên Kết Nhanh</h3>
+                    <ul>
+                        <li><a href="#">Về chúng tôi</a></li>
+                        <li><a href="#">Loại phòng</a></li>
+                        <li><a href="#">Ưu đãi & Khuyến mãi</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Thông Tin Liên Hệ</h3>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i> 123 Đường Tôn Đức Thắng, Q1,
+                        TP.HCM
+                    </p>
+                    <p><i class="fas fa-phone"></i> +84 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> booking@Hotel.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Lumina Hotel. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="~/js/script.js"></script>
+</body>
+</html>

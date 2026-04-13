@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "_CleanLayout";
+}
+@model PBL3_Hotel_System.ViewModels.SearchRoomViewModel
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tìm kiếm phòng - Hotel Vip</title>
+
+    <!-- Thư viện Font và Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="~/css/Reset.css" rel="stylesheet" />
+    <link href="~/css/Base.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/css/BookingRoom.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. THANH ĐIỀU HƯỚNG -->
+        <nav class="top-nav">
+            <a href="/" class="logo">Hotel Vip</a>
+            <a asp-controller="KhachHang" asp-action="Index" class="back-link">
+                <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+            </a>
+        </nav>
+
+        <!-- 2. KHU VỰC GIỚI THIỆU & GRID HÌNH ẢNH -->
+        <div class="booking-layout">
+
+            <div class="booking-info">
+                <h1>Tìm kiếm không gian nghỉ dưỡng lý tưởng</h1>
+                <p>Đảm bảo mức giá tốt nhất khi đặt phòng trực tiếp cùng chúng tôi. Khám phá các hạng phòng sang trọng và tiện ích đẳng cấp 5 sao.</p>
+
+                <ul class="perks-list">
+                    <li><i class="fas fa-wifi"></i> Wifi Tốc độ cao</li>
+                    <li><i class="fas fa-swimming-pool"></i> Hồ bơi Vô cực</li>
+                    <li><i class="fas fa-utensils"></i> Bữa sáng Miễn phí</li>
+                    <li><i class="fas fa-spa"></i> Spa & Massage</li>
+                    <li><i class="fas fa-concierge-bell"></i> Lễ tân 24/7</li>
+                    <li><i class="fas fa-car-side"></i> Đưa đón sân bay</li>
+                </ul>
+            </div>
+
+            <div class="image-grid">
+                <!-- Ảnh 1: Kéo dài 2 dòng -->
+                <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="img-large" alt="Luxury Room">
+                <!-- Ảnh 2 & 3: Xếp chồng bên phải -->
+                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Hotel Pool">
+                <img src="https://images.unsplash.com/photo-1541971875076-8f970d573be6?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Hotel Restaurant">
+            </div>
+
+        </div>
+
+        <!-- 3. TRUNG TÂM: FORM TÌM KIẾM (Được đẩy nổi lên) -->
+        <div class="center-search-hub">
+            <!-- Nhúng Partial View Form Tìm kiếm của bạn vào đây -->
+            <partial name="_SearchRoom" model="new PBL3_Hotel_System.ViewModels.SearchRoomViewModel()" />
+        </div>
+
+        
+        <!-- 2. Cái hộp rỗng để hứng kết quả (ĐẶT Ở NGAY DƯỚI FORM) -->
+        <div id="resultsContainer" class="container" style="margin-top: 3rem; min-height: 400px; padding-bottom: 5rem;">
+            <!-- Bạn có thể để một thông báo mặc định ở đây -->
+            <div class="empty-state" style="text-align: center; padding: 4rem; color: gray;">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: #d4af37;"></i>
+                <h3>Nhập thông tin để tìm phòng trống</h3>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+{
+    <div id="auto-close-toast" class="alert-luxury-toast alert-toast-success">
+        <i class="fas fa-check-circle"></i>
+        <span>@TempData["Success"]</span>
+    </div>
+}
+    
+    
+
+    <!-- File JavaScript xử lý AJAX Tìm kiếm và Mở chi tiết phòng -->
+    <script src="~/js/RoomResult.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+﻿@model PBL3_Hotel_System.ViewModels.SearchRoomViewModel
+
+    <!-- Tìm kiếm phòng -->
+    <section id="booking" class="booking-section container">
+    <form id="searchForm" asp-controller="Room" asp-action="BookingView" method="get" class="booking-form">
+            <div class="form-group">
+                <label asp-for="NgayNhanPhong">Ngày Nhận Phòng</label>
+                <input type="date" asp-for="NgayNhanPhong" />
+            </div>
+            <div class="form-group">
+                <label asp-for="NgayTraPhong">Ngày Trả Phòng</label>
+                <input type="date" asp-for="NgayTraPhong" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Size">Người lớn</label>
+                <select asp-for="Size">
+                    <option value="0">Tất Cả</option>
+                    <option value="1">1 Người</option>
+                    <option value="2" selected>2 Người</option>
+                    <option value="3">3 Người</option>
+                    <option value="4">4 Người</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="loaiphong">Hạng Phòng</label>
+                <select asp-for="loaiphong">
+                    <option value="All">All</option>
+                    <option value="Standard">Phòng Tiêu Chuẩn</option>
+                    <option value="Deluxe">Phòng Sang Trọng</option>
+                    <option value="Suite">Phòng Tổng Thống</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Kiểm Tra</button>
+        </form>
+    </section>
+
+
+
+
+<style>
+    /* Hiệu ứng nảy lên cho đẹp */
+    @@keyframes popIn {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script src="~/js/RoomResult.js"></script>

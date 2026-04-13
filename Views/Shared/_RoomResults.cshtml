@@ -1,0 +1,51 @@
+﻿
+    @model IEnumerable<PBL3_Hotel_System.Models.Room>
+    @if (Model != null && Model.Any())
+    {
+    <link rel="stylesheet" href="~/css/reset.css" />
+    <link rel="stylesheet" href="~/css/base.css" />
+    <link rel="stylesheet" href="~/css/RoomResult.css" />
+        <h2 class="section-title">Kết quả tìm kiếm <span>(@Model.Count() phòng trống)</span></h2>
+        <div class="room-grid">
+            
+            @foreach (var room in Model)
+            {
+
+                <div class="room-card">
+                    <div class="room-card-accent"></div>
+                    <div class="room-content">
+                        <h3 class="room-number">Phòng @room.SoPhong</h3>
+                        <ul class="room-details">
+                            <li><i class="fas fa-bed"></i> <span>Hạng phòng:</span> <strong>@room.LoaiPhong</strong></li>
+                            <li><i class="fas fa-user-friends"></i> <span>Sức chứa:</span> <strong>@room.Size người</strong></li>
+                            <li>
+                                <i class="fas fa-info-circle"></i> <span>Trạng thái: </span>
+                            @{
+                                // Logic xác định class CSS dựa trên Enum
+                                var statusClass = room.TrangThai switch
+                                {
+                                    RoomStatus.Available => "status-available",
+                                    RoomStatus.Maintenance => "status-maintenance",
+                                    RoomStatus.Occupied => "status-occupied",
+                                    _ => "status-default"
+                                };
+                            }
+                            <span class="status-badge @statusClass">@room.TrangThai.GetDisplayName()</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="room-action">
+                        <button type="button"
+                                class="btn btn-book"
+                                onclick="loadRoomDetail(@room.SoPhong)">
+                            <i class="fas fa-search-plus"></i> Chi Tiết Phòng
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center mt-5" style="font-size: 1.2rem;">Không tìm thấy phòng nào phù hợp với yêu cầu của bạn.</p>
+    }

@@ -1,0 +1,335 @@
+﻿body {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    background: url("https://anviethouse.vn/wp-content/uploads/2021/12/Thiet-ke-phong-khach-san-phong-cach-indochine-1-2.jpg") center/cover no-repeat;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-overlay);
+        backdrop-filter: blur(5px);
+        z-index: 0;
+    }
+
+.logo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+.back-home {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    color: var(--text-white);
+    font-size: 1.1rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .back-home:hover {
+        color: var(--primary-color);
+    }
+
+/* =========================================
+         2. LOGO & AUTH CARD STYLES
+         ========================================= */
+.auth-logo {
+    position: relative;
+    z-index: 1;
+    font-size: 3.2rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    letter-spacing: 1px;
+}
+
+.auth-container {
+    position: relative;
+    z-index: 1;
+    background-color: var(--bg-white);
+    width: 100%;
+    max-width: 450px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-dark);
+    overflow: hidden;
+    margin: 0 20px 20px 20px;
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1.2rem;
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: var(--transition-fast);
+}
+
+    .tab-btn.active {
+        color: var(--primary-color);
+        background-color: rgba(212, 175, 55, 0.05);
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    .tab-btn:hover:not(.active) {
+        color: var(--text-dark);
+    }
+
+.auth-form-wrapper {
+    padding: 2.5rem 2rem 2rem 2rem;
+}
+
+.auth-form {
+    display: none;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+    .auth-form.active {
+        display: block;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+         3. FLOATING LABEL CSS MAGIC
+         ========================================= */
+.floating-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+    .floating-group input {
+        width: 100%;
+        /* Padding top nhiều hơn để nhường chỗ cho label nổi lên */
+        padding: 22px 15px 8px 15px;
+        font-family: var(--font-body);
+        font-size: 1rem;
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        background-color: transparent;
+        outline: none;
+        transition: var(--transition-fast);
+    }
+
+        .floating-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+    /* Định dạng Label ban đầu (Nằm giữa input như placeholder) */
+    .floating-group label {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: var(--text-light);
+        pointer-events: none; /* Xuyên qua label để click trúng input */
+        transition: all 0.2s ease-out;
+        z-index: 1;
+    }
+
+    /* Điều kiện để Label BAY LÊN: 
+         1. Khi click vào ô (focus)
+         2. Khi ô có dữ liệu (không phải placeholder trống) */
+    .floating-group input:focus ~ label,
+    .floating-group input:not(:placeholder-shown) ~ label {
+        top: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+/* Căn chỉnh lại icon mắt */
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1.1rem;
+    z-index: 2;
+}
+
+    .toggle-password:hover {
+        color: var(--primary-color);
+    }
+
+/* ========================================= */
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    margin-top: -5px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-dark);
+}
+
+    .remember-me input {
+        cursor: pointer;
+        accent-color: var(--primary-color);
+        width: 16px;
+        height: 16px;
+    }
+
+.forgot-password {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    margin-top: 10px;
+}
+
+    .btn-submit:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-light);
+    }
+
+@media (max-width: 575.98px) {
+    .auth-logo {
+        font-size: 2.5rem;
+    }
+
+    .auth-container {
+        margin: 0 15px 15px 15px;
+    }
+
+    .auth-form-wrapper {
+        padding: 2rem 1.5rem;
+    }
+
+    .back-home {
+        top: 15px;
+        left: 15px;
+        font-size: 1rem;
+    }
+    .validation-summary-errors {
+        color: #d4af37;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        background: rgba(255,0,0,0.1);
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .field-validation-error {
+        color: red;
+        font-size: 0.8rem;
+    }
+}
+
+
+
+/* Container bao quanh thông báo lỗi */
+.auth-error-container {
+    display: none; /* Ẩn mặc định */
+    margin-bottom: 20px;
+    animation: shake 0.5s ease-in-out; /* Hiệu ứng rung khi xuất hiện */
+}
+
+/* Khi có lỗi (ASP.NET tự thêm class validation-summary-errors) */
+.validation-summary-errors {
+    background-color: #fff9db; /* Vàng nhạt */
+    /*border-left: 4px solid var(--primary-color);*/ /* Vạch vàng đậm bên trái */
+    padding: 12px 15px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #856404; /* Chữ nâu vàng đậm */
+    font-size: 0.9rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+    .validation-summary-errors ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+/* Thêm icon dấu chấm than bằng CSS hoặc dùng FontAwesome trực tiếp trong View */
+.error-icon {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+/* Hiệu ứng rung (Shake Animation) */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+}
