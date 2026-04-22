@@ -1,0 +1,214 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.Booking>
+@{
+    Layout = "_NVDashboardLayout"; // Gọi Layout chuẩn của Nhân viên
+    ViewData["Title"] = "Quản Lý Khách Hàng";
+    ViewData["ActiveMenu"] = "QuanLyKhachHang"; // Làm sáng menu bên Sidebar
+}
+
+@section Styles {
+    <style>
+        /* 1. HAI THẺ CHỨC NĂNG (CHECK-IN / CHECK-OUT) */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-dark);
+        }
+
+        .feature-card h4 {
+            font-family: var(--font-heading);
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-card h4 i { color: var(--primary-color); font-size: 1.5rem; }
+        .feature-card p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 25px; flex-grow: 1; line-height: 1.6; }
+
+        .btn-outline-gold {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 10px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-outline-gold:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* 2. BẢNG DỮ LIỆU LUXURY */
+        .content-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            padding: 25px 30px;
+        }
+
+        .card-header-title {
+            font-family: var(--font-heading);
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .table-wrapper { overflow-x: auto; }
+        .table-luxury { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-luxury th { padding: 15px; background: #f8f9fa; color: #888; font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid #eee; }
+        .table-luxury td { padding: 15px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: var(--text-main); }
+        .table-luxury tbody tr:hover { background-color: #fdfcf8; }
+
+        /* Thông tin khách hàng */
+        .customer-info strong { color: var(--secondary-color); font-size: 1rem; display: block; margin-bottom: 3px; }
+        .customer-info small { color: #888; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+
+        /* Trạng thái Badges */
+        .badge-status { padding: 6px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .status-pending { background-color: #fff3cd; color: #856404; } /* Chờ nhận phòng */
+        .status-success { background-color: #d4edda; color: #155724; } /* Đã nhận phòng */
+        .status-default { background-color: #e2e3e5; color: #383d41; } /* Khác */
+
+        /* Nút Xem chi tiết */
+        .btn-action-view {
+            background: #f4f6f8; color: var(--secondary-color); padding: 6px 15px;
+            border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500;
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-action-view:hover { background: var(--secondary-color); color: white; }
+    </style>
+}
+
+<!-- TIÊU ĐỀ TRANG -->
+<div class="header-text" style="margin-bottom: 2.5rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Quản Lý Khách Hàng</h2>
+    <p style="color: var(--text-light)">Quy trình Check-in / Check-out và hỗ trợ khách lưu trú.</p>
+</div>
+
+<!-- 1. HAI THẺ TÁC VỤ NHANH -->
+<div class="feature-grid">
+    <div class="feature-card">
+        <h4><i class="fas fa-calendar-plus"></i> Lên lịch nhận phòng</h4>
+        <p>Danh sách khách hàng đã đặt phòng trực tuyến và đang chờ làm thủ tục nhận phòng (Check-in).</p>
+        <button class="btn-outline-gold">Xem danh sách chờ</button>
+    </div>
+
+    <div class="feature-card">
+        <h4><i class="fas fa-file-invoice-dollar"></i> Tiếp nhận trả phòng</h4>
+        <p>Xử lý yêu cầu trả phòng (Check-out), tính toán hóa đơn dịch vụ và xác nhận thanh toán của khách.</p>
+        <button class="btn-outline-gold">Xử lý trả phòng</button>
+    </div>
+</div>
+
+<!-- 2. BẢNG DỮ LIỆU ĐẶT PHÒNG THỰC TẾ -->
+<div class="content-card">
+    <h3 class="card-header-title">Danh sách chờ xử lý</h3>
+    
+    <div class="table-wrapper">
+        <table class="table-luxury">
+            <thead>
+                <tr>
+                    <th>Khách hàng</th>
+                    <th style="text-align: center;">Phòng</th>
+                    <th>Ngày đến</th>
+                    <th style="text-align: center;">Trạng thái</th>
+                    <th style="text-align: right;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- Tên và SĐT Khách hàng -->
+                            <td class="customer-info">
+                                <strong>@(item.kh?.Hoten ?? "N/A")</strong>
+                                <small><i class="fas fa-phone-alt" style="font-size: 0.7rem; color: var(--primary-color);"></i> @(item.kh?.sđt ?? "Không có SĐT")</small>
+                            </td>
+                            
+                            <!-- Số phòng -->
+                            <td style="text-align: center;">
+                                <span style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;">#@item.SoPhong</span>
+                            </td>
+                            
+                            <!-- Ngày Check-In -->
+                            <td>
+                                <span style="background: #f8f9fa; padding: 5px 10px; border-radius: 6px; font-size: 0.9rem;">
+                                    <i class="far fa-calendar-alt text-muted"></i> @item.CheckIn.ToString("dd/MM/yyyy")
+                                </span>
+                            </td>
+                            
+                            <!-- Trạng thái (Dùng logic gán class) -->
+                            <td style="text-align: center;">
+                                @{
+                                    string statusClass = "status-default";
+                                    string statusText = "Khác";
+
+                                    if (item.TrangThaiDat == PBL3_Hotel_System.Models.BookingStatus.ChoXacNhan)
+                                    {
+                                        statusClass = "status-pending";
+                                        statusText = "Chờ nhận phòng";
+                                    }
+                                    else if (item.TrangThaiDat == PBL3_Hotel_System.Models.BookingStatus.DaXacNhan)
+                                    {
+                                        statusClass = "status-success";
+                                        statusText = "Đã nhận phòng";
+                                    }
+                                }
+                                <span class="badge-status @statusClass">@statusText</span>
+                            </td>
+                            
+                            <!-- Nút Xem chi tiết -->
+                            <td style="text-align: right;">
+                                <a href="@Url.Action("Details", "Booking", new { id = item.BookingID })" class="btn-action-view">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <!-- GIAO DIỆN TRỐNG (EMPTY STATE) ĐỈNH CAO -->
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 4rem 2rem;">
+                            <i class="fas fa-clipboard-list" style="font-size: 3rem; color: #e0e0e0; margin-bottom: 15px;"></i>
+                            <h4 style="color: var(--text-main); margin-bottom: 5px;">Chưa có dữ liệu</h4>
+                            <p style="color: var(--text-light); font-size: 0.9rem;">Hiện tại không có khách hàng nào đang chờ xử lý.</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

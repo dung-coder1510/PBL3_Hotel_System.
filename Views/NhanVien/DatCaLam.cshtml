@@ -1,0 +1,319 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.CaLam>
+@{
+    // Dùng chung Layout của Nhân viên
+    Layout = "_NVDashboardLayout";
+    ViewData["Title"] = "Đăng Ký Ca Làm";
+    ViewData["ActiveMenu"] = "DatCaLam"; // Kích hoạt sáng menu bên Sidebar
+}
+
+@section Styles {
+    <style>
+        /* Tùy chỉnh riêng cho bảng lịch làm việc */
+        .schedule-container {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            padding: 30px;
+            margin-top: 20px;
+            overflow-x: auto; /* Cuộn ngang nếu màn hình nhỏ */
+        }
+
+        .table-schedule {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px; /* Ép bảng không bị bóp méo */
+        }
+
+            .table-schedule th {
+                background-color: #f8f9fa;
+                text-align: center;
+                padding: 15px;
+                border: 1px solid var(--border-color);
+                color: var(--secondary-color);
+            }
+
+                .table-schedule th .day-label {
+                    display: block;
+                    font-family: var(--font-heading);
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                }
+
+                .table-schedule th .date-label {
+                    display: block;
+                    font-size: 0.8rem;
+                    color: var(--text-light);
+                    margin-top: 5px;
+                }
+
+            .table-schedule td {
+                border: 1px solid var(--border-color);
+                padding: 15px;
+                vertical-align: top;
+                width: 14.28%; /* Chia đều 7 ngày */
+            }
+
+        /* ---------------------------------------------------
+                   THIẾT KẾ CHECKBOX ẨN DƯỚI DẠNG THẺ (LUXURY UX)
+                   --------------------------------------------------- */
+        .shift-wrapper {
+            display: block;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        /* Ẩn cái ô vuông checkbox mặc định đi */
+        .shift-checkbox {
+            display: none;
+        }
+
+        /* Thiết kế cái thẻ thay cho checkbox */
+        .shift-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shift-name {
+            display: block;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .shift-time {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* HIỆU ỨNG KHI ĐƯỢC CHỌN (CHECKED) */
+        .shift-checkbox:checked + .shift-card {
+            background-color: rgba(212, 175, 55, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
+        }
+
+            .shift-checkbox:checked + .shift-card .shift-name {
+                color: var(--primary-color);
+            }
+
+        /* HIỆU ỨNG KHI ĐÃ ĐĂNG KÝ VÀ BỊ KHÓA (DISABLED) */
+        .shift-checkbox:disabled + .shift-card {
+            background-color: #f1f3f5;
+            border-color: #eee;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Thêm nhãn "Đã duyệt" cho ca bị khóa */
+        .shift-checkbox:checked:disabled + .shift-card::after {
+            content: '\f00c'; /* Icon check của FontAwesome */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #28a745;
+            color: white;
+            font-size: 0.6rem;
+            padding: 4px 6px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .shift-checkbox:not(:disabled) + .shift-card:hover {
+            border-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Nút Submit */
+        .btn-submit-schedule {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+            .btn-submit-schedule:hover {
+                background-color: var(--primary-hover);
+                transform: translateY(-2px);
+            }
+    </style>
+}
+
+<!-- TIÊU ĐỀ TRANG -->
+<div class="header-text" style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Lịch Làm Việc Tuần Này</h2>
+    <p style="color: var(--text-light)">Vui lòng chọn các ca làm việc mong muốn. Các ca có dấu <i class="fas fa-check-circle text-success"></i> là ca bạn đã được duyệt.</p>
+</div>
+
+<div class="schedule-header-info" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 10px; box-shadow: var(--shadow-light);">
+    
+    <!-- Quy tắc làm việc -->
+    <div class="rules">
+        <span style="margin-right: 20px;"><i class="fas fa-info-circle text-gold"></i> Tối đa: <strong>7 ca / tuần</strong></span>
+        <span><i class="fas fa-clock text-gold"></i> Tối đa: <strong>2 ca / ngày</strong></span>
+    </div>
+
+    <!-- Chú thích màu sắc -->
+    <div class="legend" style="display: flex; gap: 15px; font-size: 0.85rem;">
+        <div class="legend-item"><span style="display:inline-block; width:12px; height:12px; background:#e6fcf5; border:1px solid #20c997; border-radius:3px;"></span> Lịch của bạn</div>
+        <div class="legend-item"><span style="display:inline-block; width:12px; height:12px; background:#fff; border:1px solid #ddd; border-radius:3px;"></span> Còn trống</div>
+        <div class="legend-item"><span style="display:inline-block; width:12px; height:12px; background:#f8f9fa; border:1px solid #eee; opacity:0.6; border-radius:3px;"></span> Đã đầy</div>
+    </div>
+</div>
+<!-- BẢNG LỊCH TRÌNH -->
+<div class="schedule-container">
+    <form asp-action="DangKyCa" asp-controller="NhanVien" method="post">
+        @Html.AntiForgeryToken()
+
+        <table class="table-schedule">
+            <thead>
+                <tr>
+                    @foreach (DateTime day in ViewBag.WeekDays)
+                    {
+                        <th>
+                            <span class="day-label">@day.ToString("dddd")</span>
+                            <span class="date-label">@day.ToString("dd/MM")</span>
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    @foreach (DateTime day in ViewBag.WeekDays)
+                    {
+                        var dayStr = day.ToString("yyyy-MM-dd");
+                        
+                        <td>
+                            @foreach (var shift in Model)
+                            {
+                                // 1. Kiểm tra đăng ký cá nhân (So sánh Date với Date cho chuẩn)
+                                bool isRegistered = false;
+                                if (ViewBag.RegisteredShifts != null)
+                                {
+                                    // Giả sử Model của bạn là DangKyCaLam
+                                    isRegistered = ((IEnumerable<PBL3_Hotel_System.Models.DangKiCaLam>)ViewBag.RegisteredShifts)
+                                                    .Any(r => r.MaCa == shift.MaCa && r.NgayLam.Date == day.Date);
+                                }
+
+                                // 2. Tính toán chỗ trống
+                                string dictKey = $"{shift.MaCa}_{dayStr}";
+                                var occupancyDict = ViewBag.ShiftOccupancy as Dictionary<string, int>;
+                                int currentCount = (occupancyDict != null && occupancyDict.ContainsKey(dictKey))
+                                                   ? occupancyDict[dictKey] : 0;
+    
+                                int remaining = shift.SoLuongToiDa - currentCount;
+                                bool isFull = remaining <= 0;
+
+                                // 3. Logic Vô hiệu hóa và Tích chọn
+                                // Khóa nếu: (Đã đăng ký rồi) HOẶC (Chưa đăng ký nhưng ca đã đầy)
+                                bool isDisabled = isRegistered || isFull;
+                                // Tích chọn nếu: Đã đăng ký thành công
+                                bool isChecked = isRegistered;
+
+                                <label class="shift-wrapper">
+                                    <input type="checkbox" name="selectedShifts"
+                                           value="@(shift.MaCa)|@(dayStr)"
+                                           class="shift-checkbox"
+                                    @(isDisabled ? "disabled" : "")
+                                    @(isChecked ? "checked" : "")> @* Bổ sung checked ở đây *@
+        
+                                    @* Thêm class "is-me" nếu là ca của mình để CSS màu xanh lá cho đẹp *@
+                                    <div class="shift-card @(isRegistered ? "is-me" : (isFull ? "full" : ""))">
+                                        <span class="shift-name">@shift.TenCa</span>
+                                        <span class="shift-time">
+                                            @shift.GioBatDau.ToString(@"hh\:mm") - @shift.GioKetThuc.ToString(@"hh\:mm")
+                                        </span>
+            
+                                        <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 5px;">
+                                            @if (isRegistered)
+                                            {
+                                                <span style="font-size: 0.75rem; color: #28a745; font-weight: 700;">
+                                                    <i class="fas fa-check-circle"></i> Lịch của bạn
+                                                </span>
+                                            }
+                                            else if (isFull)
+                                            {
+                                                <span style="font-size: 0.75rem; color: #dc3545; font-weight: 600;">
+                                                    <i class="fas fa-ban"></i> Hết chỗ
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size: 0.75rem; color: var(--primary-color); font-weight: 500;">
+                                                    Còn @remaining / @shift.SoLuongToiDa chỗ
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </label>
+                            }
+                        </td>
+                    }
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- THANH CÔNG CỤ -->
+        <div style="text-align: center; margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 25px;">
+            <button type="submit" class="btn-submit-schedule">
+                <i class="fas fa-save" style="margin-right: 8px;"></i> Xác nhận đăng ký ca
+            </button>
+        </div>
+
+    </form>
+</div>
+@section Scripts {
+    <script>
+        // Lắng nghe sự kiện khi nhân viên bấm vào các ô Checkbox
+        document.addEventListener("change", function (e) {
+            
+            // 1. Kiểm tra xem có đúng là bấm vào cái ô chọn ca không
+            if (e.target.classList.contains("shift-checkbox")) {
+                const checkbox = e.target;
+                
+                // Lấy ngày của ca vừa chọn (phần sau dấu | trong value)
+                const valueParts = checkbox.value.split('|');
+                const selectedDate = valueParts[1];
+
+                // 2. Tính toán số ca trong NGÀY đó
+                // Tìm tất cả checkbox của CÙNG NGÀY đó đang được chọn (checked)
+                const sameDayTotal = document.querySelectorAll(`.shift-checkbox[value$="${selectedDate}"]:checked`).length;
+
+                // --- ĐOẠN IF CỦA BẠN ĐẶT Ở ĐÂY ---
+                if (sameDayTotal > 2) {
+                    // Gọi hàm triggerToast đã viết ở file RoomResult.js hoặc Layout
+                    triggerToast("Lỗi: Mỗi ngày bạn chỉ được đăng ký tối đa 2 ca làm việc!");
+                    checkbox.checked = false; // Tự động nhả dấu tick ra
+                    return;
+                }
+
+                // 3. Tính toán số ca trong TUẦN đó
+                // Lấy số đã đăng ký từ Server ném ra (ViewBag) + số đang chọn mới trên màn hình
+                const totalRegisteredInWeek = @(ViewBag.RegisteredCount ?? 0);
+                const newlySelected = document.querySelectorAll('.shift-checkbox:checked:not(:disabled)').length;
+                
+                // --- ĐOẠN IF THỨ 2 CỦA BẠN ---
+                if (totalRegisteredInWeek + newlySelected > 7) {
+                    triggerToast(`Lỗi: Bạn đã đăng ký ${totalRegisteredInWeek} ca. Không thể chọn thêm quá giới hạn 7 ca/tuần!`);
+                    checkbox.checked = false; // Tự động nhả dấu tick ra
+                }
+            }
+        });
+    </script>
+}

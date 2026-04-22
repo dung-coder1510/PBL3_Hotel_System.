@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PBL3_Hotel_System.Data;
 
@@ -11,9 +12,11 @@ using PBL3_Hotel_System.Data;
 namespace PBL3_Hotel_System_.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    partial class HotelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260418032045_UpdateKH")]
+    partial class UpdateKH
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,78 +100,6 @@ namespace PBL3_Hotel_System_.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System.Models.CaLam", b =>
-                {
-                    b.Property<int>("MaCa")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("MaCa");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaCa"));
-
-                    b.Property<TimeSpan>("GioBatDau")
-                        .HasColumnType("time")
-                        .HasColumnName("GioBatDau");
-
-                    b.Property<TimeSpan>("GioKetThuc")
-                        .HasColumnType("time")
-                        .HasColumnName("GioKetThuc");
-
-                    b.Property<int>("SoLuongToiDa")
-                        .HasColumnType("int")
-                        .HasColumnName("SoLuongToiDa");
-
-                    b.Property<string>("TenCa")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("TenCa");
-
-                    b.HasKey("MaCa");
-
-                    b.ToTable("CaLams");
-                });
-
-            modelBuilder.Entity("PBL3_Hotel_System.Models.DangKiCaLam", b =>
-                {
-                    b.Property<int>("MaDK")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("MaDK");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDK"));
-
-                    b.Property<string>("GhiChu")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("MaCa")
-                        .HasColumnType("int")
-                        .HasColumnName("MaCa");
-
-                    b.Property<int>("MaNV")
-                        .HasColumnType("int")
-                        .HasColumnName("MaNV");
-
-                    b.Property<DateTime>("NgayLam")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("NgayLam");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("TrangThai");
-
-                    b.HasKey("MaDK");
-
-                    b.HasIndex("MaCa");
-
-                    b.HasIndex("MaNV");
-
-                    b.ToTable("DangKyCaLams");
-                });
-
             modelBuilder.Entity("PBL3_Hotel_System.Models.Room", b =>
                 {
                     b.Property<int>("SoPhong")
@@ -235,7 +166,7 @@ namespace PBL3_Hotel_System_.Migrations
                     b.HasIndex("AccountID")
                         .IsUnique();
 
-                    b.ToTable("UserProfiles", (string)null);
+                    b.ToTable("UserProfiles");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseUser");
 
@@ -256,13 +187,6 @@ namespace PBL3_Hotel_System_.Migrations
                     b.HasDiscriminator().HasValue("KhachHang");
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.NhanVien", b =>
-                {
-                    b.HasBaseType("PBL3_Hotel_System_.Models.UserModels.BaseUser");
-
-                    b.HasDiscriminator().HasValue("NhanVien");
-                });
-
             modelBuilder.Entity("PBL3_Hotel_System.Models.Booking", b =>
                 {
                     b.HasOne("PBL3_Hotel_System_.Models.UserModels.KhachHang", "kh")
@@ -280,25 +204,6 @@ namespace PBL3_Hotel_System_.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("kh");
-                });
-
-            modelBuilder.Entity("PBL3_Hotel_System.Models.DangKiCaLam", b =>
-                {
-                    b.HasOne("PBL3_Hotel_System.Models.CaLam", "CaLam")
-                        .WithMany()
-                        .HasForeignKey("MaCa")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PBL3_Hotel_System_.Models.UserModels.NhanVien", "NhanVien")
-                        .WithMany()
-                        .HasForeignKey("MaNV")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CaLam");
-
-                    b.Navigation("NhanVien");
                 });
 
             modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.BaseUser", b =>

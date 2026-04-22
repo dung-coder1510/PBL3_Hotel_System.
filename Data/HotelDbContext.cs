@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PBL3_Hotel_System.Models;
 using PBL3_Hotel_System.Models;
+using PBL3_Hotel_System_.Models;
 using PBL3_Hotel_System_.Models.UserModels;
 
 
@@ -17,6 +18,10 @@ namespace PBL3_Hotel_System.Data // Sửa từ .Models thành .Data
         // 2. Quan trọng nhất: PHẢI khai báo các lớp con cụ thể ở đây
         public DbSet<KhachHang> KhachHangs { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<NhanVien> NhanViens { get; set; }
+        public DbSet<CaLam> CaLams { get; set; }
+        public DbSet<DangKiCaLam> DangKyCaLams { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -28,7 +33,11 @@ namespace PBL3_Hotel_System.Data // Sửa từ .Models thành .Data
             .HasForeignKey<BaseUser>(u => u.AccountID) // 3. Chỉ định BaseUser là bên giữ Khóa ngoại
             .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<BaseUser>().ToTable("UserProfiles");
 
+            modelBuilder.Entity<DangKiCaLam>()
+                .HasIndex(d => new { d.MaNV, d.MaCa, d.NgayLam })
+                .IsUnique();
             // Giữ cấu hình cho Account cũ
             modelBuilder.Entity<Account>()
                 .Property(a => a.Role)

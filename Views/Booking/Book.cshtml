@@ -250,6 +250,7 @@
 
         <!-- CỘT PHẢI: FORM ĐẶT PHÒNG -->
         <div class="booking-form-card">
+           
             <form asp-controller="Booking" asp-action="Confirm" method="post">
                 <input type="hidden" asp-for="SoPhong" />
 
@@ -272,7 +273,7 @@
                     <textarea asp-for="GhiChu" rows="3" placeholder="Nhập ghi chú thêm của bạn(Không bắt buộc)"></textarea>
                     <small style="color: #888; font-size: 0.8rem; margin-top: 5px; display: block;">* Các yêu cầu này sẽ được khách sạn sắp xếp tùy thuộc vào tình trạng phòng.</small>
                 </div>
-
+                
                 <!-- SECTION 3: Hóa đơn tạm tính -->
                 <div class="receipt-box">
                     <div class="receipt-row">
@@ -353,6 +354,7 @@
                 }
             }
         }
+        calculateTotal(); 
 
         checkInInput.addEventListener('change', calculateTotal);
         checkOutInput.addEventListener('change', calculateTotal);

@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Hotel VIP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/base.css" />
+    <link rel="stylesheet" href="~/css/Reset.css" />
+    <link href="~/css/sidebar.css" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    @* Nhúng Toast thông báo dùng chung *@
+    @if (TempData["Success"] != null)
+    {
+        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-success">
+            <i class="fas fa-check-circle"></i> <span>@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Error"]</span>
+            <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor:pointer; opacity:0.5;"></i>
+        </div>
+    }
+
+
+    <div class="dashboard-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="logo-text">Hotel VIP</a>
+            </div>
+
+            <div class="user-box">
+                @{ var name = User.Identity.Name ?? "Khách hàng"; }
+                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(name)&background=d4af37&color=fff" class="user-avatar">
+                <h3>@name</h3>
+                <p>Khách hàng thân thiết</p>
+            </div>
+
+            <nav class="nav-menu">
+                @* Dùng C# để kiểm tra Active Menu *@
+                <li>
+                    <a asp-controller="KhachHang" asp-action="Index" 
+                       class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="KhachHang" asp-action="MyHistory" 
+                       class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "History" ? "active" : "")">
+                        <i class="fas fa-history"></i> Lịch sử đặt phòng
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Profile" asp-action="Index" 
+                       class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Profile" ? "active" : "")">
+                        <i class="fas fa-user-cog"></i> Thông tin cá nhân
+                    </a>
+                </li>
+            </nav>
+
+            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" style="background:none; border:none; color:#ff4d4d; cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/js/feature.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

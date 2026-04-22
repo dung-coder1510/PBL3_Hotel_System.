@@ -65,11 +65,30 @@ namespace PBL3_Hotel_System.Controllers
                 ModelState.AddModelError("", "Ngày trả phòng phải sau ngày nhận ít nhất 1 ngày");
                 return View("Book", model);
             }
+            // === Kiểm tra trùng lịch==
+            bool isTrungLich = await _context.Bookings.AnyAsync(b =>
+                b.SoPhong == model.SoPhong && // Kiểm tra đúng phòng đó
+                b.TrangThaiDat != BookingStatus.DaHuy && // BỎ QUA các đơn đã bị hủy
+                (model.CheckIn < b.CheckOut && model.CheckOut > b.CheckIn) // Công thức Overlap
+            );
 
+            if (isTrungLich)
+            {
+                // Nếu trùng, ném thông báo lỗi và đẩy khách quay lại trang đặt phòng
+                TempData["Error"] = "Rất tiếc! Phòng này đã có người đặt trong khoảng thời gian bạn chọn. Vui lòng dời ngày hoặc chọn phòng khác.";
+                var phong = await _context.Rooms.FirstOrDefaultAsync(r => r.SoPhong == model.SoPhong);
+                if (phong != null)
+                {
+                    model.GiaPhong = room.GiaPhong;
+                    model.LoaiPhong = room.LoaiPhong.ToString();
+                    model.Size = room.Size;
+                }
+                return View("Book", model);
+            }
             // 3. Tạo Model Database thực sự để lưu
             var booking = new Booking
             {
-                UserID = account.UserProfile.UserID, // Hoặc liên kết qua UserProfile tùy bạn
+                MaKhachHang = account.UserProfile.UserID,
                 SoPhong = model.SoPhong,
                 CheckIn = model.CheckIn,
                 CheckOut = model.CheckOut,

@@ -1,106 +1,69 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model PBL3_Hotel_System.ViewModels.DashboardViewModel
+@{
+    Layout = "_KHDashboardLayout"; // Sử dụng layout chung
+    ViewData["Title"] = "Bảng điều khiển";
+    ViewData["ActiveMenu"] = "Dashboard";
+}
 @using System.Security.Claims
 @{
-    Layout = null; // Tắt layout mặc định để dùng giao diện Dashboard riêng
-    var userName = User.Identity.Name;
-    // Giả sử bạn lưu Họ tên thật trong Claim hoặc truyền qua ViewBag
-    var fullName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Khách hàng"; 
+    // 1. Lấy tên người dùng từ Identity (thông thường là Username)
+    // Nếu bạn muốn lấy Họ tên thật, hãy đảm bảo lúc Đăng nhập bạn đã lưu nó vào ClaimTypes.Name
+    var fullName = User.Identity.IsAuthenticated ? User.Identity.Name : "Khách hàng";
+
+    // 2. (Tùy chọn) Nếu bạn muốn lấy một thông tin khác trong Claim
+    // var email = User.FindFirst(ClaimTypes.Email)?.Value;
 }
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng điều khiển khách hàng - Hotel Vip</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="~/css/Reset.css" rel="stylesheet" />
-    <link href="~/css/Base.css" rel="stylesheet" />
-    <link href="~/css/DashBoardKH.css" rel="stylesheet" />
-</head>
-<body>
-
-    <div class="dashboard-wrapper">
-        <!-- SIDEBAR (Cột trái) -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="/" class="logo-text">Hotel VIP</a>
-            </div>
-
-            <div class="user-box">
-                <img src="https://ui-avatars.com/api/?name=@fullName&background=d4af37&color=fff" class="user-avatar">
-                <h3>@fullName</h3>
-                <p>Khách hàng thân thiết</p>
-            </div>
-
-            <nav class="nav-menu">
-                <a asp-controller="Home" asp-action="Index" class="nav-link active">
-                    <i class="fas fa-home"></i> Trang chủ
-                </a>
-                <a asp-controller="Booking" asp-action="MyHistory" class="nav-link">
-                    <i class="fas fa-history"></i> Lịch sử đặt phòng
-                </a>
-                <a asp-controller="KhachHang" asp-action="EditProfile" class="nav-link">
-                    <i class="fas fa-user-cog"></i> Sửa thông tin
-                </a>
-                <a href="#" class="nav-link">
-                    <i class="fas fa-question-circle"></i> Hỗ trợ
-                </a>
-            </nav>
-
-            <div class="logout-section">
-                <form asp-controller="Account" asp-action="Logout" method="post">
-                    <button type="submit" class="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </button>
-                </form>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT (Cột phải) -->
-        <main class="main-content">
-            <header class="dashboard-header">
-                <div class="welcome-msg">
-                    <h2>Xin chào, @fullName!</h2>
-                    <p>Hôm nay bạn muốn trải nghiệm căn phòng nào?</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 2.2rem;">Xin chào, @Model.TenKhachHang!</h2>
+                    <p style="color: var(--text-light)">Hôm nay bạn muốn trải nghiệm căn phòng nào?</p>
                 </div>
-                <a asp-controller="Room" asp-action="BookingView" class="btn-action">
+                <a asp-controller="Room" asp-action="Index" class="btn-gold">
                     <i class="fas fa-plus"></i> Đặt phòng mới
                 </a>
-            </header>
+            </div>
 
-            <!-- STATS -->
-            <div class="stats-container">
+            <!-- KHU VỰC STATS - PHẢI ĐÚNG CẤU TRÚC NÀY ĐỂ HIỆN HÀNG NGANG -->
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <i class="fas fa-bed"></i>
-                    <h4>Phòng đã đặt</h4>
-                    <span>05</span>
+                    <div class="stat-icon"><i class="fas fa-bed"></i></div>
+                    <div class="stat-info">
+                        <h4>Phòng đã đặt</h4>
+                        <span>@Model.TotalBookings</span>
+                    </div>
                 </div>
+
                 <div class="stat-card">
-                    <i class="fas fa-gem"></i>
-                    <h4>Hạng thành viên</h4>
-                    <span>Platinum</span>
+                    <div class="stat-icon"><i class="fas fa-gem"></i></div>
+                    <div class="stat-info">
+                        <h4>Hạng thành viên</h4>
+                        <span>@Model.MemberRank</span>
+                    </div>
                 </div>
+
                 <div class="stat-card">
-                    <i class="fas fa-coins"></i>
-                    <h4>Điểm tích lũy</h4>
-                    <span>2,400</span>
+                    <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                    <div class="stat-info">
+                        <h4>Điểm tích lũy</h4>
+                        <span>@Model.TotalPoints.ToString("N0")</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- ACTIVITY -->
-            <div class="activity-card">
-                <div class="activity-header">
-                    <h3>Giao dịch gần đây</h3>
+            <!-- KHU VỰC BẢNG LỊCH SỬ GIAO DỊCH -->
+            <div class="content-card" style="margin-top: 30px;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="font-family: var(--font-heading); color: var(--secondary-color);">Giao dịch gần đây</h3>
+        
+                    <!-- Nút Xem tất cả dẫn sang trang MyHistory -->
+                    <a asp-controller="KhachHang" asp-action="MyHistory" style="font-size: 0.95rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">
+                        Xem tất cả lịch sử <i class="fas fa-angle-right"></i>
+                    </a>
                 </div>
-                <div style="text-align: center; padding: 3rem 0;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" style="width: 100px; opacity: 0.2; margin-bottom: 20px;">
-                    <p style="color: var(--text-light)">Bạn chưa có giao dịch nào trong 30 ngày qua.</p>
-                </div>
-            </div>
-        </main>
-    </div>
 
-</body>
-</html>
+                <!-- PHÉP MÀU NẰM Ở ĐÂY: Chỉ cần 1 dòng này để gọi toàn bộ cái bảng (dùng chung) -->
+                <partial name="_TransactionTablePartial" model="Model.RecentBookings" />
+            </div>
+

@@ -1,0 +1,138 @@
+﻿@{
+    Layout = "_NVDashboardLayout"; // Kéo Layout của NV vào
+    ViewData["Title"] = "Tổng Quan Nhân Viên";
+    ViewData["ActiveMenu"] = "Index"; // Kích hoạt nút sáng ở menu
+}
+
+@section Styles {
+    <style>
+        /* CSS DÀNH RIÊNG CHO CÁC CARD TÁC VỤ CỦA NHÂN VIÊN */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .uc-card {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-bottom: 5px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .uc-card:hover {
+                transform: translateY(-10px);
+                box-shadow: var(--shadow-dark);
+                border-bottom-color: var(--primary-color);
+            }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .uc-card:hover .icon-circle {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .uc-card h3 {
+            font-family: var(--font-heading);
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .uc-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            flex-grow: 1; /* Đẩy nút xuống dưới cùng cho đều nhau */
+        }
+
+        .btn-gold-action {
+            display: inline-block;
+            background: var(--bg-body);
+            color: var(--secondary-color);
+            padding: 10px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .uc-card:hover .btn-gold-action {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+}
+
+<!-- TIÊU ĐỀ TRANG -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Tác Vụ Nhân Viên</h2>
+        <p style="color: var(--text-light)">Quản lý và vận hành các hoạt động của khách sạn.</p>
+    </div>
+    <div style="background: white; padding: 10px 20px; border-radius: 30px; box-shadow: var(--shadow-light); display: flex; align-items: center; gap: 10px;">
+        <i class="far fa-user-circle text-gold" style="color: var(--primary-color); font-size: 1.2rem;"></i>
+        <span>Xin chào, <strong>@(User.Identity.Name ?? "Bạn")</strong></span>
+    </div>
+</div>
+
+<!-- LƯỚI CARD CHỨC NĂNG -->
+<div class="action-grid">
+    
+    <!-- Card 1 -->
+    <div class="uc-card">
+        <div class="icon-circle">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <h3>Đặt Ca Làm</h3>
+        <p>Xem danh sách ca làm việc theo tuần, đăng ký ca làm mới và tìm kiếm lịch trình phù hợp.</p>
+        <a asp-controller="NhanVien" asp-action="DatCaLam" class="btn-gold-action">TRUY CẬP</a>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="uc-card">
+        <div class="icon-circle">
+            <i class="fas fa-bed"></i>
+        </div>
+        <h3>Quản Lý Phòng</h3>
+        <p>Theo dõi trạng thái phòng trống, cập nhật tình trạng dọn dẹp hoặc báo cáo sự cố kỹ thuật.</p>
+        <a asp-controller="NhanVien" asp-action="QuanLyPhong" class="btn-gold-action">QUẢN LÝ</a>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="uc-card">
+        <div class="icon-circle">
+            <i class="fas fa-users-cog"></i>
+        </div>
+        <h3>Khách Hàng</h3>
+        <p>Tiếp nhận yêu cầu nhận phòng (Check-in), trả phòng (Check-out) và xử lý thông tin khách hàng.</p>
+        <a asp-controller="NhanVien" asp-action="QuanLyKhachHang" class="btn-gold-action">XỬ LÝ</a>
+    </div>
+
+</div>

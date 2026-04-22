@@ -9,9 +9,12 @@ namespace PBL3_Hotel_System_.Models.UserModels
         [Key]
         public int UserID { get; set; }
         public string Hoten {  get; set; }
-        public string sđt { get; set; }
+        public string sđt { get; set; } 
+        public string CCCD {  get; set; } 
+        public string DiaChi {  get; set; }
         public abstract string RoleName { get; }
 
+       
         public int AccountID { get; set; }
 
         [ForeignKey("AccountID")]

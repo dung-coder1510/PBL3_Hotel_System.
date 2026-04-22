@@ -1,38 +1,4 @@
-﻿//function loadRoomDetail(SoPhong) {
-//    const modalOverlay = document.getElementById("roomModalOverlay");
-//    const modalContent = document.getElementById("roomModalContent");
-
-//    // Hiển thị khung Modal lên, cho chữ Loading xoay xoay
-//    modalOverlay.style.display = "flex";
-//    modalContent.innerHTML = '<div style="text-align:center; padding: 50px;"><i class="fas fa-spinner fa-spin fa-2x"></i> Đang tải thông tin...</div>';
-
-//    // Gọi AJAX lên Controller
-//    fetch(`/Room/Detail/${SoPhong}`) // Thay /Room/ bằng Controller của bạn nếu khác
-//        .then(response => {
-//            if (!response.ok) throw new Error("Lỗi tải dữ liệu");
-//            return response.text();
-//        })
-//        .then(html => {
-//            // Đổ HTML nhận được vào cái hộp trắng
-//            modalContent.innerHTML = html;
-//        })
-//        .catch(error => {
-//            modalContent.innerHTML = '<div style="color:red; text-align:center; padding:30px;">Có lỗi xảy ra khi lấy thông tin phòng!</div>';
-//        });
-//}
-
-//// Hàm đóng Modal
-//function closeRoomModal() {
-//    document.getElementById("roomModalOverlay").style.display = "none";
-//}
-
-//// Click ra ngoài vùng đen để đóng Modal (UX xịn xò)
-//document.getElementById("roomModalOverlay").addEventListener("click", function (e) {
-//    if (e.target === this) {
-//        closeRoomModal();
-//    }
-//});
-
+﻿
 
 document.addEventListener("DOMContentLoaded", function () {
     // --- 1. XỬ LÝ FORM TÌM KIẾM (CHUYỂN TRANG HOẶC AJAX) ---

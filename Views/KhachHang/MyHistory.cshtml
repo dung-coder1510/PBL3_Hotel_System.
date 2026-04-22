@@ -1,0 +1,196 @@
+﻿@{
+    Layout = "_KHDashboardLayout"; 
+    ViewData["Title"] = "Lịch sử giao dịch";
+    ViewData["ActiveMenu"] = "History";
+}
+<style>
+       /* Container chính của bộ lọc */
+.filter-hub {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-light);
+    border: 1px solid #f0f0f0;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filter-inputs-group {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-item label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #a0a0a0;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filter-item label i {
+    color: var(--primary-color);
+}
+
+/* Style cho các ô chọn và ngày tháng */
+.luxury-input-filter {
+    border: 1px solid #e0e0e0;
+    background-color: #fcfcfc;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+/* Hiệu ứng khi Click vào ô (Focus) */
+.luxury-input-filter:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+}
+
+/* Nút xóa bộ lọc tinh tế */
+.btn-reset-luxury {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+    opacity: 0.8;
+}
+
+.btn-reset-luxury:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    color: #c0392b;
+}
+
+/* 2. HIỆU ỨNG TẢI TRANG (LOADING) */
+#transactionTableContainer {
+    transition: opacity 0.4s ease;
+}
+
+@@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+   </style>
+    <div class="header-text" style="margin-bottom: 2rem;">
+        <h2>Lịch sử đặt phòng</h2>
+        <p style="color: gray;">Tìm kiếm và quản lý toàn bộ giao dịch của bạn.</p>
+    </div>
+
+    <!-- THANH CÔNG CỤ LỌC -->
+    <div class="filter-hub">
+        <div class="filter-inputs-group">
+            <!-- Lọc Trạng thái -->
+            <div class="filter-item">
+                <label><i class="fas fa-info-circle"></i> Trạng thái</label>
+                <select id="filterStatus" class="luxury-input-filter trigger-filter">
+                    <option value="All">Tất cả</option>
+                    <option value="ChoXacNhan">Chờ duyệt</option>
+                    <option value="DaHoanThanh">Thành công</option>
+                    <option value="DaHuy">Đã hủy</option>
+                </select>
+            </div>
+
+            <!-- Lọc Ngày -->
+            <div class="filter-item">
+                <label><i class="fas fa-calendar-day"></i> Ngày nhận phòng</label>
+                <input type="date" id="filterDate" class="luxury-input-filter trigger-filter" />
+            </div>
+
+            <!-- Sắp xếp -->
+            <div class="filter-item">
+                <label><i class="fas fa-sort-amount-down"></i> Sắp xếp</label>
+                <select id="filterSort" class="luxury-input-filter trigger-filter">
+                    <option value="Newest">Mới nhất</option>
+                    <option value="Oldest">Cũ nhất</option>
+                    <option value="PriceDesc">Giá giảm dần</option>
+                    <option value="PriceAsc">Giá tăng dần</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Nút xóa bộ lọc -->
+        <button type="button" class="btn-reset-luxury" onclick="resetFilters()">
+            <i class="fas fa-sync-alt"></i> Làm mới bộ lọc
+        </button>
+    </div>
+
+    <!-- HỘP CHỨA KẾT QUẢ AJAX -->
+    <div id="transactionTableContainer">
+        <!-- Khi mới vào trang, ô này rỗng. JS sẽ tự động gọi AJAX nạp trang 1 vào đây -->
+    </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lắng nghe sự kiện thay đổi trên các ô select/input
+            document.querySelectorAll('.trigger-filter').forEach(input => {
+                input.addEventListener('change', () => fetchFilteredData(1)); // Lọc mới luôn về trang 1
+            });
+
+            // TỰ ĐỘNG NẠP TRANG 1 KHI VỪA MỞ WEB LÊN
+            fetchFilteredData(1);
+        });
+
+        // Hàm AJAX lõi
+        function fetchFilteredData(page) {
+            const status = document.getElementById('filterStatus').value;
+            const date = document.getElementById('filterDate').value;
+            const sort = document.getElementById('filterSort').value;
+            const container = document.getElementById('transactionTableContainer');
+
+            container.style.opacity = '0.5'; // Làm mờ lúc đang tải
+
+            const url = `/KhachHang/FilterTransactions?status=${status}&date=${date}&sort=${sort}&page=${page}`;
+            
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error("Lỗi tải dữ liệu");
+                    return res.text();
+                })
+                .then(html => {
+                    container.innerHTML = html;
+                    container.style.opacity = '1';
+                })
+                .catch(err => {
+                    console.error(err);
+                    container.innerHTML = '<div style="color:red; text-align:center;">Lỗi hệ thống!</div>';
+                    container.style.opacity = '1';
+                });
+        }
+
+        function resetFilters() {
+            document.getElementById('filterStatus').value = 'All';
+            document.getElementById('filterDate').value = '';
+            document.getElementById('filterSort').value = 'Newest';
+            fetchFilteredData(1);
+        }
+    </script>
+}

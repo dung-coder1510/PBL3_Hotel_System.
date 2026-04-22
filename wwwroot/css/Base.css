@@ -32,6 +32,87 @@
     --sidebar-width: 280px;
 }
 
+/* =========================================
+   HỆ THỐNG MÀU TRẠNG THÁI (STATUS COLORS)
+   ========================================= */
+:root {
+    /* Vàng - Chờ duyệt */
+    --status-pending-bg: #fff9db;
+    --status-pending-text: #856404;
+    --status-pending-border: #ffe066;
+    /* Xanh lá - Đã duyệt / Sẵn sàng */
+    --status-success-bg: #e6fcf5;
+    --status-success-text: #087f5b;
+    --status-success-border: #c3e6cb;
+    /* Xanh biển - Đang ở (Occupied) */
+    --status-info-bg: #e7f5ff;
+    --status-info-text: #1971c2;
+    --status-info-border: #a5d8ff;
+    /* Xám - Đã trả phòng / Hoàn thành */
+    --status-gray-bg: #f1f3f5;
+    --status-gray-text: #495057;
+    --status-gray-border: #dee2e6;
+    /* Đỏ - Bảo trì */
+    --status-danger-bg: #fff5f5;
+    --status-danger-text: #e03131;
+    --status-danger-border: #ffa8a8;
+    /* Cam - Đang dọn dẹp */
+    --status-warning-bg: #fff4e6;
+    --status-warning-text: #d9480f;
+    --status-warning-border: #ffd8a8;
+}
+
+/* CLASS DÙNG CHUNG CHO CÁC NHÃN TRẠNG THÁI */
+.badge-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    text-align: center;
+    min-width: 120px;
+    border: 1px solid transparent;
+    letter-spacing: 0.5px;
+    font-family: var(--font-body);
+}
+
+/* Các biến thể màu */
+.status-pending {
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border-color: var(--status-pending-border);
+}
+
+.status-success {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+    border-color: var(--status-success-border);
+}
+
+.status-info {
+    background-color: var(--status-info-bg);
+    color: var(--status-info-text);
+    border-color: var(--status-info-border);
+}
+
+.status-finished {
+    background-color: var(--status-gray-bg);
+    color: var(--status-gray-text);
+    border-color: var(--status-gray-border);
+}
+
+.status-danger {
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+    border-color: var(--status-danger-border);
+}
+
+.status-warning {
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning-text);
+    border-color: var(--status-warning-border);
+}
 .btn {
     display: inline-block;
     padding: 10px 24px;
@@ -67,4 +148,85 @@
 
 section {
     padding: 5rem 0;
+}
+
+/* =========================================
+   LUXURY TOAST NOTIFICATION (base.css)
+   ========================================= */
+
+.alert-luxury-toast {
+    position: fixed;
+    top: 20px; /* Cách đỉnh màn hình */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa ngang */
+    z-index: 10000; /* Luôn nằm trên cùng (đè lên cả Navbar và Modal) */
+
+    min-width: 350px;
+    max-width: 90%;
+    background-color: var(--bg-white);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    /* Đổ bóng sâu để tạo cảm giác nổi khối (Depth) */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    /* Hiệu ứng trượt từ trên xuống */
+    animation: toastSlideDown 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.5s ease;
+}
+
+/* Biến thể: THÀNH CÔNG */
+.alert-toast-success {
+    border-left: 5px solid #28a745; /* Viền xanh lá bên trái */
+    color: #155724;
+}
+
+    .alert-toast-success i {
+        color: #28a745;
+        font-size: 1.2rem;
+    }
+
+/* Biến thể: LỖI / CẢNH BÁO */
+.alert-toast-error {
+    border-left: 5px solid #dc3545; /* Viền đỏ bên trái */
+    color: #721c24;
+}
+
+    .alert-toast-error i {
+        color: #dc3545;
+        font-size: 1.2rem;
+    }
+
+/* Nút X đóng nhanh */
+.alert-luxury-toast span {
+    flex: 1; /* Đẩy nội dung chữ rộng ra */
+    line-height: 1.4;
+}
+
+.alert-luxury-toast .fa-times {
+    cursor: pointer;
+    opacity: 0.4;
+    font-size: 0.9rem;
+    transition: var(--transition-fast);
+}
+
+    .alert-luxury-toast .fa-times:hover {
+        opacity: 1;
+        color: var(--primary-color);
+    }
+
+/* Hiệu ứng Animation */
+@keyframes toastSlideDown {
+    from {
+        top: -100px;
+        opacity: 0;
+    }
+
+    to {
+        top: 20px;
+        opacity: 1;
+    }
 }

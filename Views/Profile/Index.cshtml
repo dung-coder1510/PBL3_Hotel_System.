@@ -1,0 +1,349 @@
+﻿
+@model BaseProfileViewModel
+@{
+    Layout = "_CleanLayout"; // Layout sạch chứa Modal/Toast dùng chung
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --input-hover: #fdfbf0;
+    }
+ .profile-header-wrapper {
+    display: flex;
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, nút sang phải */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+    /* Container cho nút quay lại */
+.back-nav-container {
+    display: flex;
+    align-items: center;
+}
+
+.btn-luxury-back {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    color: var(--secondary-color);
+    padding: 8px 8px 8px 20px;
+    border-radius: 50px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Vòng tròn chứa icon */
+.btn-luxury-back .icon-circle {
+    width: 40px;
+    height: 40px;
+    background: var(--secondary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+    font-size: 0.8rem;
+}
+
+/* Phần chữ bên phải */
+.btn-luxury-back .back-text {
+    display: flex;
+    text-align: right;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.btn-luxury-back .back-text small {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--text-light);
+    letter-spacing: 1px;
+}
+
+.btn-luxury-back .back-text span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* HIỆU ỨNG KHI HOVER */
+.btn-luxury-back:hover {
+    transform: translateX(5px); /* Nút hơi nhích sang trái */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-color: var(--primary-color);
+}
+
+.btn-luxury-back:hover .icon-circle {
+    background: var(--primary-color);
+    transform: rotate(-10deg); /* Icon hơi xoay nhẹ */
+}
+
+.btn-luxury-back:hover .back-text span {
+    color: var(--primary-color);
+}
+    .profile-page { max-width: 1200px; margin: 3rem auto; padding: 0 25px; }
+    
+    /* 1. TIÊU ĐỀ */
+    .header-text h2 { 
+        font-family: var(--font-heading); font-size: 2.5rem; color: var(--secondary-color); 
+        display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;
+    }
+    .role-tag {
+        background: var(--primary-color); color: white; padding: 5px 15px;
+        border-radius: 50px; font-size: 0.75rem; font-family: var(--font-body);
+        letter-spacing: 1px; font-weight: 600;
+    }
+
+    /* 2. BỐ CỤC 2 CỘT */
+    .profile-layout { display: grid; grid-template-columns: 350px 1fr; gap: 30px; }
+
+    /* CARD BÊN TRÁI: IDENTITY CARD */
+    .card-identity {
+        background: white; border-radius: 20px; overflow: hidden;
+        box-shadow: var(--shadow-light); border: 1px solid #eee;
+    }
+    .profile-cover { 
+        height: 140px; background: #1a252f url('https://www.transparenttextures.com/patterns/cubes.png'); 
+        display: flex; justify-content: flex-end; padding: 15px;
+    }
+    .profile-avatar-box { text-align: center; margin-top: -70px; }
+    .avatar-circle {
+        width: 130px; height: 130px; border-radius: 50%; border: 6px solid #fff;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #fff; object-fit: cover;
+    }
+    .user-meta { padding: 20px; text-align: center; }
+    .user-meta h3 { font-family: var(--font-heading); font-size: 1.6rem; color: var(--secondary-color); }
+    .user-meta p { color: var(--text-light); font-size: 0.9rem; margin-bottom: 20px; }
+
+    /* Stats dạng Widget */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px 25px; }
+    .stat-widget {
+        background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center;
+        border: 1px solid #f1f1f1; transition: 0.3s;
+    }
+    .stat-widget:hover { border-color: var(--primary-color); background: #fff; }
+    .stat-widget span { display: block; font-weight: 700; color: var(--secondary-color); font-size: 1.1rem; }
+    .stat-widget small { color: var(--primary-color); text-transform: uppercase; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.5px; }
+
+    /* CARD BÊN PHẢI: INFORMATION */
+    .card-info {
+        background: white; border-radius: 20px; padding: 40px;
+        box-shadow: var(--shadow-light); border: 1px solid #eee;
+    }
+    .section-header {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 30px;
+        border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;
+    }
+    .section-header i { color: var(--primary-color); font-size: 1.4rem; }
+    .section-header h4 { font-family: var(--font-heading); font-size: 1.4rem; margin: 0; }
+
+    /* INPUT STYLING NÂNG CẤP */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .input-wrapper { position: relative; padding: 10px; border-radius: 10px; transition: 0.3s; }
+    .input-wrapper:not(.readonly):hover { background: var(--input-hover); }
+    
+    .input-wrapper label {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.75rem; font-weight: 700; color: #a0a0a0;
+        text-transform: uppercase; margin-bottom: 8px;
+    }
+    .edit-icon { font-size: 0.7rem; color: var(--primary-color); opacity: 0.5; }
+
+    .luxury-input {
+        width: 100%; border: none; background: transparent;
+        font-family: var(--font-body); font-size: 1.15rem; color: var(--secondary-color);
+        font-weight: 500; padding: 5px 0; border-bottom: 2px solid transparent;
+        transition: 0.3s;
+    }
+    .luxury-input.name-large { font-family: var(--font-heading); font-size: 2rem; font-weight: 700; }
+    .luxury-input:focus { outline: none; border-bottom-color: var(--primary-color); color: #000; }
+    .luxury-input.readonly { color: #ccc; cursor: not-allowed; }
+
+    /* ACTION BAR (Apple Style) */
+    .action-bar {
+        position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+        background: rgba(26, 37, 47, 0.95); backdrop-filter: blur(10px);
+        padding: 12px 30px; border-radius: 100px; display: flex; align-items: center; gap: 25px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 1000; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    .action-bar.show { bottom: 30px; }
+    .action-bar span { color: #fff; font-size: 0.9rem; font-weight: 500; }
+    .btn-save { 
+        background: var(--primary-color); color: #fff; border: none; padding: 10px 25px; 
+        border-radius: 50px; font-weight: 600; cursor: pointer; transition: 0.3s;
+    }
+    .btn-save:hover { background: #fff; color: var(--primary-color); transform: scale(1.05); }
+
+    @@media (max-width: 992px) { .profile-layout { grid-template-columns: 1fr; } }
+</style>
+   
+<div class="profile-page">
+     <div class="profile-header-wrapper">
+        <div class="header-text">
+                <h2>Thiết lập tài khoản <span class="role-tag">@Model.Role</span></h2>
+        </div>
+        @{
+            string backController = Model.Role == "QuanTriVien" ? "Admin" : 
+                                   (Model.Role == "NhanVien" ? "NhanVien" : "KhachHang");
+        }
+        <div class="back-nav-container">
+            <a asp-controller="@backController" asp-action="Index" class="btn-luxury-back">
+                <div class="back-text">
+                    <small>Trở về</small>
+                    <span>Trang chủ</span>
+                </div>
+                <div class="icon-circle">
+                    <i class="fas fa-chevron-right"></i> <!-- Đổi icon sang phải vì nút nằm bên phải -->
+                </div>
+            </a>
+        </div>
+     </div>
+    
+
+    <div class="profile-layout">
+        <!-- CỘT TRÁI -->
+        <aside class="card-identity">
+            <div class="profile-cover">
+                <i class="fas fa-crown" style="color: rgba(212,175,55,0.4); font-size: 2rem;"></i>
+            </div>
+            <div class="profile-avatar-box">
+                <img src="https://ui-avatars.com/api/?name=@Model.HoTen&background=d4af37&color=fff&size=150" class="avatar-circle">
+            </div>
+            <div class="user-meta">
+                <h3>@Model.HoTen</h3>
+                <p>@Model.Email</p>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-widget">
+                    <small>Thứ hạng</small>
+                    <span>@((Model as KhachHangProfileViewModel)?.MemberRank ?? "VIP")</span>
+                </div>
+                <div class="stat-widget">
+                    <small>Điểm tích lũy</small>
+                    <span>@((Model as KhachHangProfileViewModel)?.DiemTichLuy.ToString("N0") ?? "0")</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CỘT PHẢI -->
+        <main class="card-right">
+            <div class="section-header">
+                <i class="fas fa-fingerprint"></i>
+                <h4>Thông tin định danh</h4>
+            </div>
+
+            <form id="profileForm" asp-controller="Profile" asp-action="Update" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="redirectUrl" name="redirectUrl" value="" />
+
+                <div class="form-grid">
+                    <div class="input-wrapper full-width">
+                        <label>Họ và tên đầy đủ <i class="fas fa-pen edit-icon"></i></label>
+                        <input asp-for="HoTen" class="luxury-input name-large watch-change" placeholder="Chưa cập nhật" autocomplete="off" />
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>Số điện thoại <i class="fas fa-pen edit-icon"></i></label>
+                        <input asp-for="SoDienThoai" class="luxury-input watch-change" placeholder="Chưa cập nhật" autocomplete="off" />
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>CCCD / Hộ chiếu <i class="fas fa-pen edit-icon"></i></label>
+                        <input asp-for="CCCD" class="luxury-input watch-change" placeholder="Chưa cập nhật" autocomplete="off" />
+                    </div>
+
+                    <div class="input-wrapper full-width">
+                        <label>Địa chỉ thường trú <i class="fas fa-pen edit-icon"></i></label>
+                        <textarea asp-for="DiaChi" class="luxury-input watch-change" rows="1" placeholder="Chưa cập nhật địa chỉ..."></textarea>
+                    </div>
+
+                    <div class="input-wrapper ">
+                        <label><i class="fas fa-lock" style="font-size: 0.6rem;"></i> Tên đăng nhập</label>
+                        <input asp-for="Username" class="luxury-input readonly" readonly />
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label><i class="fas fa-lock" style="font-size: 0.6rem;"></i> Email liên kết</label>
+                        <input asp-for="Email" class="luxury-input readonly" readonly />
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+
+<!-- ACTION BAR NỔI -->
+<div id="actionBar" class="action-bar">
+    <span><i class="fas fa-magic" style="color: var(--primary-color); margin-right: 10px;"></i> Hệ thống đã ghi nhận thay đổi mới</span>
+    <div style="display: flex; gap: 10px;">
+        <button type="button" style="background: transparent; color: #aaa; border:none; cursor:pointer;" onclick="resetForm()">Hủy</button>
+        <button type="button" class="btn-save" onclick="submitForm()">Lưu ngay</button>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const form = document.getElementById("profileForm");
+        const actionBar = document.getElementById("actionBar");
+        const unsavedModal = document.getElementById("unsavedModal");
+        const redirectInput = document.getElementById("redirectUrl");
+        
+        let isDirty = false; 
+        let targetUrl = "";  
+        let originalData = {}; 
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Ghi nhớ dữ liệu gốc
+            document.querySelectorAll('.watch-change').forEach(input => {
+                originalData[input.name] = input.value;
+                input.addEventListener('input', checkIfDirty);
+            });
+
+            // 2. Kiểm soát mọi link <a> trên trang
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (!href || href === "#" || href.startsWith("javascript") || this.target === "_blank") return;
+
+                    if (isDirty) {
+                        e.preventDefault(); 
+                        targetUrl = this.href; 
+                        unsavedModal.style.display = "flex"; 
+                    }
+                });
+            });
+        });
+
+        function checkIfDirty() {
+            isDirty = false;
+            document.querySelectorAll('.watch-change').forEach(input => {
+                if (input.value !== originalData[input.name]) isDirty = true;
+            });
+            if (isDirty) actionBar.classList.add('show');
+            else actionBar.classList.remove('show');
+        }
+
+        function resetForm() {
+            document.querySelectorAll('.watch-change').forEach(input => {
+                input.value = originalData[input.name];
+            });
+            checkIfDirty();
+        }
+
+        function submitForm() { form.submit(); }
+        function closeModal() { unsavedModal.style.display = "none"; }
+        function leaveWithoutSaving() { window.location.href = targetUrl; }
+        function saveAndLeave() {
+            redirectInput.value = targetUrl; 
+            form.submit(); 
+        }
+    </script>
+}

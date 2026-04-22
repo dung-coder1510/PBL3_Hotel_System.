@@ -25,7 +25,7 @@ namespace PBL3_Hotel_System.Models
 
         [ForeignKey("MaKhachHang")]
         public virtual KhachHang kh { get; set; }
-        public int UserID {  get; set; }
+        public int MaKhachHang {  get; set; }
         [Required]
         public int SoPhong { get; set; } // Khóa ngoại liên kết tới Room.SoPhong
 

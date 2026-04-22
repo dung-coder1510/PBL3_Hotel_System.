@@ -28,7 +28,7 @@ namespace PBL3_Hotel_System.Controllers
             return Content("Dữ liệu đã tồn tại trong Database, không cần seed thêm.");
         }
 
-        private IActionResult RedirectByUserRole(string? role)
+        private IActionResult   RedirectByUserRole(string? role)
         {
             if (string.IsNullOrEmpty(role))
             {
@@ -133,6 +133,8 @@ namespace PBL3_Hotel_System.Controllers
                 {
                     Hoten = model.Username, // model ở đây là RegisterViewModel
                     sđt = "Chưa cập nhật",
+                    CCCD = "Chưa cập nhật",
+                    DiaChi = "Chưa cập nhật",
                 };
 
                 var newAccount = new Account

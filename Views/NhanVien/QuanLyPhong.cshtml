@@ -1,0 +1,243 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.Room>
+@{
+    Layout = "_NVDashboardLayout";
+    ViewData["Title"] = "Quản Lý Trạng Thái Phòng";
+    ViewData["ActiveMenu"] = "QuanLyPhong";
+}
+
+@section Styles {
+    <style>
+        /* Nâng cấp ô tìm kiếm */
+        .search-wrapper {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-input-group {
+            display: flex;
+            background: #f4f6f8;
+            border-radius: 30px;
+            padding: 5px 15px;
+            border: 1px solid #eee;
+            width: 350px;
+            transition: 0.3s;
+        }
+
+            .search-input-group:focus-within {
+                border-color: var(--primary-color);
+                background: #fff;
+                box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+            }
+
+            .search-input-group input {
+                border: none;
+                background: transparent;
+                padding: 8px;
+                outline: none;
+                width: 100%;
+                font-size: 0.9rem;
+            }
+
+        .btn-search-icon {
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        /* Tùy chỉnh Form cập nhật nhanh trong bảng */
+        /* 1. STATUS BADGES - ĐIỂM NHẤN MÀU SẮC */
+        .table-wrapper {
+        width: 100%;
+        overflow-x: auto; /* Cho phép cuộn ngang nếu màn hình quá nhỏ */
+        background: #fff;
+        border-radius: 12px;
+    }
+
+    .table-luxury {
+        width: 100% !important; /* Bắt buộc bảng rộng hết cỡ */
+        border-collapse: collapse;
+        margin-top: 10px;
+        table-layout: auto; /* Để các cột tự co giãn theo nội dung */
+    }
+
+    .table-luxury th {
+        background-color: #f8f9fa;
+        color: #888;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 20px 15px; /* Tăng padding để giãn khoảng cách */
+        text-align: left;
+        border-bottom: 2px solid #eee;
+    }
+
+    .table-luxury td {
+        padding: 20px 15px; /* Giãn cách các dòng */
+        border-bottom: 1px solid #f1f1f1;
+        vertical-align: middle;
+    }
+
+    /* Định độ rộng tương đối cho các cột để không bị dính */
+    .table-luxury th:nth-child(1) { width: 15%; } /* Số phòng */
+    .table-luxury th:nth-child(2) { width: 20%; } /* Hạng phòng */
+    .table-luxury th:nth-child(3) { width: 25%; } /* Trạng thái */
+    .table-luxury th:nth-child(4) { width: 40%; } /* Cập nhật nhanh */
+    .badge-status {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        letter-spacing: 0.5px;
+        min-width: 110px;
+        text-align: center;
+    }
+
+    /* Xanh lá - Sẵn sàng đón khách */
+    .status-available { background-color: #e6fcf5; color: #087f5b; border: 1px solid #c3e6cb; }
+    /* Xanh dương - Đang có khách ở */
+    .status-occupied { background-color: #e7f5ff; color: #1971c2; border: 1px solid #a5d8ff; }
+    /* Vàng/Cam - Đang dọn dẹp */
+    .status-cleaning { background-color: #fff9db; color: #f08c00; border: 1px solid #ffe066; }
+    /* Đỏ - Đang sửa chữa */
+    .status-maintenance { background-color: #fff5f5; color: #e03131; border: 1px solid #ffa8a8; }
+
+    /* 2. CẢI TIẾN Ô CHỌN (SELECT) */
+    .select-luxury-sm {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+        background-color: #fcfcfc;
+        font-family: var(--font-body);
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        outline: none;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    .select-luxury-sm:focus { border-color: var(--primary-color); background: #fff; }
+
+    /* 3. NÚT LƯU THU NHỎ */
+    .btn-save-luxury {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .btn-save-luxury:hover { background-color: var(--primary-color); transform: translateY(-2px); }
+
+    /* 4. ĐỊNH DẠNG SỐ PHÒNG */
+    .room-id-text {
+        font-family: var(--font-heading);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+    }
+    </style>
+}
+
+<!-- TIÊU ĐỀ TRANG -->
+<div class="header-text" style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Quản Lý Phòng</h2>
+    <p style="color: var(--text-light)">Theo dõi và cập nhật trạng thái phòng vận hành theo thời gian thực.</p>
+</div>
+
+<!-- THANH TÌM KIẾM -->
+<div class="search-wrapper">
+    <form asp-action="QuanLyPhong" method="get" class="search-input-group">
+        <input type="text" name="searchString" value="@ViewBag.CurrentSearch" placeholder="Nhập số phòng cần tìm..." autocomplete="off">
+        <button type="submit" class="btn-search-icon">
+            <i class="fas fa-search"></i>
+        </button>
+        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
+        {
+            <a asp-action="QuanLyPhong" style="color: #ccc; margin-left: 10px; display: flex; align-items: center;">
+                <i class="fas fa-times-circle"></i>
+            </a>
+        }
+    </form>
+    
+    <div style="color: var(--text-light); font-size: 0.9rem; font-weight: 500;">
+        <i class="fas fa-info-circle" style="color: var(--primary-color);"></i>
+        Hiển thị danh sách <strong>@Model.Count()</strong> phòng
+    </div>
+</div>
+
+    <!-- BẢNG DỮ LIỆU DÙNG CHUNG CLASS table-luxury -->
+<div class="content-card">
+    <div class="table-wrapper">
+        <table class="table-luxury">
+            <thead>
+                <tr>
+                    <th>Số Phòng</th>
+                    <th>Hạng Phòng</th>
+                    <th style="text-align: center;">Trạng thái hiện tại</th>
+                    <th style="text-align: center;">Cập nhật nhanh</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <!-- 1. Số phòng to, đậm -->
+                        <td><span class="room-id-text">#@p.SoPhong</span></td>
+                        
+                        <!-- 2. Hạng phòng -->
+                        <td style="color: var(--text-light); font-weight: 500;">@p.LoaiPhong</td>
+                        
+                        <!-- 3. Trạng thái có màu sắc -->
+                        <td style="text-align: center;">
+                            @{
+                                string sClass = "";
+                                string sText = "";
+                                switch (p.TrangThai)
+                                {
+                                    case RoomStatus.Available: sClass = "status-available"; sText = "Sẵn sàng"; break;
+                                    case RoomStatus.Occupied: sClass = "status-occupied"; sText = "Đang ở"; break;
+                                    case RoomStatus.Cleaning: sClass = "status-cleaning"; sText = "Dọn dẹp"; break;
+                                    case RoomStatus.Maintenance: sClass = "status-maintenance"; sText = "Bảo trì"; break;
+                                }
+                            }
+                            <span class="badge-status @sClass">@sText</span>
+                        </td>
+
+                        <!-- 4. Form cập nhật -->
+                        <td>
+                            <form asp-action="CapNhatTrangThaiPhong" method="post" style="display:flex; justify-content:center; gap:10px; align-items:center;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="soPhong" value="@p.SoPhong" />
+                                
+                                <select name="trangThaiMoi" class="select-luxury-sm">
+                                    <option value="" disabled selected>-- Chọn --</option>
+                                    <option value="Trống">Sẵn sàng</option>
+                                    <option value="Đang dọn dẹp">Đang dọn dẹp</option>
+                                    <option value="Bảo trì">Bảo trì</option>
+                                </select>
+                                
+                                <button type="submit" class="btn-save-luxury">
+                                    <i class="fas fa-save"></i> LƯU
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
