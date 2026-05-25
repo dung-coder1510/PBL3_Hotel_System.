@@ -1,0 +1,304 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.Room>
+@{
+    Layout = "_AdminDashboardLayout";
+    ViewData["Title"] = "Quản Lý Hệ Thống";
+    ViewData["ActiveMenu"] = "System"; // Kích hoạt sáng menu bên Sidebar
+}
+
+@section Styles {
+    <style>
+        /* 1. LƯỚI CARD TÁC VỤ (Giống Admin Index) */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .config-card {
+            background: #fff;
+            padding: 35px 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            border-bottom: 4px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .config-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-dark);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .icon-wrapper {
+            width: 75px;
+            height: 75px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .config-card:hover .icon-wrapper {
+            background: var(--primary-color);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .config-card h4 { font-family: var(--font-heading); color: var(--secondary-color); font-size: 1.4rem; margin-bottom: 10px; }
+        .config-card p { color: var(--text-light); font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; flex-grow: 1; }
+
+        .btn-outline-gold {
+            background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);
+            padding: 10px 30px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; cursor: pointer; width: 100%;
+        }
+        .btn-outline-gold:hover, .btn-outline-gold.active { background: var(--primary-color); color: white; }
+
+        /* 2. KHU VỰC CẤU HÌNH (ẨN / HIỆN) */
+        .config-section { display: none; animation: fadeIn 0.5s ease; }
+        .config-section.active { display: block; }
+
+        .section-header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-header-box h4 { font-family: var(--font-heading); font-size: 1.5rem; color: var(--secondary-color); }
+        .btn-gold { background: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-gold:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+        /* 3. BẢNG DỮ LIỆU (LUXURY TABLE) */
+        .table-wrapper { background: #fff; border-radius: 15px; box-shadow: var(--shadow-light); overflow: hidden; width: 100%; }
+        .table-luxury { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-luxury th { background: #f8f9fa; color: #888; font-size: 0.8rem; text-transform: uppercase; padding: 18px 20px; border-bottom: 2px solid #eee; }
+        .table-luxury td { padding: 18px 20px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: var(--text-main); }
+        .table-luxury tbody tr:hover { background: #fdfcf8; }
+        
+        .room-number { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--secondary-color); }
+        .room-price { font-weight: 700; color: #dc3545; font-size: 1.1rem; }
+
+        .btn-icon { background: #f4f6f8; color: var(--secondary-color); border: none; width: 35px; height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;}
+        .btn-icon:hover { background: var(--secondary-color); color: white; }
+        .btn-icon.danger:hover { background: #dc3545; color: white; }
+
+        /* 4. MODAL THÊM PHÒNG (LUXURY) */
+        #modalThemPhongOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 40px; border-radius: 12px; width: 500px; max-width: 90%; box-shadow: 0 15px 50px rgba(0,0,0,0.2); position: relative; animation: slideDown 0.3s ease; }
+        
+        .modal-box h3 { font-family: var(--font-heading); color: var(--secondary-color); margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; margin-bottom: 8px; }
+        .luxury-input { width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; font-family: var(--font-body); font-size: 1rem; color: var(--text-main); outline: none; transition: 0.3s; background: #fcfcfc; }
+        .luxury-input:focus { border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
+        
+        .modal-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        .btn-cancel { background: transparent; border: 1px solid #ccc; color: #666; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        @@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+}
+
+<!-- TIÊU ĐỀ TRANG -->
+<div class="header-text" style="margin-bottom: 2.5rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Cấu Hình Hệ Thống</h2>
+    <p style="color: var(--text-light)">Quản lý danh mục phòng, dịch vụ và các chính sách vận hành.</p>
+</div>
+
+<!-- LƯỚI CARD TÁC VỤ -->
+<div class="config-grid">
+    <div class="config-card">
+        <div class="icon-wrapper"><i class="fas fa-hotel"></i></div>
+        <h4>Danh Mục Phòng</h4>
+        <p>Thêm phòng mới, chỉnh sửa đơn giá, sức chứa và phân loại các hạng phòng hiện có.</p>
+        <button class="btn-outline-gold active" onclick="showSection('roomSection', this)">Cấu hình Phòng</button>
+    </div>
+
+    <div class="config-card">
+        <div class="icon-wrapper"><i class="fas fa-concierge-bell"></i></div>
+        <h4>Dịch Vụ Đi Kèm</h4>
+        <p>Cấu hình giá Buffet, Spa, dịch vụ đưa đón sân bay và các tiện ích khách sạn khác.</p>
+        <button class="btn-outline-gold" onclick="showSection('serviceSection', this)">Cấu hình Dịch vụ</button>
+    </div>
+
+    <div class="config-card">
+        <div class="icon-wrapper"><i class="fas fa-file-invoice-dollar"></i></div>
+        <h4>Chính Sách & Thuế</h4>
+        <p>Điều chỉnh mức thuế VAT áp dụng, phí phụ thu cuối tuần hoặc phí hủy phòng trễ hạn.</p>
+        <button class="btn-outline-gold" onclick="showSection('policySection', this)">Cấu hình Chính sách</button>
+    </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- KHU VỰC 1: QUẢN LÝ PHÒNG (Mặc định hiển thị) -->
+<!-- ========================================== -->
+<div id="roomSection" class="config-section active">
+    
+    <div class="section-header-box">
+        <h4><i class="fas fa-list text-gold"></i> Danh sách phòng hiện tại</h4>
+        <button type="button" style="padding: 15px; background-color:var(--primary-color); border: none; border-radius: 10px; color:var(--text-white); font-weight: 600" onclick="openRoomModal()">
+            <i class="fas fa-plus"></i> Thêm Phòng Mới
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="table-luxury">
+            <thead>
+                <tr>
+                    <th>Số Phòng</th>
+                    <th>Loại Phòng</th>
+                    <th style="text-align: center;">Sức Chứa</th>
+                    <th>Giá Phòng (VNĐ)</th>
+                    <th style="text-align: center;">Trạng Thái</th>
+                    <th style="text-align: right;">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span class="room-number">#@item.SoPhong</span></td>
+                            <td>@item.LoaiPhong</td>
+                            <td style="text-align: center; color: var(--text-light);"><i class="fas fa-user"></i> @item.Size</td>
+                            <td class="room-price">@item.GiaPhong.ToString("N0") ₫</td>
+                            <td style="text-align: center;">
+                                @{
+                                    string sClass = item.TrangThai == RoomStatus.Available ? "status-success" :
+                                                    item.TrangThai == RoomStatus.Occupied ? "status-info" :
+                                                    item.TrangThai == RoomStatus.Maintenance ? "status-danger" : "status-warning";
+                                }
+                                <span class="badge-status @sClass">@item.TrangThai</span>
+                            </td>
+                            <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                                <button type="button" class="btn-action" style="background: #e9ecef; color: #444; border: none; padding: 5px;" 
+                                        onclick="openRoomModal(@item.SoPhong)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form asp-action="XoaPhong" asp-route-id="@item.SoPhong" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                   <button type="button" class="btn-action" style="background: #ffebee; color: #dc3545; border: none; padding: 5px;" 
+                                            onclick="showLuxuryConfirm(this, 'Xóa phòng @item.SoPhong?', 'Dữ liệu không thể khôi phục. Tiếp tục?', 'danger')">
+                                        <i class="fas fa-trash-alt"></i>
+                                   </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" style="text-align: center; padding: 3rem; color: gray;">Hệ thống chưa có dữ liệu phòng.</td></tr>
+                }
+            
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- KHU VỰC 2 & 3: TÍNH NĂNG ĐANG PHÁT TRIỂN -->
+<!-- ========================================== -->
+<div id="serviceSection" class="config-section">
+    <div class="table-wrapper" style="text-align: center; padding: 5rem 2rem;">
+        <i class="fas fa-concierge-bell" style="font-size: 4rem; color: #e0e0e0; margin-bottom: 20px;"></i>
+        <h4 style="color: var(--secondary-color);">Quản lý dịch vụ đi kèm</h4>
+        <p style="color: gray;">Tính năng đang trong quá trình phát triển.</p>
+    </div>
+</div>
+
+<div id="policySection" class="config-section">
+    <div class="table-wrapper" style="text-align: center; padding: 5rem 2rem;">
+        <i class="fas fa-file-invoice-dollar" style="font-size: 4rem; color: #e0e0e0; margin-bottom: 20px;"></i>
+        <h4 style="color: var(--secondary-color);">Cấu hình Chính sách & Thuế</h4>
+        <p style="color: gray;">Tính năng đang trong quá trình phát triển.</p>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL THÊM PHÒNG (THUẦN JAVASCRIPT) -->
+<!-- ========================================== -->
+<div id="modalThemPhongOverlay">
+    <div class="modal-box">
+        <h3><i class="fas fa-plus-circle text-gold"></i> Thêm Phòng Mới</h3>
+        
+        <form asp-action="ThemPhong" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Loại Phòng</label>
+                    <select name="LoaiPhong" class="luxury-input">
+                        <option value="Standard">Tiêu Chuẩn (Standard)</option>
+                        <option value="Deluxe">Sang Trọng (Deluxe)</option>
+                        <option value="Suite">Tổng Thống (Suite)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sức Chứa</label>
+                    <input name="Size" type="number" class="luxury-input" value="2" min="1" max="10" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Giá Đề Xuất (VNĐ)</label>
+                <input name="GiaPhong" type="number" class="luxury-input" placeholder="Ví dụ: 1500000" />
+                <small style="color: gray; font-size: 0.75rem;">Nếu để trống, hệ thống sẽ tự động tính giá theo loại phòng.</small>
+            </div>
+
+            <div class="form-group">
+                <label>Trạng Thái Khởi Tạo</label>
+                <select name="TrangThai" class="luxury-input">
+                    <option value="Trống">Trống (Sẵn sàng đón khách)</option>
+                    <option value="Bảo trì">Bảo trì (Chưa sử dụng được)</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('modalThemPhongOverlay')">HỦY BỎ</button>
+                <button type="submit" class="btn-gold">LƯU PHÒNG MỚI</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Hàm mở Form Thêm/Sửa phòng
+        function openRoomModal(roomId = null) {
+            const overlay = document.getElementById("adminModalOverlay");
+            const content = document.getElementById("adminModalContent");
+
+            if (!overlay || !content) return;
+
+            overlay.style.display = "flex";
+            content.innerHTML = '<div style="text-align:center; padding: 50px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i></div>';
+
+            // Nếu có ID thì gọi Sửa, không có thì gọi Thêm
+            const url = roomId ? `/Admin/GetRoomFormPartial?id=${roomId}` : `/Admin/GetRoomFormPartial`;
+            
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    content.innerHTML = html;
+                    
+                    // CHÌA KHÓA LÀ ĐÂY: Đợi giao diện vẽ xong (100ms) rồi ép nó tính giá 1 lần
+                    setTimeout(() => {
+                        if (typeof calculateRoomPrice === "function") {
+                            calculateRoomPrice();
+                        }
+                    }, 100);
+                })
+                .catch(err => content.innerHTML = '<div style="color:red; text-align:center;">Lỗi tải dữ liệu!</div>');
+        }
+    </script>
+}

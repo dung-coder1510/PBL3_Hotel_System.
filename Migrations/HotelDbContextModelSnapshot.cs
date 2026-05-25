@@ -35,6 +35,9 @@ namespace PBL3_Hotel_System_.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar");
 
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -52,6 +55,49 @@ namespace PBL3_Hotel_System_.Migrations
                     b.HasKey("AccountID");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("PBL3_Hotel_System.Models.BangLuong", b =>
+                {
+                    b.Property<int>("MaLuong")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaLuong"));
+
+                    b.Property<bool>("DaThanhToan")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("DenNgay")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LoaiKyLuong")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaNV")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayChotLuong")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("NgayThanhToan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TongSoCa")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TongTien")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("TuNgay")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("MaLuong");
+
+                    b.HasIndex("MaNV");
+
+                    b.ToTable("BangLuongs");
                 });
 
             modelBuilder.Entity("PBL3_Hotel_System.Models.Booking", b =>
@@ -75,10 +121,19 @@ namespace PBL3_Hotel_System_.Migrations
                     b.Property<decimal>("GiaLucDat")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime?>("GioHenNhanPhong")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("MaKhachHang")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("NgayDat")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RealCheckIn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RealCheckOut")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("SoPhong")
@@ -164,7 +219,8 @@ namespace PBL3_Hotel_System_.Migrations
 
                     b.HasIndex("MaCa");
 
-                    b.HasIndex("MaNV");
+                    b.HasIndex("MaNV", "MaCa", "NgayLam")
+                        .IsUnique();
 
                     b.ToTable("DangKyCaLams");
                 });
@@ -172,33 +228,28 @@ namespace PBL3_Hotel_System_.Migrations
             modelBuilder.Entity("PBL3_Hotel_System.Models.Room", b =>
                 {
                     b.Property<int>("SoPhong")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SoPhong"));
 
                     b.Property<decimal>("GiaPhong")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("LoaiPhong")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
                     b.Property<string>("TrangThai")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SoPhong");
 
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.BaseUser", b =>
+            modelBuilder.Entity("PBL3_Hotel_System.Models.UserModels.BaseUser", b =>
                 {
                     b.Property<int>("UserID")
                         .ValueGeneratedOnAdd()
@@ -217,14 +268,14 @@ namespace PBL3_Hotel_System_.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
                     b.Property<string>("Hoten")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserType")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("sđt")
                         .IsRequired()
@@ -237,14 +288,21 @@ namespace PBL3_Hotel_System_.Migrations
 
                     b.ToTable("UserProfiles", (string)null);
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseUser");
+                    b.HasDiscriminator<string>("UserType").HasValue("BaseUser");
 
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.KhachHang", b =>
+            modelBuilder.Entity("PBL3_Hotel_System.Models.UserModels.Admin", b =>
                 {
-                    b.HasBaseType("PBL3_Hotel_System_.Models.UserModels.BaseUser");
+                    b.HasBaseType("PBL3_Hotel_System.Models.UserModels.BaseUser");
+
+                    b.HasDiscriminator().HasValue("QuanTriVien");
+                });
+
+            modelBuilder.Entity("PBL3_Hotel_System.Models.UserModels.KhachHang", b =>
+                {
+                    b.HasBaseType("PBL3_Hotel_System.Models.UserModels.BaseUser");
 
                     b.Property<int>("DiemTichLuy")
                         .HasColumnType("int");
@@ -256,16 +314,30 @@ namespace PBL3_Hotel_System_.Migrations
                     b.HasDiscriminator().HasValue("KhachHang");
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.NhanVien", b =>
+            modelBuilder.Entity("PBL3_Hotel_System.Models.UserModels.NhanVien", b =>
                 {
-                    b.HasBaseType("PBL3_Hotel_System_.Models.UserModels.BaseUser");
+                    b.HasBaseType("PBL3_Hotel_System.Models.UserModels.BaseUser");
+
+                    b.Property<decimal?>("Luong")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasDiscriminator().HasValue("NhanVien");
                 });
 
+            modelBuilder.Entity("PBL3_Hotel_System.Models.BangLuong", b =>
+                {
+                    b.HasOne("PBL3_Hotel_System.Models.UserModels.NhanVien", "NhanVien")
+                        .WithMany()
+                        .HasForeignKey("MaNV")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NhanVien");
+                });
+
             modelBuilder.Entity("PBL3_Hotel_System.Models.Booking", b =>
                 {
-                    b.HasOne("PBL3_Hotel_System_.Models.UserModels.KhachHang", "kh")
+                    b.HasOne("PBL3_Hotel_System.Models.UserModels.KhachHang", "kh")
                         .WithMany()
                         .HasForeignKey("MaKhachHang")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -290,7 +362,7 @@ namespace PBL3_Hotel_System_.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PBL3_Hotel_System_.Models.UserModels.NhanVien", "NhanVien")
+                    b.HasOne("PBL3_Hotel_System.Models.UserModels.NhanVien", "NhanVien")
                         .WithMany()
                         .HasForeignKey("MaNV")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -301,11 +373,11 @@ namespace PBL3_Hotel_System_.Migrations
                     b.Navigation("NhanVien");
                 });
 
-            modelBuilder.Entity("PBL3_Hotel_System_.Models.UserModels.BaseUser", b =>
+            modelBuilder.Entity("PBL3_Hotel_System.Models.UserModels.BaseUser", b =>
                 {
                     b.HasOne("PBL3_Hotel_System.Models.Account", "Account")
                         .WithOne("UserProfile")
-                        .HasForeignKey("PBL3_Hotel_System_.Models.UserModels.BaseUser", "AccountID")
+                        .HasForeignKey("PBL3_Hotel_System.Models.UserModels.BaseUser", "AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

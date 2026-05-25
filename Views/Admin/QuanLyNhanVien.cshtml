@@ -1,0 +1,175 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.UserModels.NhanVien>
+@{
+    Layout = "_AdminDashboardLayout";
+    ViewData["Title"] = "Quản Lý Nhân Viên";
+    ViewData["ActiveMenu"] = "Staff";
+}
+
+@section Styles {
+    <style>
+        /* THANH TÌM KIẾM ĐỈNH CAO */
+        .toolbar-wrapper {
+            background: #fff;
+            padding: 25px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .search-group { display: flex; flex-direction: column; gap: 8px; width: 450px; }
+        .search-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .search-input-wrapper { display: flex; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; transition: 0.3s; }
+        .search-input-wrapper:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+        
+        .search-input-wrapper input { flex: 1; border: none; padding: 12px 20px; font-family: var(--font-body); font-size: 0.95rem; outline: none; background: #fdfdfd; }
+        
+        .btn-search { background: var(--secondary-color); color: white; border: none; padding: 0 25px; font-weight: 600; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-search:hover { background: #2c3e50; }
+        
+        .btn-reset { background: #f8f9fa; color: #888; border: none; border-left: 1px solid #eee; padding: 0 15px; cursor: pointer; transition: 0.3s; }
+        .btn-reset:hover { background: #e74c3c; color: white; }
+
+        /* NÚT THÊM MỚI */
+        .btn-add-new { background: var(--primary-color); color: white; text-decoration: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; box-shadow: 0 5px 15px rgba(212,175,55,0.3); }
+        .btn-add-new:hover { background: var(--primary-hover); transform: translateY(-3px); color: white; }
+
+        /* TÙY CHỈNH BẢNG LUXURY DÀNH RIÊNG CHO NHÂN VIÊN */
+        .table-wrapper { background: #fff; border-radius: 12px; box-shadow: var(--shadow-light); overflow: hidden; }
+        .table-luxury { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-luxury th { background: #f8f9fa; color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 18px 25px; border-bottom: 2px solid #eee; }
+        .table-luxury td { padding: 18px 25px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: var(--text-main); }
+        .table-luxury tbody tr:hover { background: #fdfcf8; }
+
+        .staff-id { font-family: var(--font-heading); color: var(--text-light); font-weight: 700; font-size: 1.1rem; }
+        .staff-name { font-weight: 600; font-size: 1.05rem; color: var(--secondary-color); display: flex; align-items: center; gap: 12px; }
+        
+        .avatar-mini { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #eee; }
+
+        /* CHỨC VỤ BADGE */
+        .role-badge { padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: inline-block; }
+        .role-admin { background: #e7f5ff; color: #1971c2; border: 1px solid #a5d8ff; }
+        .role-staff { background: #f8f9fa; color: #495057; border: 1px solid #dee2e6; }
+
+        /* NÚT THAO TÁC */
+        .action-group { display: flex; gap: 10px; justify-content: center; }
+        .btn-edit { background: rgba(212,175,55,0.1); color: var(--primary-color); border: 1px solid transparent; padding: 8px 20px; border-radius: 30px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-edit:hover { background: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(212,175,55,0.3); }
+        
+        .btn-delete { background: #fff5f5; color: #dc3545; border: 1px solid #ffc9c9; width: 35px; height: 35px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .btn-delete:hover { background: #dc3545; color: white; transform: rotate(15deg); }
+    </style>
+}
+
+<div class="header-text" style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Hồ Sơ Nhân Sự</h2>
+    <p style="color: var(--text-light)">Tra cứu, phân quyền và quản lý thông tin nhân viên toàn hệ thống.</p>
+</div>
+
+<!-- 1. THANH CÔNG CỤ (TÌM KIẾM & THÊM MỚI) -->
+<div class="toolbar-wrapper">
+    <form asp-action="QuanLyNhanVien" asp-controller="Admin" method="get" class="search-group">
+        <label><i class="fas fa-search" style="color: var(--primary-color); margin-right: 5px;"></i> Tìm kiếm nhân sự</label>
+        <div class="search-input-wrapper">
+            <input type="text" name="searchString" value="@ViewBag.CurrentFilter" placeholder="Nhập tên nhân viên, mã NV hoặc SĐT..." autocomplete="off">
+            <button type="submit" class="btn-search">Tìm ngay</button>
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter))
+            {
+                <a asp-action="QuanLyNhanVien" class="btn-reset" title="Xóa tìm kiếm"><i class="fas fa-times"></i></a>
+            }
+        </div>
+    </form>
+
+    
+</div>
+
+<!-- 2. BẢNG DANH SÁCH NHÂN VIÊN -->
+<div class="table-wrapper">
+    <table class="table-luxury">
+        <thead>
+            <tr>
+                <th style="width: 10%;">Mã NV</th>
+                <th style="width: 40%;">Họ và tên</th>
+                <th style="width: 25%; text-align: center;">Chức vụ / Quyền</th>
+                <th style="width: 25%; text-align: center;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <!-- Mã NV -->
+                        <td><span class="staff-id">#@item.UserID</span></td>
+                        
+                        <!-- Tên & Avatar tự động -->
+                        <td>
+                            <div class="staff-name">
+                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(item.Hoten)&background=f4f6f8&color=333" class="avatar-mini" />
+                                <div>
+                                    <span>@item.Hoten</span><br>
+                                    <small style="color: gray; font-weight: 400; font-size: 0.8rem;"><i class="fas fa-phone-alt" style="margin-right:3px;"></i> @(string.IsNullOrEmpty(item.sđt) ? "Chưa cập nhật SĐT" : item.sđt)</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Chức vụ -->
+                        @* <td style="text-align: center;">
+                            @{
+                                // Thay đổi theo Model thực tế của bạn
+                                string chucVu = item.ChucVu ?? "Nhân Viên";
+                                string roleClass = chucVu.Contains("Admin") || chucVu.Contains("Quản") ? "role-admin" : "role-staff";
+                            }
+                            <span class="role-badge @roleClass">@chucVu</span>
+                        </td> *@
+                            
+       
+                        <td>
+                            <div class="action-group">
+                                <!-- ĐÃ ĐỔI: Dùng nút gọi hàm JavaScript thay vì link chuyển trang -->
+                                <a href="javascript:void(0);" onclick="loadEditNhanVien(@item.UserID)" class="btn-edit">
+                                    <i class="fas fa-user-edit"></i> Sửa hồ sơ
+                                </a>
+        
+                                <!-- NÚT KHÓA TÀI KHOẢN CỦA NHÂN VIÊN ĐÓ -->
+                                <form asp-action="KhoaNhanVien" asp-controller="Admin" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.UserID" />
+                                    <button type="button" class="btn-delete" title="Khóa tài khoản" 
+                                            onclick="showLuxuryConfirm(this, 'Khóa nhân viên này?', 'Tài khoản liên kết với hồ sơ này sẽ bị khóa vĩnh viễn và không thể đăng nhập.', 'danger')">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                <button type="button" class="btn" style="background: rgba(23, 162, 184, 0.1); color: #17a2b8;" 
+                                        onclick="loadStaffShifts(@item.UserID)">
+                                    <i class="fas fa-calendar-alt"></i> Lịch làm
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 4rem 2rem;">
+                        <i class="fas fa-users-slash" style="font-size: 3.5rem; color: #e0e0e0; margin-bottom: 15px;"></i>
+                        <h4 style="color: var(--text-main); font-family: var(--font-heading);">Không tìm thấy nhân sự</h4>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">Thử thay đổi từ khóa tìm kiếm hoặc thêm mới nhân viên.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script src="~/js/RoomResult.js"></script>

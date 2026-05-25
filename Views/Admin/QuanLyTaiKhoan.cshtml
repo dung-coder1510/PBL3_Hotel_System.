@@ -1,0 +1,201 @@
+﻿@model IEnumerable<PBL3_Hotel_System.Models.Account>
+@{
+    Layout = "_AdminDashboardLayout";
+    ViewData["Title"] = "Quản Lý Tài Khoản";
+    ViewData["ActiveMenu"] = "Accounts"; // Để sáng menu bên Sidebar
+}
+
+@section Styles {
+    <style>
+        /* TOOLBAR: THANH TÌM KIẾM */
+        .toolbar-wrapper {
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .search-group { display: flex; align-items: center; gap: 15px; flex-grow: 1; max-width: 600px; }
+        
+        .search-input-wrapper { 
+            display: flex; flex-grow: 1; box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+            border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; transition: 0.3s; 
+        }
+        .search-input-wrapper:focus-within { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15); }
+        .search-input-wrapper input { flex: 1; border: none; padding: 12px 20px; font-family: var(--font-body); font-size: 0.95rem; outline: none; background: #fdfdfd; }
+        
+        .btn-search { background: var(--secondary-color); color: white; border: none; padding: 0 25px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-search:hover { background: #2c3e50; }
+        
+        .btn-reset { background: #f8f9fa; color: #888; border: none; border-left: 1px solid #eee; padding: 0 15px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; }
+        .btn-reset:hover { background: #e74c3c; color: white; }
+
+        .btn-add-account { 
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-color); color: white; text-decoration: none; 
+            padding: 12px 25px; border-radius: 30px; font-weight: 600; text-transform: uppercase; 
+            font-size: 0.85rem; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 8px; 
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(212,175,55,0.3); 
+        }
+        .btn-add-account:hover { background: var(--primary-hover); transform: translateY(-3px); color: white; }
+
+        /* BẢNG DỮ LIỆU TÀI KHOẢN */
+        .table-wrapper { background: #fff; border-radius: 12px; box-shadow: var(--shadow-light); overflow: hidden; }
+        .table-luxury { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-luxury th { background: #f8f9fa; color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 18px 25px; border-bottom: 2px solid #eee; }
+        .table-luxury td { padding: 18px 25px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; color: var(--text-main); }
+        .table-luxury tbody tr:hover { background: #fdfcf8; }
+
+        .username-text { font-family: var(--font-heading); color: var(--secondary-color); font-weight: 700; font-size: 1.15rem; }
+        .owner-text { font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        
+        /* PHÂN QUYỀN BADGES */
+        .role-tag { padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .tag-admin { background: #e7f5ff; color: #1971c2; border-color: #a5d8ff; }
+        .tag-staff { background: #fff9db; color: #f08c00; border-color: #ffe066; }
+        .tag-customer { background: #f8f9fa; color: #495057; border-color: #dee2e6; }
+
+        /* TRẠNG THÁI TÀI KHOẢN */
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .dot-active { background: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.5); }
+        .dot-locked { background: #dc3545; box-shadow: 0 0 8px rgba(220,53,69,0.5); }
+
+        /* NÚT THAO TÁC */
+        .action-group { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-mini { background: #f4f6f8; color: var(--secondary-color); border: none; padding: 8px 15px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none;}
+        .btn-mini:hover { background: var(--secondary-color); color: white; }
+        .btn-mini.danger { color: #dc3545; background: #fff5f5; border: 1px solid #ffc9c9; }
+        .btn-mini.danger:hover { background: #dc3545; color: white; border-color: #dc3545; }
+    </style>
+}
+
+<div class="header-text" style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Quản Lý Hệ Thống Tài Khoản</h2>
+    <p style="color: var(--text-light)">Kiểm soát quyền truy cập, bảo mật và trạng thái của tất cả tài khoản.</p>
+</div>
+
+<!-- 1. THANH TÌM KIẾM VÀ CÔNG CỤ -->
+<div class="toolbar-wrapper">
+    <form asp-action="QuanLyTaiKhoan" asp-controller="Admin" method="get" class="search-group">
+        <div class="search-input-wrapper">
+            <div style="padding: 12px 15px; color: #aaa;"><i class="fas fa-search"></i></div>
+            <input type="text" name="searchString" value="@ViewBag.CurrentFilter" placeholder="Tìm theo Username hoặc Tên chủ tài khoản..." autocomplete="off">
+            <button type="submit" class="btn-search">Tìm kiếm</button>
+            @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter))
+            {
+                <a asp-action="QuanLyTaiKhoan" class="btn-reset" title="Xóa bộ lọc"><i class="fas fa-times"></i></a>
+            }
+        </div>
+    </form>
+
+    <button type="button" class="btn-add-account" onclick="loadCreateAccount()">
+        <i class="fas fa-user-plus"></i> Cấp tài khoản mới
+    </button>
+</div>
+
+<!-- 2. BẢNG DỮ LIỆU TÀI KHOẢN -->
+<div class="table-wrapper">
+    <table class="table-luxury">
+        <thead>
+            <tr>
+                <th style="width: 25%;">Tên đăng nhập</th>
+                <th style="width: 25%;">Phân quyền</th>
+                <th style="width: 25%;">Chủ tài khoản (Profile)</th>
+                <th style="width: 25%; text-align: right;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var acc in Model)
+                {
+                    <tr>
+                        <!-- Cột 1: Username & Email -->
+                        <td>
+                            <span class="username-text">@acc.Username</span><br />
+                            <small style="color: #888;"><i class="far fa-envelope"></i> @acc.Email</small>
+                        </td>
+
+                        <!-- Cột 2: Phân quyền (Role) -->
+                        <td>
+                            @{
+                                string roleClass = acc.Role.ToString() == "QuanTriVien" ? "tag-admin" :
+                                                   acc.Role.ToString() == "NhanVien" ? "tag-staff" : "tag-customer";
+                                string roleName = acc.Role.ToString() == "QuanTriVien" ? "Quản Trị Viên" :
+                                                  acc.Role.ToString() == "NhanVien" ? "Nhân Viên" : "Khách Hàng";
+                            }
+                            <span class="role-tag @roleClass">
+                                @if (roleClass == "tag-admin") { <i class="fas fa-crown" style="margin-right:4px;"></i> }
+                                @roleName
+                            </span>
+                        </td>
+
+                        <!-- Cột 3: Chủ tài khoản (Từ UserProfile) -->
+                        <td>
+                            <div class="owner-text">
+                                @if (acc.UserProfile != null)
+                                {
+                                    <i class="fas fa-user-circle" style="color: var(--primary-color);"></i>
+                                    <span>@acc.UserProfile.Hoten</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-question-circle" style="color: #ccc;"></i>
+                                    <span style="color: #888; font-style: italic;">Chưa thiết lập hồ sơ</span>
+                                }
+                            </div>
+                        </td>
+
+                        <!-- Cột 4: Thao tác -->
+                        <td>
+                            <div class="action-group">
+                                <a href="javascript:void(0);" onclick="console.log('CLICK TRỰC TIẾP TỪ HTML!'); loadEditAccount('@acc.Username')" class="btn-mini">
+                                    <i class="fas fa-user-edit"></i> Sửa
+                                </a>
+                                
+                                <form asp-controller="Admin" asp-action="ToggleLockAccount" method="post" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="accountId" value="@acc.AccountID" />
+            
+                                    @if (acc.IsLocked)
+                                    {
+                                        <!-- Nút Mở khóa (Màu xanh) cho tài khoản đang bị khóa -->
+                                        <button type="button" class="btn-mini" style="color: #28a745; background: #e6fcf5; border: 1px solid #c3e6cb;" 
+                                                onclick="showLuxuryConfirm(this, 'Mở khóa tài khoản?', 'Tài khoản @acc.Username sẽ được phép đăng nhập lại vào hệ thống.', 'info')">
+                                            <i class="fas fa-unlock"></i> Mở khóa
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <!-- Nút Khóa (Màu đỏ) cho tài khoản đang hoạt động bình thường -->
+                                        <button type="button" class="btn-mini danger" 
+                                                onclick="showLuxuryConfirm(this, 'Khóa tài khoản này?', 'Người dùng @acc.Username sẽ bị đăng xuất và không thể đăng nhập lại.', 'danger')">
+                                            <i class="fas fa-lock"></i> Khóa
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <!-- Trạng thái trống (Empty State) -->
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 4rem 2rem;">
+                        <i class="fas fa-user-slash" style="font-size: 3.5rem; color: #e0e0e0; margin-bottom: 15px;"></i>
+                        <h4 style="color: var(--text-main); font-family: var(--font-heading);">Không tìm thấy tài khoản</h4>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">Thử thay đổi từ khóa tìm kiếm hoặc cấp mới tài khoản.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

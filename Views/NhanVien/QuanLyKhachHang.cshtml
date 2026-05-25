@@ -81,6 +81,40 @@
             padding-bottom: 15px;
             border-bottom: 1px solid #f0f0f0;
         }
+        /* ĐÂY LÀ CHIẾC HỘP TRẮNG CHỨA NỘI DUNG BIÊN LAI */
+    #bookingModalContent {
+        background: #fff;
+        width: 850px;
+        max-width: 95%;
+        padding: 30px;
+        border-radius: 16px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+        /* ========================================= */
+        /* GIẢI PHÁP CHỐNG TRÀN: THÊM THANH CUỘN      */
+        /* ========================================= */
+        max-height: 85vh;    /* Cao tối đa bằng 85% chiều cao màn hình */
+        overflow-y: auto;    /* Tự động hiện thanh cuộn dọc nếu nội dung dài */
+        overflow-x: hidden;  /* Cấm cuộn ngang */
+    }
+
+    /* Mẹo: Làm thanh cuộn mỏng và sang trọng hơn cho giống Hotel Luxury */
+    #bookingModalContent::-webkit-scrollbar {
+        width: 6px;
+    }
+    #bookingModalContent::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    #bookingModalContent::-webkit-scrollbar-thumb {
+        background: var(--primary-color); /* Màu vàng Gold của bạn */
+        border-radius: 10px;
+    }
+    #bookingModalContent::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-hover);
+    }
+
 
         .table-wrapper { overflow-x: auto; }
         .table-luxury { width: 100%; border-collapse: collapse; text-align: left; }
@@ -92,12 +126,7 @@
         .customer-info strong { color: var(--secondary-color); font-size: 1rem; display: block; margin-bottom: 3px; }
         .customer-info small { color: #888; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
 
-        /* Trạng thái Badges */
-        .badge-status { padding: 6px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-        .status-pending { background-color: #fff3cd; color: #856404; } /* Chờ nhận phòng */
-        .status-success { background-color: #d4edda; color: #155724; } /* Đã nhận phòng */
-        .status-default { background-color: #e2e3e5; color: #383d41; } /* Khác */
-
+       
         /* Nút Xem chi tiết */
         .btn-action-view {
             background: #f4f6f8; color: var(--secondary-color); padding: 6px 15px;
@@ -105,6 +134,18 @@
             transition: 0.3s; display: inline-flex; align-items: center; gap: 5px;
         }
         .btn-action-view:hover { background: var(--secondary-color); color: white; }
+
+        /* Nút phân trang Luxury */
+        .btn-page { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #ddd; background: #fff; color: #555; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .btn-page:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-page.active { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); }
+
+        /* Toolbar */
+        .filter-toolbar { display: flex; gap: 15px; background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 4px solid var(--primary-color); }
+        .filter-item { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .filter-item label { font-size: 0.8rem; color: #888; font-weight: bold; text-transform: uppercase; }
+        .filter-input { padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.3s; }
+        .filter-input:focus { border-color: var(--primary-color); }
     </style>
 }
 
@@ -114,101 +155,88 @@
     <p style="color: var(--text-light)">Quy trình Check-in / Check-out và hỗ trợ khách lưu trú.</p>
 </div>
 
-<!-- 1. HAI THẺ TÁC VỤ NHANH -->
-<div class="feature-grid">
-    <div class="feature-card">
-        <h4><i class="fas fa-calendar-plus"></i> Lên lịch nhận phòng</h4>
-        <p>Danh sách khách hàng đã đặt phòng trực tuyến và đang chờ làm thủ tục nhận phòng (Check-in).</p>
-        <button class="btn-outline-gold">Xem danh sách chờ</button>
-    </div>
-
-    <div class="feature-card">
-        <h4><i class="fas fa-file-invoice-dollar"></i> Tiếp nhận trả phòng</h4>
-        <p>Xử lý yêu cầu trả phòng (Check-out), tính toán hóa đơn dịch vụ và xác nhận thanh toán của khách.</p>
-        <button class="btn-outline-gold">Xử lý trả phòng</button>
-    </div>
-</div>
-
 <!-- 2. BẢNG DỮ LIỆU ĐẶT PHÒNG THỰC TẾ -->
 <div class="content-card">
     <h3 class="card-header-title">Danh sách chờ xử lý</h3>
     
-    <div class="table-wrapper">
-        <table class="table-luxury">
-            <thead>
-                <tr>
-                    <th>Khách hàng</th>
-                    <th style="text-align: center;">Phòng</th>
-                    <th>Ngày đến</th>
-                    <th style="text-align: center;">Trạng thái</th>
-                    <th style="text-align: right;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var item in Model)
-                    {
-                        <tr>
-                            <!-- Tên và SĐT Khách hàng -->
-                            <td class="customer-info">
-                                <strong>@(item.kh?.Hoten ?? "N/A")</strong>
-                                <small><i class="fas fa-phone-alt" style="font-size: 0.7rem; color: var(--primary-color);"></i> @(item.kh?.sđt ?? "Không có SĐT")</small>
-                            </td>
-                            
-                            <!-- Số phòng -->
-                            <td style="text-align: center;">
-                                <span style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;">#@item.SoPhong</span>
-                            </td>
-                            
-                            <!-- Ngày Check-In -->
-                            <td>
-                                <span style="background: #f8f9fa; padding: 5px 10px; border-radius: 6px; font-size: 0.9rem;">
-                                    <i class="far fa-calendar-alt text-muted"></i> @item.CheckIn.ToString("dd/MM/yyyy")
-                                </span>
-                            </td>
-                            
-                            <!-- Trạng thái (Dùng logic gán class) -->
-                            <td style="text-align: center;">
-                                @{
-                                    string statusClass = "status-default";
-                                    string statusText = "Khác";
+    <!-- THANH CÔNG CỤ TÌM KIẾM (AJAX) -->
+    <form id="filterForm" class="filter-toolbar" onsubmit="event.preventDefault(); loadTableData(1);">
+        <div class="filter-item">
+            <label>Tìm khách hàng</label>
+            <input type="text" id="searchString" class="filter-input" placeholder="Tên hoặc SĐT...">
+        </div>
+        <div class="filter-item">
+            <label>Trạng thái</label>
+            <select id="statusFilter" class="filter-input" onchange="loadTableData(1)">
+                <option value="All">-- Tất cả --</option>
+                <option value="ChoXacNhan">Chờ xác nhận</option>
+                <option value="DaXacNhan">Đã duyệt (Sắp đến)</option>
+                <option value="DangO">Đang lưu trú</option>
+                <option value="YeuCauTraPhong">Yêu cầu trả phòng</option>
+                <option value="DaHoanThanh">Hoàn thành</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label>Ngày Check-in</label>
+            <input type="date" id="dateFilter" class="filter-input" onchange="loadTableData(1)">
+        </div>
+        <div class="filter-item" style="justify-content: flex-end; flex: 0.5;">
+            <button type="submit" class="btn-action" style="background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%;">
+                <i class="fas fa-search"></i> LỌC
+            </button>
+        </div>
+    </form>
 
-                                    if (item.TrangThaiDat == PBL3_Hotel_System.Models.BookingStatus.ChoXacNhan)
-                                    {
-                                        statusClass = "status-pending";
-                                        statusText = "Chờ nhận phòng";
-                                    }
-                                    else if (item.TrangThaiDat == PBL3_Hotel_System.Models.BookingStatus.DaXacNhan)
-                                    {
-                                        statusClass = "status-success";
-                                        statusText = "Đã nhận phòng";
-                                    }
-                                }
-                                <span class="badge-status @statusClass">@statusText</span>
-                            </td>
-                            
-                            <!-- Nút Xem chi tiết -->
-                            <td style="text-align: right;">
-                                <a href="@Url.Action("Details", "Booking", new { id = item.BookingID })" class="btn-action-view">
-                                    <i class="fas fa-eye"></i> Xem
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <!-- GIAO DIỆN TRỐNG (EMPTY STATE) ĐỈNH CAO -->
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 4rem 2rem;">
-                            <i class="fas fa-clipboard-list" style="font-size: 3rem; color: #e0e0e0; margin-bottom: 15px;"></i>
-                            <h4 style="color: var(--text-main); margin-bottom: 5px;">Chưa có dữ liệu</h4>
-                            <p style="color: var(--text-light); font-size: 0.9rem;">Hiện tại không có khách hàng nào đang chờ xử lý.</p>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="table-wrapper" id="table-container">
+        <div style="text-align: center; padding: 50px;">
+            <i class="fas fa-spinner fa-spin fa-2x text-gold"></i>
+            <p style="color: #888; margin-top: 10px;">Đang tải dữ liệu...</p>
+        </div>
+    </div>
+
     </div>
 </div>
+<!-- KHUNG MODAL RỖNG -->
+<div id="bookingModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div id="bookingModalContent" style="background: #fff; width: 850px; max-width: 95%; padding: 30px; border-radius: 12px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.2);">
+        <!-- Nội dung sẽ đổ vào đây -->
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Hàm load dữ liệu bằng AJAX Fetch
+        function loadTableData(page) {
+            const search = document.getElementById("searchString").value;
+            const status = document.getElementById("statusFilter").value;
+            const date = document.getElementById("dateFilter").value;
+
+            const container = document.getElementById("table-container");
+            container.innerHTML = '<div style="text-align: center; padding: 50px;"><i class="fas fa-spinner fa-spin fa-2x" style="color: #d4af37;"></i><p>Đang tải...</p></div>';
+
+            const url = `/NhanVien/FilterBookings?search=${encodeURIComponent(search)}&status=${status}&date=${date}&page=${page}`;
+
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error(err);
+                    container.innerHTML = '<div style="color: red; text-align: center; padding: 30px;">Lỗi kết nối.</div>';
+                });
+        }
+
+        // Tự động load trang 1 khi vừa vào màn hình
+        document.addEventListener("DOMContentLoaded", function () {
+            loadTableData(1);
+        });
+        
+        // Cải tiến UX: Gõ xong tự động tìm kiếm (Debounce)
+        let typingTimer;
+        document.getElementById("searchString").addEventListener("keyup", function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => { loadTableData(1); }, 500); // Ngừng gõ 0.5s thì tự load
+        });
+    </script>
+}

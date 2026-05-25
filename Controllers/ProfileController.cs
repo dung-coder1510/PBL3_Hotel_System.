@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PBL3_Hotel_System.Data;
-using PBL3_Hotel_System_.Models.UserModels;
+using PBL3_Hotel_System.Models.UserModels;
 using PBL3_Hotel_System.ViewModels.UserProfileViewModel;
 
 namespace PBL3_Hotel_System_.Controllers
@@ -58,26 +58,68 @@ namespace PBL3_Hotel_System_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(BaseProfileViewModel model, string redirectUrl)
         {
-            // Vì model truyền lên là Base, ta cần lấy dữ liệu thật từ DB để update
+            // 1. Lấy dữ liệu hiện tại "xịn" từ Database lên
             var userName = User.Identity.Name;
-            var account = await _context.Accounts.Include(a => a.UserProfile)
+            var account = await _context.Accounts
+                .Include(a => a.UserProfile)
                 .FirstOrDefaultAsync(a => a.Username == userName);
 
-            if (account != null)
+            if (account != null && account.UserProfile != null)
             {
-                // Cập nhật thông tin chung (ai cũng có)
-                account.UserProfile.Hoten = model.HoTen;
-                account.UserProfile.sđt = model.SoDienThoai;
-                account.UserProfile.CCCD = model.CCCD;
-                account.UserProfile.DiaChi = model.DiaChi;
+                // 2. CHỐT CHẶN THÔNG MINH: Chỉ cập nhật nếu dữ liệu gửi lên không rỗng
 
-                // Xử lý thông tin riêng (nếu cần sửa thêm các trường đặc thù)
-                // Ví dụ: if (account.UserProfile is KhachHang kh) { ... }
+                if (!string.IsNullOrWhiteSpace(model.HoTen))
+                {
+                    bool sdtTonTai = await _context.UserProfiles
+                        .AnyAsync(u => u.sđt == model.SoDienThoai && u.AccountID != account.AccountID);
 
+                    if (sdtTonTai)
+                    {
+                        TempData["Error"] = "Số điện thoại này đã được sử dụng bởi một thành viên khác!";
+                        return RedirectToAction("Index");
+                    }
+                    account.UserProfile.Hoten = model.HoTen;
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.SoDienThoai))
+                {
+                    bool cccdTonTai = await _context.UserProfiles
+                        .AnyAsync(u => u.CCCD == model.CCCD && u.AccountID != account.AccountID);
+
+                    if (cccdTonTai)
+                    {
+                        TempData["Error"] = "Số CCCD/Hộ chiếu này đã tồn tại trên hệ thống!";
+                        return RedirectToAction("Index");
+                    }
+                    account.UserProfile.sđt = model.SoDienThoai;
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.CCCD))
+                {
+                    account.UserProfile.CCCD = model.CCCD;
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.DiaChi))
+                {
+                    account.UserProfile.DiaChi = model.DiaChi;
+                }
+
+                // 3. Xử lý các trường đặc thù của Khách hàng (nếu có)
+                if (account.UserProfile is KhachHang kh)
+                {
+                    // Ví dụ: chỉ cập nhật nếu trong model con có dữ liệu đặc thù
+                    if (model is KhachHangProfileViewModel khModel && !string.IsNullOrWhiteSpace(khModel.CCCD))
+                    {
+                        kh.CCCD = khModel.CCCD;
+                    }
+                }
+
+                // 4. Lưu thay đổi
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã cập nhật hồ sơ!";
+                TempData["Success"] = "Đã cập nhật thông tin thành công!";
             }
 
+            // Điều hướng như cũ
             if (!string.IsNullOrEmpty(redirectUrl) && Url.IsLocalUrl(redirectUrl))
                 return LocalRedirect(redirectUrl);
 

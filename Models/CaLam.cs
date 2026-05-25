@@ -1,4 +1,4 @@
-﻿using PBL3_Hotel_System_.Models.UserModels;
+﻿using PBL3_Hotel_System.Models.UserModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

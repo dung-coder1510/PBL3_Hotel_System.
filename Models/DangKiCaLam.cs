@@ -1,9 +1,15 @@
-﻿using PBL3_Hotel_System_.Models.UserModels;
+﻿using PBL3_Hotel_System.Models.UserModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PBL3_Hotel_System.Models
 {
+    public enum ShiftStatus
+    {
+        Pending = 0,    // Chờ duyệt
+        Approved = 1,   // Đã duyệt (Dùng để tính lương)
+        Rejected = 2    // Từ chối
+    }
     public class DangKiCaLam
     {
         [Key]
@@ -26,7 +32,7 @@ namespace PBL3_Hotel_System.Models
 
         [Column("TrangThai")]
         [StringLength(20)]
-        public string TrangThai { get; set; } = "Pending";
+        public ShiftStatus TrangThai { get; set; } = ShiftStatus.Pending;
 
         [StringLength(200)]
         [Display(Name = "Ghi chú")]

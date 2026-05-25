@@ -34,15 +34,14 @@ namespace PBL3_Hotel_System.Models
         [Key]
 
         [Required(ErrorMessage = "Số phòng không được để trống")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SoPhong { get; set; }
 
         [Required(ErrorMessage = "Loại phòng là bắt buộc")]
-        [MaxLength(50)]
         [Display(Name = "Loại phòng")]
         public RoomType LoaiPhong { get; set; }
 
         [Required(ErrorMessage = "Trạng thái là bắt buộc")]
-        [MaxLength(20)]
         [Display(Name = "Trạng thái")]
         public RoomStatus TrangThai { get; set; }
 

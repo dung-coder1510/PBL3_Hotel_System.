@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PBL3_Hotel_System_.Models.UserModels
+namespace PBL3_Hotel_System.Models.UserModels
 {
     public abstract class BaseUser
     {

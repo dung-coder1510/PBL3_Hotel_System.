@@ -72,8 +72,67 @@
             color: #dc3545;
             font-size: 1.1rem;
         }
+        .btn-action-customer {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(212, 175, 55, 0.2);
+}
 
-        
+.btn-action-customer:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+}
+
+/* Biến thể màu cho nút Trả Phòng (Warning) */
+.btn-action-customer.btn-warning-custom {
+    background-color: #f39c12;
+    box-shadow: 0 2px 5px rgba(243, 156, 18, 0.2);
+}
+.btn-action-customer.btn-warning-custom:hover {
+    background-color: #e67e22;
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
+}
+  
+.btn-view-bill {
+    background-color: #f8f9fa;
+    color: var(--secondary-color);
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view-bill:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.btn-view-bill i {
+    color: var(--primary-color);
+}
+.btn-view-bill:hover i {
+    color: white;
+}
 
   
 
@@ -89,6 +148,7 @@
                     <th>Lịch trình</th>
                     <th>Tổng thanh toán</th>
                     <th style="text-align: center;">Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -106,6 +166,70 @@
                             <span class="badge-status @item.CssClassTrangThai">
                                 @item.TenTrangThai
                             </span>
+                        </td>
+                        <td style="text-align: center;">
+                            @if (item.TrangThaiRaw == "DaXacNhan")
+                            {
+                                // 1. Lấy ngày hôm nay (00:00:00)
+                                DateTime homNay = DateTime.Today;
+
+                                if (item.GioHenNhanPhong == null)
+                                {
+                                    <span style="color: #888; font-size: 0.8rem;">Đang sắp xếp phòng...</span>
+                                }
+                                // CHỐT 1: NẾU CHƯA QUA NGÀY NHẬN PHÒNG (Nghĩa là vẫn đang trong ngày 24/04)
+                                // Dùng so sánh Ngày (Today) với Ngày nhận (CheckInDate)
+                                else if (homNay <= item.CheckInDate.Date)
+                                {
+                                    // Kiểm tra giờ hiện tại với giờ hẹn để hiện nút hoặc hiện thông báo đợi
+                                    if (DateTime.Now >= item.GioHenNhanPhong)
+                                    {
+                                        <form asp-controller="KhachHang" asp-action="XacNhanNhanPhong" method="post">
+                                            <input type="hidden" name="bookingId" value="@item.BookingID" />
+                                            <button type="submit" class="btn-checkin-mini btn">
+                                                <i class="fas fa-key"></i> NHẬN PHÒNG
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--primary-color); font-size: 0.8rem;">
+                                            <i class="far fa-clock"></i> Đợi đến @item.GioHenNhanPhong.Value.ToString("HH:mm")
+                                        </span>
+                                    }
+                                }
+                                // CHỐT 2: NẾU ĐÃ BƯỚC SANG NGÀY HÔM SAU (25/04 trở đi)
+                                else 
+                                {
+                                    <span style="color: #e74c3c; font-size: 0.8rem; font-weight: 600;">
+                                        <i class="fas fa-history"></i> Đã quá hạn nhận phòng
+                                    </span>
+                                }
+                            }
+                            else if (item.TrangThaiRaw == "DangO" || item.TrangThaiRaw == "QuaHan")
+                            {
+                                <!-- HIỆN NÚT YÊU CẦU TRẢ PHÒNG (Dành cho khách đang ở) -->
+                                <form asp-controller="KhachHang" asp-action="YeuCauTraPhong" method="post" class="form-checkout-request">
+                                    <input type="hidden" name="bookingId" value="@item.BookingID" />
+                                    <button type="button" class="btn-action-customer btn-warning-custom"
+                                            onclick="showLuxuryConfirm(this, 'Yêu cầu trả phòng?', 'Lễ tân sẽ chuẩn bị hóa đơn cho bạn. Thao tác này không thể hoàn tác.', 'warning')">
+                                        <i class="fas fa-concierge-bell"></i> TRẢ PHÒNG
+                                    </button>
+                                </form>
+                            }
+                            else if (item.TrangThaiRaw == "YeuCauTraPhong")
+                            {
+                                <!-- NẾU KHÁCH ĐÃ BẤM RỒI -> HIỆN CHỮ ĐANG CHỜ -->
+                                <span style="font-size: 0.8rem; color: #e67e22; font-weight: bold;">
+                                    <i class="fas fa-spinner fa-spin"></i> Đang chờ Lễ tân
+                                </span>
+                            }
+                            else if (item.TrangThaiRaw == "DaHoanThanh")
+                            {
+                                <button type="button" class="btn-view-bill" onclick="loadBookingDetail(@item.BookingID)">
+                                    <i class="fas fa-file-invoice-dollar"></i> Xem Bill
+                                </button>
+                            }
                         </td>
                     </tr>
                 }

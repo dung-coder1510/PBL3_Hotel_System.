@@ -30,7 +30,7 @@
             <!-- =======================
                  FORM ĐĂNG NHẬP (Sử dụng asp-for)
                  ======================= -->
-            <form asp-controller="Account" asp-action="Login" method="post" id="form-login" class="auth-form active">
+            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" id="form-login" class="auth-form active">
 
                 <!-- Hiển thị lỗi tổng quát (Sai user/pass) -->
                 @* <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>  *@

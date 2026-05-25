@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PBL3_Hotel_System.Data;
 using PBL3_Hotel_System.Models;
-
-using Microsoft.EntityFrameworkCore;
+using PBL3_Hotel_System.ViewModels;
+using PBL3_Hotel_System.Models.UserModels;
 
 namespace PBL3_Hotel_System_.Controllers
 {
@@ -63,7 +64,7 @@ namespace PBL3_Hotel_System_.Controllers
             // 4. THUẬT TOÁN ĐẾM CHỖ TRỐNG: 
             // Group dữ liệu để biết mỗi Ca_Ngày đã có bao nhiêu người đặt
             var shiftOccupancy = await _context.DangKyCaLams
-                .Where(r => r.NgayLam >= startDate && r.NgayLam <= endDate && r.TrangThai != "Rejected")
+                .Where(r => r.NgayLam >= startDate && r.NgayLam <= endDate && r.TrangThai != ShiftStatus.Rejected)
                 .GroupBy(r => new { r.MaCa, r.NgayLam.Date })
                 .Select(g => new {
                     Key = g.Key.MaCa + "_" + g.Key.Date.ToString("yyyy-MM-dd"),
@@ -108,7 +109,7 @@ namespace PBL3_Hotel_System_.Controllers
         .CountAsync(x => x.MaNV == maNV
                     && x.NgayLam.Date >= weekStart.Date
                     && x.NgayLam.Date <= weekEnd.Date
-                    && x.TrangThai != "Rejected");
+                    && x.TrangThai != ShiftStatus.Rejected);
 
             if (existingWeekCount + requests.Count > 7)
             {
@@ -124,7 +125,7 @@ namespace PBL3_Hotel_System_.Controllers
                 int inDbCount = await _context.DangKyCaLams
                     .CountAsync(x => x.MaNV == maNV
                                 && x.NgayLam.Date == currentDay.Date
-                                && x.TrangThai != "Rejected");
+                                && x.TrangThai != ShiftStatus.Rejected);
 
                 if (inDbCount + group.Count() > 2)
                 {
@@ -138,7 +139,7 @@ namespace PBL3_Hotel_System_.Controllers
             foreach (var item in requests)
             {
                 var caHienTai = await _context.CaLams.FindAsync(item.MaCa);
-                int occupied = await _context.DangKyCaLams.CountAsync(x => x.MaCa == item.MaCa && x.NgayLam == item.NgayLam && x.TrangThai != "Rejected");
+                int occupied = await _context.DangKyCaLams.CountAsync(x => x.MaCa == item.MaCa && x.NgayLam == item.NgayLam && x.TrangThai != ShiftStatus.Rejected);
 
                 if (occupied >= caHienTai.SoLuongToiDa)
                 {
@@ -146,7 +147,7 @@ namespace PBL3_Hotel_System_.Controllers
                     return RedirectToAction("DatCaLam");
                 }
                
-                listToSave.Add(new DangKiCaLam { MaNV = maNV, MaCa = item.MaCa, NgayLam = item.NgayLam, TrangThai = "Pending" });
+                listToSave.Add(new DangKiCaLam { MaNV = maNV, MaCa = item.MaCa, NgayLam = item.NgayLam, TrangThai = ShiftStatus.Pending });
             }
 
             // LƯU THÀNH CÔNG
@@ -156,8 +157,9 @@ namespace PBL3_Hotel_System_.Controllers
             TempData["Success"] = $"Đăng ký thành công {listToSave.Count} ca làm việc!";
             return RedirectToAction("DatCaLam");
         }
-        public IActionResult QuanLyPhong(string searchString, RoomStatus? statusFilter)
+        public async Task<IActionResult> QuanLyPhong(string searchString, RoomStatus? statusFilter)
         {
+            await GlobalAutoUpdateBookingsAsync();
             // 1. Lấy tất cả danh sách dưới dạng IQueryable để lọc dần dần
             var rooms = _context.Rooms.AsQueryable();
 
@@ -215,9 +217,62 @@ namespace PBL3_Hotel_System_.Controllers
             return RedirectToAction("QuanLyPhong");
         }
 
+
+        private async Task GlobalAutoUpdateBookingsAsync()
+        {
+            var now = DateTime.Now;
+            var today = DateTime.Today;
+            // 1. Tìm tất cả các đơn đặt phòng CÓ THỂ thay đổi trạng thái tự động
+            // Bao gồm: Chờ duyệt, Đã duyệt, Sắp đến, Đang ở
+            var activeBookings = await _context.Bookings
+                .Include(b => b.Room)
+                .Where(b => b.TrangThaiDat != BookingStatus.DaHoanThanh &&
+                            b.TrangThaiDat != BookingStatus.DaHuy)
+                .ToListAsync();
+
+            bool hasChanged = false;
+
+            foreach (var b in activeBookings)
+            {
+                // TRƯỜNG HỢP 1: Tự động đổi sang "Sắp đến" (Trong vòng 24h tới)
+                if (b.TrangThaiDat == BookingStatus.DaXacNhan && b.CheckIn <= now.AddDays(1) && b.CheckIn > now)
+                {
+                    b.TrangThaiDat = BookingStatus.SapDen;
+                    hasChanged = true;
+                }
+
+                // TRƯỜNG HỢP 2: Tự động HỦY đơn nếu khách không đến (No-show)
+                // Nếu đã qua giờ Check-out mà vẫn chưa làm thủ tục Check-in (RealCheckIn là null)
+                if ((b.TrangThaiDat == BookingStatus.DaXacNhan || b.TrangThaiDat == BookingStatus.SapDen)
+                    && b.CheckIn.Date < today && b.RealCheckIn == null)
+                {
+                    b.TrangThaiDat = BookingStatus.DaHuy;
+                    // Nếu đơn bị hủy tự động, đảm bảo trạng thái phòng phải là "Trống"
+                    if (b.Room != null) b.Room.TrangThai = RoomStatus.Available;
+                    hasChanged = true;
+                }
+
+                // LOGIC MỚI: BÁO ĐỘNG QUÁ HẠN (MẶC ĐỊNH GIỜ TRẢ PHÒNG LÀ 12:00 TRƯA)
+                var gioTraPhongQuyDinh = b.CheckOut.Date.AddHours(12);
+
+                if (b.TrangThaiDat == BookingStatus.DangO && now > gioTraPhongQuyDinh)
+                {
+                    b.TrangThaiDat = BookingStatus.QuaHan;
+                    hasChanged = true;
+                }
+            }
+
+            if (hasChanged)
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
         // Action 1: Trang duyệt đơn đặt phòng
         public async Task<IActionResult> QuanLyKhachHang()
         {
+            await GlobalAutoUpdateBookingsAsync();
             // Phải có .Include để lấy thông tin khách hàng và phòng, nếu không KhachHang và Room sẽ bị NULL
             var bookings = await _context.Bookings
                 .Include(b => b.kh)
@@ -227,6 +282,58 @@ namespace PBL3_Hotel_System_.Controllers
 
             return View(bookings); // <--- ĐẢM BẢO CÓ BIẾN bookings Ở ĐÂY
         }
+
+        // 2. HÀM AJAX: Lọc và Phân trang (Trả về Partial View)
+        [HttpGet]
+        public async Task<IActionResult> FilterBookings(string search, string status, string date, int page = 1)
+        {
+            int pageSize = 8; // Số dòng trên 1 trang
+
+            // Khởi tạo Query gốc (Kéo theo Thông tin khách và Phòng)
+            var query = _context.Bookings
+                .Include(b => b.kh)
+                .Include(b => b.Room)
+                .AsQueryable();
+
+            // LỌC: Theo tên hoặc số điện thoại
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(b => b.kh.Hoten.ToLower().Contains(search)
+                                      || b.kh.sđt.Contains(search));
+            }
+
+            // LỌC: Theo trạng thái
+            if (!string.IsNullOrEmpty(status) && status != "All" && Enum.TryParse<BookingStatus>(status, out var parsedStatus))
+            {
+                query = query.Where(b => b.TrangThaiDat == parsedStatus);
+            }
+
+            // LỌC: Theo ngày Check-in
+            if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out DateTime parsedDate))
+            {
+                query = query.Where(b => b.CheckIn.Date == parsedDate.Date);
+            }
+
+            // Sắp xếp: Mới đặt lên đầu
+            query = query.OrderByDescending(b => b.NgayDat);
+
+            // PHÂN TRANG (Pagination Logic)
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            if (page < 1) page = 1;
+
+            var pagedData = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            // Ném thông số phân trang ra ViewBag để Partial View vẽ nút bấm
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            // Trả về file _StaffBookingTablePartial.cshtml
+            return PartialView("~/Views/Shared/_StaffBookingTablePartial.cshtml", pagedData);
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DuyetBooking(int id)
@@ -248,5 +355,106 @@ namespace PBL3_Hotel_System_.Controllers
 
             return RedirectToAction("QuanLyKhachHang");
         }
+
+        // =========================================================
+        // 2. POST: NHÂN VIÊN GIAO CHÌA KHÓA CHO KHÁCH (CHECK-IN)
+        // =========================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> XacNhanCheckIn(BookingDetailViewModel model)
+        {
+            var booking = await _context.Bookings.Include(b => b.Room).FirstOrDefaultAsync(b => b.BookingID == model.BookingID);
+            if (booking == null) return NotFound();
+
+
+            // ========================================================
+            // LOGIC KHÓA NGÀY TỪ SERVER:
+            // Lấy Ngày từ Database (booking.CheckIn) 
+            // Cộng với Giờ/Phút/Giây từ Form (model.InputRealCheckIn)
+            // ========================================================
+            var inputTime = model.InputRealCheckIn.TimeOfDay;  // Lấy phần 09:26...
+            var finalCheckIn = booking.CheckIn.Date.Add(inputTime);// Ghép vào ngày 24/04
+
+            // Cập nhật Đơn đặt phòng
+            booking.GioHenNhanPhong = finalCheckIn;
+            booking.TrangThaiDat = BookingStatus.DaXacNhan;
+
+            // Cập nhật Trạng thái vật lý của Phòng
+            if (booking.Room != null)
+            {
+                booking.Room.TrangThai = RoomStatus.Occupied;
+            }
+            booking.RealCheckIn = DateTime.Now;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Check-in phòng {booking.SoPhong} thành công lúc {booking.RealCheckIn?.ToString("HH:mm")}";
+
+            return RedirectToAction("QuanLyKhachHang");
+        }
+
+        
+
+        // =========================================================
+        // 4. POST: HỦY ĐƠN KHI KHÁCH KHÔNG ĐẾN (NO SHOW)
+        // =========================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HuyDonPhong(int bookingId)
+        {
+            var booking = await _context.Bookings.FindAsync(bookingId);
+            if (booking != null && booking.TrangThaiDat == BookingStatus.ChoXacNhan)
+            {
+                booking.TrangThaiDat = BookingStatus.DaHuy;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã hủy đơn đặt phòng #{bookingId} thành công!";
+            }
+            return RedirectToAction("QuanLyKhachHang");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> XacNhanCheckOut(BookingDetailViewModel model)
+        {
+            var booking = await _context.Bookings.Include(b => b.Room).FirstOrDefaultAsync(b => b.BookingID == model.BookingID);
+            if (booking == null) return NotFound();
+
+            // 1. CHỐT CHẶN BẢO MẬT
+            if (booking.RealCheckIn == null)
+            {
+                TempData["Error"] = "Lỗi: Khách chưa Check-in!";
+                return RedirectToAction("QuanLyKhachHang", "NhanVien");
+            }
+
+            // Ép giờ nhân viên nhập vào đúng cái Ngày trả phòng dự kiến
+            var inputTime = model.InputRealCheckOut.TimeOfDay;
+            var finalCheckOut = booking.CheckOut.Date.Add(inputTime);
+
+            if (finalCheckOut <= booking.RealCheckIn)
+            {
+                TempData["Error"] = "Lỗi: Giờ trả phòng phải sau giờ nhận phòng!";
+                return RedirectToAction("QuanLyKhachHang");
+            }
+
+            // 2. GHI NHẬN THỰC TẾ
+            booking.RealCheckOut = finalCheckOut;
+            booking.TrangThaiDat = BookingStatus.DaHoanThanh; // Done!
+
+            // 3. TÍNH LẠI TIỀN (Dynamic Pricing)
+            int soNgayThucTe = (int)Math.Ceiling((booking.RealCheckOut.Value - booking.RealCheckIn.Value).TotalDays);
+            if (soNgayThucTe <= 0) soNgayThucTe = 1;
+
+            // Cập nhật lại tổng tiền nếu có chênh lệch ngày
+            booking.GiaLucDat = soNgayThucTe * booking.GiaLucDat;
+
+            // 4. GIẢI PHÓNG PHÒNG VẬT LÝ
+            if (booking.Room != null)
+            {
+                booking.Room.TrangThai = RoomStatus.Cleaning; // Báo cho dọn phòng
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Check-out thành công! Tổng thu cuối cùng: {booking.GiaLucDat:N0}đ.";
+
+            return RedirectToAction("QuanLyKhachHang", "NhanVien");
+        }   
     }
 }

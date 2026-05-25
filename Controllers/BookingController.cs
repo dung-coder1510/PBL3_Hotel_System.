@@ -2,14 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PBL3_Hotel_System.Data;
+using PBL3_Hotel_System.Helpers;
 using PBL3_Hotel_System.Models;
 using PBL3_Hotel_System.ViewModels;
 
 
 
+
 namespace PBL3_Hotel_System.Controllers
 {
-    [Authorize(Roles = "KhachHang")]
+    [Authorize(Roles = "KhachHang, NhanVien")]
     public class BookingController(HotelDbContext _context) : Controller
     {
         [HttpGet]
@@ -102,6 +104,49 @@ namespace PBL3_Hotel_System.Controllers
             await _context.SaveChangesAsync();
             TempData["Success"] = $"Đặt phòng {model.SoPhong} thành công! Lịch hẹn từ {model.CheckIn:dd/MM} đến {model.CheckOut:dd/MM}.";
             return RedirectToAction("BookingView", "Room");
+        }
+
+
+        [HttpGet]
+     
+        public async Task<IActionResult> GetBookingDetailPartial(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Room)
+                .Include(b => b.kh) // Phải có để lấy thông tin khách
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
+            if (booking == null) return NotFound("Không tìm thấy đơn đặt phòng.");
+
+            // Xử lý đếm số ngày (Tránh lỗi ngày đi trùng ngày đến = 0)
+            int soNgay = (booking.CheckOut - booking.CheckIn).Days;
+            if (soNgay <= 0) soNgay = 1;
+
+            var statusInfo = HotelStatusHelper.GetBookingStatus(booking.TrangThaiDat);
+            var model = new BookingDetailViewModel
+            {
+                BookingID = booking.BookingID,
+                TenKhachHang = booking.kh?.Hoten ?? "Khách vãng lai",
+                SoDienThoai = booking.kh?.sđt ?? "N/A",
+                CCCD = booking.kh?.CCCD ?? "N/A",
+                DiaChi = booking.kh?.DiaChi ?? "N/A",
+                SoPhong = booking.SoPhong,
+                LoaiPhong = booking.Room?.LoaiPhong.ToString() ?? "N/A",
+                GiaMotDem = booking.GiaLucDat,
+                NgayDat = booking.NgayDat.ToString("dd/MM/yyyy HH:mm"),
+                CheckIn = booking.CheckIn.ToString("dd/MM/yyyy"),
+                CheckOut = booking.CheckOut.ToString("dd/MM/yyyy"),
+                SoDem = soNgay,
+                TongTien = booking.GiaLucDat.ToString("N0") + " ₫",
+                GhiChu = booking.GhiChu ?? "Không có",
+                RealCheckInFormatted = booking.RealCheckIn.HasValue
+                           ? booking.RealCheckIn.Value.ToString("dd/MM/yyyy HH:mm")
+                           : "Chưa cập nhật",
+                TenTrangThai = statusInfo.Text,       // Trả về "Đang ở", "Chờ duyệt"...
+                CssClassTrangThai = statusInfo.CssClass // Trả về "status-info", "status-pending"...
+            };
+
+            return PartialView("_BookingDetailPartial", model);
         }
     }
 }

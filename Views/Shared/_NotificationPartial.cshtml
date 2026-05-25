@@ -1,0 +1,58 @@
+﻿
+@if (TempData["Success"] != null || TempData["Error"] != null)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Đợi trang load xong là gọi ngay hàm Luxury Toast của chúng ta
+            @if (TempData["Success"] != null)
+            {
+                @:triggerToast("@TempData["Success"]", "success");
+            }
+            @if (TempData["Error"] != null)
+            {
+                @:triggerToast("@TempData["Error"]", "error");
+            }
+        });
+    </script>
+}
+
+
+<!-- ========================================== -->
+<!-- LUXURY CONFIRM MODAL (DÙNG CHUNG TOÀN HỆ THỐNG) -->
+<!-- ========================================== -->
+<div id="luxuryConfirmOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10005; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    
+    <div style="background: #fff; width: 420px; padding: 40px 30px; border-radius: 16px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        
+        <!-- ICON TRẠNG THÁI -->
+        <div id="luxuryConfirmIconBox" style="width: 80px; height: 80px; background: #fff3cd; color: #f39c12; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px;">
+            <i id="luxuryConfirmIcon" class="fas fa-question"></i>
+        </div>
+        
+        <!-- NỘI DUNG ĐỘNG -->
+        <h3 id="luxuryConfirmTitle" style="font-family: var(--font-heading); color: var(--secondary-color); margin-bottom: 10px; font-size: 1.6rem;">Xác nhận thao tác?</h3>
+        <p id="luxuryConfirmMessage" style="color: #666; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6;">
+            Bạn có chắc chắn muốn thực hiện hành động này không?
+        </p>
+
+        <!-- NHÓM NÚT BẤM ĐỘNG -->
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button type="button" onclick="closeLuxuryConfirm()" style="flex: 1; padding: 12px; border-radius: 30px; background: #f4f6f8; border: 1px solid #e0e0e0; color: #555; font-weight: 600; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='#e2e6ea'" onmouseout="this.style.background='#f4f6f8'">
+                Hủy bỏ
+            </button>
+            <button type="button" id="btnConfirmAccept" style="flex: 1; padding: 12px; border-radius: 30px; background: #f39c12; border: none; color: white; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); transition: 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                ĐỒNG Ý
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    @@keyframes popIn {
+        0% { transform: scale(0.8); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+
+<script src="~/js/feature.js"></script>

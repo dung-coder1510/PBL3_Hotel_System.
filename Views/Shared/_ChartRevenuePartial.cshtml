@@ -1,0 +1,112 @@
+﻿<div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h4 class="chart-title-luxury">
+            <div class="chart-icon-box">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span>Phân Tích Doanh Thu Năm <span id="currentYearText"></span></span>
+        </h4>
+        <!-- Có thể thêm thẻ Select chọn năm ở đây sau -->
+    </div>
+    
+    <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const year = new Date().getFullYear();
+        
+    // Gắn số năm vào thẻ HTML một cách an toàn
+    const yearSpan = document.getElementById("currentYearText");
+    if(yearSpan) yearSpan.innerText = year;
+
+    // Gọi API lấy dữ liệu
+    fetch(`/Admin/GetRevenueChartData?year=${year}`)
+    .then(res => res.json())
+    .then(json => {
+    const canvas = document.getElementById('revenueChart');
+    if (!canvas) return; // Bảo vệ chống lỗi nếu không tìm thấy canvas
+                
+    const ctx = canvas.getContext('2d');
+                
+    // Tạo Gradient màu Gold cho biểu đồ đường
+    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(212, 175, 55, 0.5)'); // Gold nhạt
+    gradient.addColorStop(1, 'rgba(212, 175, 55, 0.0)'); // Trong suốt
+
+    new Chart(ctx, {
+    type: 'line',
+    data: {
+    labels: json.labels,
+    datasets: [{
+    label: 'Tổng doanh thu hệ thống',
+    data: json.data,
+    borderColor: '#d4af37', // Vàng Gold
+    backgroundColor: gradient,
+    borderWidth: 3,
+    pointBackgroundColor: '#fff',
+    pointBorderColor: '#d4af37',
+    pointBorderWidth: 2,
+    pointRadius: 4,
+    fill: true,
+    tension: 0.4 // Làm cong đường
+    }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+    mode: 'index',
+    intersect: false,
+    },
+    plugins: {
+    legend: {
+    display: true,
+    position: 'top',
+    labels: {
+    usePointStyle: true,
+    font: { family: 'Montserrat, sans-serif', size: 13, weight: 'bold' },
+    color: '#2c3e50'
+    }
+    },
+    tooltip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    titleColor: '#888',
+    bodyColor: '#d4af37',
+    bodyFont: { size: 16, weight: 'bold' },
+    borderColor: '#e0e0e0',
+    borderWidth: 1,
+    padding: 12,
+    boxPadding: 6,
+    usePointStyle: true,
+    callbacks: {
+    label: function(context) {
+    let value = context.raw || 0;
+    return ' Doanh thu: ' + value.toLocaleString('vi-VN') + ' ₫';
+    }
+    }
+    }
+    },
+    scales: {
+    y: {
+    beginAtZero: true,
+    grid: { borderDash: [5, 5], color: '#f0f0f0' },
+    ticks: {
+    callback: function(value) {
+    if (value >= 1000000) return (value / 1000000) + ' Tr';
+    if (value >= 1000) return (value / 1000) + ' K';
+    return value;
+    }
+    }
+    },
+    x: { grid: { display: false } }
+    }
+    }
+    });
+    })
+    .catch(err => console.error("Lỗi vẽ biểu đồ Doanh thu:", err));
+    });
+</script>

@@ -12,22 +12,7 @@
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    @* Nhúng Toast thông báo dùng chung *@
-    @if (TempData["Success"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-success">
-            <i class="fas fa-check-circle"></i> <span>@TempData["Success"]</span>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-error">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>@TempData["Error"]</span>
-            <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor:pointer; opacity:0.5;"></i>
-        </div>
-    }
-
+    <partial name="_NotificationPartial" />
 
     <div class="dashboard-wrapper">
         <aside class="sidebar">
@@ -78,7 +63,14 @@
         </main>
     </div>
 
-    <script src="~/js/feature.js"></script>
+    <div id="bookingModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        
+        <div id="bookingModalContent" style="background: #fff; width: 850px; max-width: 95%; max-height: 90vh; overflow-y: auto; padding: 30px; border-radius: 12px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.2);">
+            <!-- Nội dung chi tiết Booking sẽ được AJAX đổ vào đây -->
+        </div>
+
+    </div>
+    <script src="~/js/RoomResult.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

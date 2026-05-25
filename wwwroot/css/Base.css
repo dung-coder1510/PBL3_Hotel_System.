@@ -150,83 +150,122 @@ section {
     padding: 5rem 0;
 }
 
-/* =========================================
-   LUXURY TOAST NOTIFICATION (base.css)
-   ========================================= */
-
-.alert-luxury-toast {
+/* CONTAINER CHỨA TOAST Ở TRÊN CÙNG GIỮA MÀN HÌNH */
+#luxury-toast-container {
     position: fixed;
-    top: 20px; /* Cách đỉnh màn hình */
+    top: 20px;
     left: 50%;
-    transform: translateX(-50%); /* Căn giữa ngang */
-    z-index: 10000; /* Luôn nằm trên cùng (đè lên cả Navbar và Modal) */
+    transform: translateX(-50%);
+    z-index: 99999; /* Đảm bảo nổi trên cả Modal */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Cho phép click xuyên qua vùng trống */
+}
 
-    min-width: 350px;
-    max-width: 90%;
-    background-color: var(--bg-white);
-    padding: 16px 24px;
-    border-radius: var(--radius-md);
-    /* Đổ bóng sâu để tạo cảm giác nổi khối (Depth) */
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+.luxury-toast-item {
+    pointer-events: auto; /* Cho phép tương tác với chính nó */
+    min-width: 320px;
+    max-width: 500px;
+    padding: 15px 25px;
+    background: white;
+    border-radius: 10px; /* Hình viên thuốc (Pill shape) cực sang trọng */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
     display: flex;
     align-items: center;
-    gap: 15px;
-    font-family: var(--font-body);
-    font-weight: 500;
-    /* Hiệu ứng trượt từ trên xuống */
-    animation: toastSlideDown 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    transition: all 0.5s ease;
+    gap: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(0,0,0,0.05);
+    animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s ease;
 }
 
-/* Biến thể: THÀNH CÔNG */
-.alert-toast-success {
-    border-left: 5px solid #28a745; /* Viền xanh lá bên trái */
-    color: #155724;
+/* Các loại màu sắc */
+.toast-success {
+    border-left: 5px solid #28a745;
+    color: #28a745;
 }
 
-    .alert-toast-success i {
-        color: #28a745;
-        font-size: 1.2rem;
-    }
-
-/* Biến thể: LỖI / CẢNH BÁO */
-.alert-toast-error {
-    border-left: 5px solid #dc3545; /* Viền đỏ bên trái */
-    color: #721c24;
+.toast-error {
+    border-left: 5px solid #dc3545;
+    color: #dc3545;
 }
 
-    .alert-toast-error i {
-        color: #dc3545;
-        font-size: 1.2rem;
-    }
-
-/* Nút X đóng nhanh */
-.alert-luxury-toast span {
-    flex: 1; /* Đẩy nội dung chữ rộng ra */
-    line-height: 1.4;
+.toast-warning {
+    border-left: 5px solid #f39c12;
+    color: #f39c12;
 }
 
-.alert-luxury-toast .fa-times {
-    cursor: pointer;
-    opacity: 0.4;
-    font-size: 0.9rem;
-    transition: var(--transition-fast);
-}
-
-    .alert-luxury-toast .fa-times:hover {
-        opacity: 1;
-        color: var(--primary-color);
-    }
-
-/* Hiệu ứng Animation */
 @keyframes toastSlideDown {
     from {
-        top: -100px;
+        transform: translateY(-50px);
         opacity: 0;
     }
 
     to {
-        top: 20px;
+        transform: translateY(0);
         opacity: 1;
     }
+}
+
+
+/*Tiêu đề của Chart*/
+
+/* 1. KHUNG CHỨA TIÊU ĐỀ */
+.chart-title-luxury {
+    font-family: var(--font-heading);
+    color: var(--secondary-color);
+    font-size: 1.3rem;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    /* 2. ĐƯỜNG GẠCH MỜ VÀ ĐIỂM NHẤN (Pseudo-element) */
+    .chart-title-luxury::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: #f0f0f0; /* Đường kẻ ngang mờ toàn bộ */
+    }
+
+    .chart-title-luxury::before {
+        content: '';
+        position: absolute;
+        bottom: -1px; /* Đè lên đường gạch mờ */
+        left: 0;
+        width: 60px; /* Độ dài vệt nhấn màu vàng */
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 3px;
+        z-index: 1;
+    }
+
+/* Nếu là biểu đồ tròn (căn giữa) thì chỉnh lại đường gạch nhấn */
+.chart-title-center {
+    justify-content: center;
+}
+
+    .chart-title-center::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+/* 3. ICON NHẤN (BOX) */
+.chart-icon-box {
+    width: 35px;
+    height: 35px;
+    background: rgba(212, 175, 55, 0.1); /* Vàng mờ */
+    color: var(--primary-color); /* Vàng đậm */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
 }

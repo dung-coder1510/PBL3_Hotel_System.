@@ -204,17 +204,9 @@
                         <!-- 3. Trạng thái có màu sắc -->
                         <td style="text-align: center;">
                             @{
-                                string sClass = "";
-                                string sText = "";
-                                switch (p.TrangThai)
-                                {
-                                    case RoomStatus.Available: sClass = "status-available"; sText = "Sẵn sàng"; break;
-                                    case RoomStatus.Occupied: sClass = "status-occupied"; sText = "Đang ở"; break;
-                                    case RoomStatus.Cleaning: sClass = "status-cleaning"; sText = "Dọn dẹp"; break;
-                                    case RoomStatus.Maintenance: sClass = "status-maintenance"; sText = "Bảo trì"; break;
-                                }
+                                var rStatus = HotelStatusHelper.GetRoomStatus(p.TrangThai);
                             }
-                            <span class="badge-status @sClass">@sText</span>
+                            <span class="badge-status @rStatus.CssClass">@rStatus.Text</span>
                         </td>
 
                         <!-- 4. Form cập nhật -->

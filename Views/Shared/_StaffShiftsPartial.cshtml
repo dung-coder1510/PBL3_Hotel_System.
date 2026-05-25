@@ -1,0 +1,265 @@
+﻿@using PBL3_Hotel_System.Helpers
+@model IEnumerable<PBL3_Hotel_System.Models.DangKiCaLam>
+
+<style>
+    /* =========================================
+       1. KHUNG CHỨA & THANH CUỘN (SCROLLBAR)
+       ========================================= */
+    .shift-modal-container {
+        font-family: var(--font-body);
+        padding: 10px;
+    }
+    .modal-header-luxury{
+        display: flex;
+        justify-content: space-between;
+    }
+    .table-scroll-container {
+        max-height: 480px; /* Chiều cao cố định */
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 8px;
+    }
+
+    /* Tùy chỉnh thanh cuộn kiểu Luxury Gold */
+    .table-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .table-scroll-container::-webkit-scrollbar-track {
+        background: #f9f9f9;
+        border-radius: 10px;
+    }
+    .table-scroll-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #d4af37, #b8860b);
+        border-radius: 10px;
+    }
+
+    /* =========================================
+       2. CẤU TRÚC BẢNG DẠNG THẺ (CARD STYLE)
+       ========================================= */
+    .table-staff-shift {
+        width: 100%;
+        border-collapse: separate !important;
+        border-spacing: 0 12px !important; /* Khoảng cách giữa các hàng */
+        table-layout: fixed; /* Cố định chiều rộng cột */
+    }
+
+    /* Định nghĩa chiều rộng các cột */
+    .col-date { width: 25%; }
+    .col-info { width: 30%; }
+    .col-status { width: 20%; }
+    .col-action { width: 25%; }
+
+    .table-staff-shift th {
+        color: #999;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 15px;
+        border: none;
+    }
+
+    .table-staff-shift td {
+        background: #fff;
+        padding: 18px 15px;
+        vertical-align: middle;
+        transition: all 0.3s ease;
+        border-top: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* Bo góc cho hàng */
+    .table-staff-shift td:first-child { border-left: 1px solid #f0f0f0; border-radius: 12px 0 0 12px; }
+    .table-staff-shift td:last-child { border-right: 1px solid #f0f0f0; border-radius: 0 12px 12px 0; }
+
+    .table-staff-shift tr:hover td {
+        background: #fdfbf4;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.08);
+        border-color: #d4af37;
+    }
+
+    /* =========================================
+       3. FIX ICON & NỘI DUNG (CHỐNG MÉO)
+       ========================================= */
+    i { flex-shrink: 0 !important; } /* Cấm tuyệt đối việc co nhỏ icon */
+
+    .shift-time-info small {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #888;
+        margin-top: 4px;
+    }
+
+    .shift-time-info i {
+        color: #d4af37;
+        font-size: 0.9rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    /* =========================================
+       4. TRẠNG THÁI & NÚT BẤM (LUXURY LOOK)
+       ========================================= */
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        min-width: 110px;
+        text-transform: uppercase;
+    }
+
+    /* Hiệu ứng nhấp nháy cho Chờ duyệt */
+    .status-pending::before {
+        content: ""; width: 7px; height: 7px; background: currentColor; border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    .btn-approve-luxury {
+        background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%);
+        color: white !important;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+
+    .btn-approve-luxury:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(212, 175, 55, 0.5);
+    }
+
+    .approved-stamp {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(40, 167, 69, 0.08);
+        color: #28a745;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+
+    .approved-stamp i {
+        background: #28a745;
+        color: #fff;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+
+    @@keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.4; }
+        100% { opacity: 1; }
+    }
+</style>
+
+<div class="shift-modal-container">
+    <!-- TIÊU ĐỀ -->
+    <div class="modal-header-luxury">
+        <h3>Lịch Làm Việc:<span class="staff-name-highlight">@ViewBag.StaffName</span></h3>
+        <button type="button" onclick="closeAdminModal()" style="background:none; border:none; font-size:1.8rem; color:#ccc; cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- BẢNG DỮ LIỆU CÓ CUỘN -->
+    <div class="table-scroll-container">
+        <table class="table-staff-shift">
+            <thead>
+                <tr>
+                    <th class="col-date">Ngày Làm Việc</th>
+                    <th class="col-info">Thông Tin Ca</th>
+                    <th class="col-status" style="text-align: center;">Trạng Thái</th>
+                    <th class="col-action" style="text-align: right;">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- CỘT 1: NGÀY -->
+                            <td class="col-date">
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-weight: 800; color: #333; font-size: 1.1rem;">@item.NgayLam.ToString("dd/MM/yyyy")</span>
+                                    <small style="color: #aaa; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                                        @item.NgayLam.ToString("dddd", new System.Globalization.CultureInfo("vi-VN"))
+                                    </small>
+                                </div>
+                            </td>
+
+                            <!-- CỘT 2: CA LÀM -->
+                            <td class="col-info">
+                                <div class="shift-time-info">
+                                    <strong style="color: #444; font-size: 1rem;">@item.CaLam?.TenCa</strong>
+                                    <small>
+                                        <i class="far fa-clock"></i> 
+                                        <span>@item.CaLam?.GioBatDau.ToString(@"hh\:mm") — @item.CaLam?.GioKetThuc.ToString(@"hh\:mm")</span>
+                                    </small>
+                                </div>
+                            </td>
+
+                            <!-- CỘT 3: TRẠNG THÁI -->
+                            <td class="col-status" style="text-align: center;">
+                                @{ var sInfo = HotelStatusHelper.GetShiftStatus(item.TrangThai); }
+                                <span class="badge-status @sInfo.CssClass">
+                                    @sInfo.Text
+                                </span>
+                            </td>
+
+                            <!-- CỘT 4: NÚT BẤM -->
+                            <td class="col-action" style="text-align: right;">
+                                @if (item.TrangThai == PBL3_Hotel_System.Models.ShiftStatus.Pending)
+                                {
+                                    <form asp-action="ApproveShift" asp-controller="Admin" method="post" class="ajax-form" style="margin:0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="requestId" value="@item.MaDK" />
+                                        <input type="hidden" name="staffId" value="@item.MaNV" />
+                                        <button type="button" class="btn-approve-luxury" 
+                                                onclick="showLuxuryConfirm(this, 'Duyệt lịch làm?', 'Xác nhận nhân viên này sẽ đi làm vào ngày @item.NgayLam.ToString("dd/MM")', 'warning')">
+                                            <i class="fas fa-check-circle"></i> DUYỆT NGAY
+                                        </button>
+                                    </form>
+                                }
+                                else if (item.TrangThai == PBL3_Hotel_System.Models.ShiftStatus.Approved)
+                                {
+                                    <div class="approved-stamp">
+                                        <i class="fas fa-check"></i> ĐÃ PHÊ DUYỆT
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 5rem 0; color: #ddd;">
+                            <i class="fas fa-calendar-minus" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                            <p style="font-weight: 600;">Chưa có dữ liệu đăng ký ca làm.</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

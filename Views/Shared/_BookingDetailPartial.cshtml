@@ -1,0 +1,253 @@
+﻿@model PBL3_Hotel_System.ViewModels.BookingDetailViewModel
+
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; margin-bottom: 25px;">
+    <h3 style="font-family: var(--font-heading); color: var(--secondary-color); margin: 0;">
+        <i class="fas fa-file-invoice"></i> Phiếu Thông Tin Giao Dịch <span style="color: #ccc;">#@Model.BookingID</span>
+    </h3>
+    <button type="button" onclick="closeBookingModal()" style="background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer;">&times;</button>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px;">
+    <!-- CỘT 1: THÔNG TIN KHÁCH -->
+    <div style="background: #fdfdfd; padding: 20px; border-radius: 10px; border: 1px solid #eee;">
+        <h4 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 15px; text-transform: uppercase;"><i class="fas fa-user"></i> Khách hàng</h4>
+        <ul style="list-style: none; padding: 0; line-height: 2; font-size: 0.95rem;">
+            <li><strong>Họ tên:</strong> @Model.TenKhachHang</li>
+            <li><strong>SĐT:</strong> @Model.SoDienThoai</li>
+            <li><strong>CCCD:</strong> @Model.CCCD</li>
+            <li><strong>Địa chỉ:</strong> @Model.DiaChi</li>
+        </ul>
+    </div>
+
+    <!-- CỘT 2: THÔNG TIN PHÒNG -->
+    <div style="background: #fdfdfd; padding: 20px; border-radius: 10px; border: 1px solid #eee;">
+        <h4 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 15px; text-transform: uppercase;"><i class="fas fa-bed"></i> Phòng @Model.SoPhong</h4>
+        <ul style="list-style: none; padding: 0; line-height: 2; font-size: 0.95rem;">
+            <li><strong>Hạng phòng:</strong> @Model.LoaiPhong</li>
+            <li><strong>Lịch trình:</strong> @Model.CheckIn <i class="fas fa-arrow-right text-muted mx-1"></i> @Model.CheckOut</li>
+            <li><strong>Số đêm:</strong> @Model.SoDem đêm</li>
+            <li><strong>Ngày đặt:</strong> @Model.NgayDat</li>
+        </ul>
+    </div>
+</div>
+
+<div style="background: #fff9db; padding: 15px 20px; border-left: 4px solid var(--primary-color); border-radius: 6px; margin-bottom: 25px;">
+    <strong style="color: #856404; font-size: 0.9rem;"><i class="fas fa-comment-dots"></i> Ghi chú của khách:</strong>
+    <p style="margin: 5px 0 0 0; color: #555; font-style: italic;">@Model.GhiChu</p>
+</div>
+
+<!-- TỔNG KẾT TÀI CHÍNH -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #eee; padding-top: 20px;">
+    <div>
+        <span style="font-size: 0.85rem; color: #888; text-transform: uppercase; font-weight: 600;">Trạng thái</span><br />
+        <span class="badge-status @Model.CssClassTrangThai" style="margin-top: 5px; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #eee;">
+            @Model.TenTrangThai
+        </span>
+    </div>
+    <div style="text-align: right;">
+        <span style="font-size: 0.85rem; color: #888; text-transform: uppercase; font-weight: 600;">Tổng thanh toán</span><br />
+        <span style="font-size: 1.8rem; font-weight: bold; color: #dc3545;">@Model.TongTien</span>
+    </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- NÚT THAO TÁC NGHIỆP VỤ & ẨN/HIỆN FORM BẰNG JS -->
+<!-- ======================================================== -->
+<div style="margin-top: 30px; text-align: center;">
+
+    @if (User.IsInRole("NhanVien") || User.IsInRole("QuanTriVien"))
+    {
+        <!-- ========================================== -->
+        <!-- GÓC NHÌN CỦA NHÂN VIÊN / ADMIN -->
+        <!-- ========================================== -->
+        @if (Model.TenTrangThai == "Chờ duyệt")
+        {
+            <!-- Nhóm nút ban đầu -->
+            <div id="btnGroupCheckIn" style="display: flex; justify-content: center; gap: 15px;">
+                <form asp-controller="NhanVien" asp-action="HuyDonPhong" method="post">
+                    <input type="hidden" name="bookingId" value="@Model.BookingID" />
+                    <button type="submit" class="btn" style="background: #fff5f5; color: #dc3545; border: 1px solid #ffc9c9; padding: 12px 25px; border-radius: 30px; font-weight: bold;" onclick="return confirm('Xác nhận hủy đơn này?')">
+                        <i class="fas fa-ban"></i> HỦY ĐƠN
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-primary" style="background: var(--primary-color); border: none; color: white; padding: 12px 30px; border-radius: 30px; font-weight: bold;" onclick="document.getElementById('formCheckIn').style.display='block'; document.getElementById('btnGroupCheckIn').style.display='none';">
+                    <i class="fas fa-key"></i> XÁC NHẬN CHECK-IN
+                </button>
+            </div>
+
+            <!-- Form nhập giờ Check-in (Ẩn đi) -->
+            <form asp-controller="NhanVien" asp-action="XacNhanCheckIn" method="post" id="formCheckIn" style="display: none; background: #fcfcfc; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0; margin-top: 15px; animation: slideInUp 0.3s ease;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="BookingID" value="@Model.BookingID" />
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+                    <div style="flex: 1; text-align: left;">
+                        <strong style="color: var(--secondary-color); font-size: 0.95rem; display: block;">
+                            <i class="fas fa-clock text-gold"></i> Giờ vào thực tế
+                        </strong>
+                        <small style="color: #888;">Ngày @Model.CheckIn (Cố định)</small>
+                    </div>
+
+                    <div style="flex: 2;">
+                        @{
+                            DateTime d = DateTime.ParseExact(Model.CheckIn, "dd/MM/yyyy", null);
+                            string dateIso = d.ToString("yyyy-MM-dd");
+                        }
+                        <input type="datetime-local" name="InputRealCheckIn"
+                               value="@(dateIso + "T" + DateTime.Now.ToString("HH:mm"))"
+                               min="@(dateIso + "T00:00")" max="@(dateIso + "T23:59")" step="60"
+                               style="width: 100%; padding: 10px 15px; border: 2px solid #eee; border-radius: 8px; font-family: var(--font-body); font-weight: 600; color: var(--primary-color); outline: none; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='#eee'" required />
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn" style="background: #eee; color: #666; padding: 10px 20px;" onclick="document.getElementById('formCheckIn').style.display='none'; document.getElementById('btnGroupCheckIn').style.display='flex';">Hủy</button>
+                        <button type="submit" class="btn" style="background: var(--primary-color); color: white; padding: 10px 25px; font-weight: bold;">XÁC NHẬN</button>
+                    </div>
+                </div>
+            </form>
+        }
+        else if (Model.TenTrangThai == "Đang ở" || Model.TenTrangThai == "Đang chờ Lễ tân" || Model.TenTrangThai == "Quá hạn trả")
+        {
+            <div style="text-align: left; margin-bottom: 20px; padding: 15px; background: #e6fcf5; border-radius: 8px;">
+                <strong><i class="fas fa-sign-in-alt text-success"></i> Đã Check-in lúc:</strong> @Model.RealCheckInFormatted
+            </div>
+
+            @if (Model.TenTrangThai == "Đang chờ Lễ tân")
+            {
+                <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffeeba; text-align: left;">
+                    <i class="fas fa-bell fa-shake"></i> <strong>Khách đang chờ:</strong> Khách hàng đã yêu cầu trả phòng. Vui lòng chuẩn bị hóa đơn!
+                </div>
+            }
+            @if (Model.TenTrangThai == "Quá hạn trả")
+            {
+                <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc3545; text-align: left;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Quá hạn:</strong> Khách đã lưu trú lố giờ quy định (12:00). Hãy kiểm tra lại phụ phí!
+                </div>
+            }
+
+            <!-- NÚT BẤM KÍCH HOẠT CHECK-OUT -->
+            <button type="button" id="btnShowCheckOut" class="btn" style="background: #17a2b8; color: white; width: 100%; justify-content: center; border-radius: 8px; padding: 16px; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3); position: relative; z-index: 20;" onclick="toggleCheckOutForm()">
+                <i class="fas fa-sign-out-alt"></i> TIẾN HÀNH CHECK-OUT & IN BILL
+            </button>
+
+            <!-- FORM NHẬP GIỜ CHECK-OUT (Bị khóa ngày) -->
+            <form asp-controller="NhanVien" asp-action="XacNhanCheckOut" method="post" id="formCheckOut" style="display: none; background: #f4f9ff; padding: 15px 20px; border-radius: 12px; border: 1px solid #17a2b8; margin-top: 15px; animation: slideInUp 0.3s ease;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="BookingID" value="@Model.BookingID" />
+
+                <!-- Tầng 1: Nhãn và Ô nhập liệu nằm ngang -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 15px;">
+                    <div style="flex: 1; text-align: left;">
+                        <strong style="color: #117a8b; font-size: 0.95rem; display: block;">
+                            <i class="fas fa-sign-out-alt"></i> Giờ trả phòng thực tế
+                        </strong>
+                        <small style="color: #666;">Ngày dự kiến: @Model.CheckOut</small>
+                    </div>
+
+                    <div style="flex: 1.5;">
+                        @{
+                            DateTime outDate = DateTime.ParseExact(Model.CheckOut, "dd/MM/yyyy", null);
+                            string outDateIso = outDate.ToString("yyyy-MM-dd");
+                        }
+                        <input type="datetime-local" name="InputRealCheckOut"
+                               value="@(outDateIso + "T" + DateTime.Now.ToString("HH:mm"))"
+                               min="@(outDateIso + "T00:00")" max="@(outDateIso + "T23:59")" step="60"
+                               style="width: 100%; padding: 8px 12px; border: 2px solid #bcdff1; border-radius: 8px; font-family: var(--font-body); font-weight: 600; color: #17a2b8; outline: none;" required />
+                    </div>
+                </div>
+
+                <!-- Tầng 2: Nhóm nút bấm điều hướng -->
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #dee2e6; padding-top: 12px;">
+                    <button type="button" class="btn" style="background: #e9ecef; color: #495057; padding: 8px 20px; border-radius: 6px; font-size: 0.9rem; font-weight: 600;"
+                            onclick="document.getElementById('formCheckOut').style.display='none'; document.getElementById('btnShowCheckOut').style.display='inline-flex';">
+                        HỦY
+                    </button>
+                    <button type="submit" class="btn" style="background: #17a2b8; color: white; padding: 8px 25px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; box-shadow: 0 4px 10px rgba(23,162,184,0.2);">
+                        XÁC NHẬN RA & XUẤT BILL
+                    </button>
+                </div>
+            </form>
+        }
+    }
+    else
+    {
+        <!-- ========================================== -->
+        <!-- GÓC NHÌN CỦA KHÁCH HÀNG (CHỈ XEM BILL / CẢM ƠN) -->
+        <!-- ========================================== -->
+        @if (Model.TenTrangThai == "Hoàn thành")
+        {
+            // 1. CẤU HÌNH THÔNG SỐ NGÂN HÀNG (Có thể đổi theo ý bạn)
+            string bankBin = "970436"; // Vietcombank
+            string bankAccount = "1028751508"; // Số TK của bạn
+            string accountName = "HOTEL VIP";
+    
+            // 2. LẤY SỐ TIỀN VÀ TẠO NỘI DUNG
+            // Thay đổi Model.GiaMotDem thành biến lưu Tổng tiền cuối cùng của bạn
+            decimal amount = Model.GiaMotDem;
+            string addInfo = $"THANHTOAN PHONG {Model.SoPhong} DON {Model.BookingID}";
+    
+            string safeAddInfo = Uri.EscapeDataString(addInfo);
+            string safeAccountName = Uri.EscapeDataString(accountName);
+
+            // 3. LINK API TẠO ẢNH QR TỰ ĐỘNG TỪ VIETQR
+            string qrUrl = $"https://img.vietqr.io/image/{bankBin}-{bankAccount}-compact2.png?amount={amount}&addInfo={safeAddInfo}&accountName={safeAccountName}";
+
+            <!-- KHUNG HÓA ĐƠN VÀ QR PAY -->
+            <div style="background: #fff; border: 1px dashed #d4af37; border-radius: 12px; padding: 20px; margin-top: 25px; margin-bottom: 25px;  position: relative;">
+        
+                <!-- Nhãn Hóa Đơn Phía Trên Cùng -->
+                <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #d4af37; color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px;">
+                    HÓA ĐƠN THANH TOÁN
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
+            
+                    <!-- Cột 1: Thông tin số tiền -->
+                    <div style="flex-grow: 1; text-align: center; border-right: 1px dashed #eee; padding-right: 15px;">
+                        <p style="color: #888; font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase;">Số tiền cần thanh toán</p>
+                        <h2 style="font-family: var(--font-heading); color: #28a745; margin: 0 0 10px 0; font-size: 1.8rem;">
+                            @amount.ToString("N0") ₫
+                        </h2>
+                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #555; text-align: left;">
+                            <ul style="margin: 0; padding-left: 15px; line-height: 1.6;">
+                                <li><strong>Ngân hàng:</strong> Vietcombank</li>
+                                <li><strong>Chủ TK:</strong> @accountName</li>
+                                <li><strong>Số TK:</strong> @bankAccount</li>
+                                <li><strong>Nội dung:</strong> <span style="color: #d4af37; font-weight: bold;">@addInfo</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Cột 2: Ảnh Mã QR -->
+                    <div style="flex-shrink: 0; text-align: center; width: 140px;">
+                        <div style="background: white; padding: 5px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <img src="@qrUrl" alt="Mã QR Thanh Toán" style="width: 100%; height: auto; display: block; border-radius: 5px;" />
+                        </div>
+                        <p style="font-size: 0.7rem; font-weight: bold; color: #888; margin: 10px 0 0 0;">
+                            <i class="fas fa-qrcode"></i> Quét mã để trả tiền
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div style="background: #fdfcf7; padding: 20px; border-radius: 12px; border: 1px solid #f0eedb; text-align: center;">
+                <i class="fas fa-heart text-gold" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <h4 style="color: var(--secondary-color); font-family: var(--font-heading);">Cảm ơn quý khách!</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 0;">Hẹn gặp lại quý khách tại Hotel Vip trong những kỳ nghỉ tới.</p>
+                <button type="button" class="btn" style="background: var(--primary-color); color: white; margin-top: 15px; border-radius: 30px; padding: 8px 25px;" onclick="window.print()">
+                    <i class="fas fa-print"></i> IN HÓA ĐƠN
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Khách hàng đang ở các trạng thái khác (Chờ duyệt, Đang ở...) -->
+            <div style="text-align: center; color: #888; font-style: italic; padding: 15px;">
+                <p style="margin: 0;"><i class="fas fa-info-circle"></i> Vui lòng liên hệ quầy Lễ tân nếu quý khách cần hỗ trợ thêm.</p>
+            </div>
+        }
+    }
+</div>

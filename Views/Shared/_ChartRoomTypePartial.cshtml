@@ -1,0 +1,75 @@
+﻿<div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%;">
+    <h4 class="chart-title-luxury chart-title-center">
+        <div class="chart-icon-box">
+            <i class="fas fa-bed"></i>
+        </div>
+        <span>Tỉ Lệ Lựa Chọn Loại Phòng</span>
+    </h4>
+    
+    <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="roomTypeChart"></canvas>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const year = new Date().getFullYear();
+
+        fetch(`/Admin/GetRoomTypeChartData?year=${year}`)
+            .then(res => res.json())
+            .then(json => {
+                const ctx = document.getElementById('roomTypeChart').getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'doughnut', // Dùng Doughnut (Bánh vòng) nhìn sang hơn Pie (Bánh tròn đặc)
+                    data: {
+                        labels: json.labels,
+                        datasets: [{
+                            data: json.data,
+                            // Bảng màu Luxury: Vàng Gold, Xanh Navy xám, Trắng kem, Đen nhạt
+                            backgroundColor: ['#d4af37', '#2c3e50', '#e0e0e0', '#888888'],
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 4
+                        }]
+                    },
+                        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%', // Vòng khuyết nhỏ lại một chút để bánh nhìn đầy đặn hơn
+        plugins: {
+            // 1. TÙY CHỈNH CHÚ THÍCH (LEGEND)
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: { family: 'Montserrat, sans-serif', size: 12, weight: '600' }
+                }
+            },
+            // 2. TÙY CHỈNH TOOLTIP (HIỆN SỐ LƯỢNG & PHẦN TRĂM)
+            tooltip: {
+                backgroundColor: 'rgba(44, 62, 80, 0.9)', // Nền xanh đen
+                titleColor: '#d4af37', // Tiêu đề chữ vàng
+                bodyColor: '#fff',
+                padding: 12,
+                callbacks: {
+                    label: function(context) {
+                        // Lấy số lượng (Value)
+                        let value = context.raw || 0;
+                    
+                        // Tính tổng để ra phần trăm
+                        let total = context.chart._metasets[context.datasetIndex].total;
+                        let percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                    
+                        // Trả về chuỗi: " 15 lượt (45%)"
+                        return ` ${value} lượt đặt phòng (${percentage}%)`;
+                    }
+                }
+            }
+        }
+    }
+                });
+            });
+    });
+</script>

@@ -1,0 +1,209 @@
+﻿@{
+    // 1. Kế thừa Layout Admin chuẩn mực
+    Layout = "_AdminDashboardLayout";
+    ViewData["Title"] = "Quản Trị Hệ Thống";
+    // ViewData["ActiveMenu"] = "Index"; (Đã được gán sẵn ở AdminController)
+}
+
+@section Styles {
+    <style>
+        /* =========================================
+                   CSS DÀNH RIÊNG CHO DASHBOARD ADMIN
+                   ========================================= */
+        .admin-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2c3e50);
+            color: white;
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header-text h1 {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .admin-header-text p {
+            color: #d0d0d0;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .admin-quick-stats {
+            display: flex;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .quick-stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+            .quick-stat-item span {
+                display: block;
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 5px;
+            }
+        
+            .quick-stat-item small {
+                color: var(--primary-color);
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 1px;
+            }
+
+        /* LƯỚI CARD TÁC VỤ */
+        .admin-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .admin-action-card {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light);
+            border-top: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Căn trái cho sang trọng thay vì căn giữa */
+        }
+
+            .admin-action-card:hover {
+                transform: translateY(-8px);
+                box-shadow: var(--shadow-dark);
+            }
+
+            .admin-action-card .icon-box {
+                width: 60px;
+                height: 60px;
+                background: rgba(212, 175, 55, 0.1);
+                color: var(--primary-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 15px;
+                margin-bottom: 25px;
+                font-size: 1.8rem;
+                transition: 0.3s;
+            }
+
+            .admin-action-card:hover .icon-box {
+                background: var(--primary-color);
+                color: #fff;
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            .admin-action-card h3 {
+                font-family: var(--font-heading);
+                color: var(--secondary-color);
+                font-size: 1.4rem;
+                margin-bottom: 15px;
+            }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+            flex-grow: 1; /* Đẩy nút xuống đáy */
+            width: 100%;
+        }
+
+            .task-list li {
+                color: var(--text-light);
+                font-size: 0.9rem;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 1px dashed #f0f0f0;
+                padding-bottom: 8px;
+            }
+        
+                .task-list li i {
+                    color: var(--primary-color);
+                    font-size: 0.7rem;
+                }
+
+        .btn-outline-luxury {
+            width: 100%;
+            display: inline-block;
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 12px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+            .btn-outline-luxury:hover {
+                background: var(--primary-color);
+                color: white;
+                box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+            }
+    </style>
+}
+
+<!-- 2. NỘI DUNG CHÍNH -->
+<div class="admin-header">
+    <div class="admin-header-text">
+        <h1>Quản Trị Viên</h1>
+        <p>Chào mừng trở lại hệ thống quản lý trung tâm Hotel VIP.</p>
+    </div>
+    
+    <!-- THÊM CÁC THỐNG KÊ NHANH MÀ BẠN TRUYỀN TỪ CONTROLLER -->
+    <div class="admin-quick-stats">
+        <div class="quick-stat-item">
+            <span>@ViewBag.TotalStaff</span>
+            <small>Nhân viên</small>
+        </div>
+        <div class="quick-stat-item">
+            <span>@ViewBag.TotalRooms</span>
+            <small>Phòng</small>
+        </div>
+        <div class="quick-stat-item">
+            <span>@ViewBag.PendingShifts</span>
+            <small>Ca chờ duyệt</small>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px;">
+    
+    <!-- HÀNG 1: BIỂU ĐỒ ĐƯỜNG (Chiếm cả 2 cột) -->
+    <div style="grid-column: 1 / -1;">
+        <partial name="_ChartRevenuePartial" />
+    </div>
+
+    <!-- HÀNG 2: HAI BIỂU ĐỒ TRÒN (Mỗi cái 1 cột) -->
+    <div>
+        <partial name="_ChartRoomTypePartial" />
+    </div>
+    
+    <div>
+        <partial name="_ChartRoomStatusPartial" />
+    </div>
+
+</div>

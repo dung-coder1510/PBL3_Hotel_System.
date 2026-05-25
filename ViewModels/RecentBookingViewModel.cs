@@ -2,6 +2,7 @@
 {
     public class RecentBookingViewModel
     {
+        public int BookingID { get; set; }
         public int SoPhong { get; set; }
         public string LoaiPhong { get; set; }
 
@@ -12,6 +13,10 @@
 
         // Trạng thái đã được chuyển thành Tiếng Việt và gán Class màu sắc
         public string TenTrangThai { get; set; }
+        public string TrangThaiRaw { get; set; } // Ví dụ: "DaXacNhan"
+        public DateTime CheckInDate { get; set; } // Dữ liệu DateTime thật để so sánh if
+        public DateTime CheckOutDate { get; set; }
+        public DateTime? GioHenNhanPhong { get; set; }
         public string CssClassTrangThai { get; set; }
     }
     public class DashboardViewModel

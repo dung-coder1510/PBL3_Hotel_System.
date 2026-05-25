@@ -1,0 +1,93 @@
+﻿@using PBL3_Hotel_System.Models
+@model PBL3_Hotel_System.ViewModels.AdminAccountViewModel
+@{
+    bool isCreate = Model.AccountID == 0;
+    string title = isCreate ? "Cấp Tài Khoản Mới" : "Thiết Lập Tài Khoản";
+    string icon = isCreate ? "fa-user-plus" : "fa-user-edit";
+    string formAction = isCreate ? "CreateAccount" : "UpdateAccountInfo";
+}
+
+<!-- HEADER MODAL -->
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; padding-bottom: 25px; margin-bottom: 35px;">
+    <div>
+        <h3 style="font-family: var(--font-heading); color: var(--secondary-color); font-size: 1.6rem; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+            <i class="fas @icon" style="color: var(--primary-color);"></i> @title
+        </h3>
+        @if (!isCreate)
+        {
+            <p style="color: #888; font-size: 0.95rem; margin: 0;">Chủ sở hữu: <strong style="color: var(--secondary-color);">@Model.OwnerName</strong></p>
+        }
+    </div>
+    <button type="button" onclick="closeAdminModal()" style="background: #f4f6f8; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; color: #666; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='#e74c3c'; this.style.color='white'" onmouseout="this.style.background='#f4f6f8'; this.style.color='#666'">&times;</button>
+</div>
+
+<!-- NỘI DUNG FORM -->
+<form id="accountForm" asp-controller="Admin" asp-action="@formAction" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AccountID" />
+
+    <!-- GRID LAYOUT ĐÃ TĂNG GAP ĐỂ THÔNG THOÁNG HƠN -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 35px 25px; margin-bottom: 40px;">
+        
+        <!-- Nhóm 1: Tên đăng nhập -->
+        <div class="input-box">
+            <label style="font-size: 0.8rem; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; letter-spacing: 0.5px;">
+                Tên đăng nhập <i class="fas fa-pen" style="color: var(--primary-color); margin-left: 5px;"></i>
+            </label>
+            <input asp-for="Username" class="inline-input watch-change @(isCreate ? "" : "readonly")"
+                   readonly="@(!isCreate)" required
+                   style="width: 100%; border: none; border-bottom: 1px dashed #ccc; padding: 10px 0; font-family: var(--font-heading); font-size: 1.3rem; color: var(--secondary-color); font-weight: 600; outline: none; transition: 0.3s;"
+                   onfocus="this.style.borderBottom='2px solid var(--primary-color)'"
+                   onblur="this.style.borderBottom='1px dashed #ccc'" />
+        </div>
+
+        <!-- Nhóm 2: Email -->
+        <div class="input-box">
+            <label style="font-size: 0.8rem; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; letter-spacing: 0.5px;">
+                Địa chỉ Email <i class="fas fa-pen" style="color: var(--primary-color); margin-left: 5px;"></i>
+            </label>
+            <input asp-for="Email" class="inline-input watch-change" type="email" required
+                   style="width: 100%; border: none; border-bottom: 1px dashed #ccc; padding: 10px 0; font-family: var(--font-body); font-size: 1.1rem; color: var(--secondary-color); font-weight: 500; outline: none; transition: 0.3s;"
+                   onfocus="this.style.borderBottom='2px solid var(--primary-color)'"
+                   onblur="this.style.borderBottom='1px dashed #ccc'" />
+        </div>
+
+        <!-- Nhóm 3: Mật khẩu -->
+        <div class="input-box full-width" style="grid-column: 1 / -1; margin-top: 10px;">
+            <label style="font-size: 0.8rem; color: #888; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; display: block; letter-spacing: 0.5px;">
+                @(isCreate ? "Mật khẩu cấp phát *" : "Mật khẩu mới (Để trống nếu không đổi)")
+            </label>
+            <input asp-for="Password" type="text" placeholder="@(isCreate ? "Nhập mật khẩu..." : "Nhập mật khẩu mới...")"
+                   class="inline-input watch-change"
+                   required="@isCreate"
+                   style="width: 100%; border: none; border-bottom: 1px dashed #ccc; padding: 12px 15px; font-family: var(--font-body); font-size: 1rem; color: #dc3545; font-weight: 500; outline: none; transition: 0.3s; background: #fffcf0; border-radius: 6px 6px 0 0;"
+                   onfocus="this.style.borderBottom='2px solid #dc3545'; this.style.background='#fff9e6'"
+                   onblur="this.style.borderBottom='1px dashed #ccc'; this.style.background='#fffcf0'" />
+        </div>
+
+        <!-- Nhóm 4: Box Cấp quyền hệ thống -->
+        <div class="input-box full-width" style="grid-column: 1 / -1; background: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e9ecef; margin-top: 10px;">
+            <label style="font-size: 0.95rem; color: var(--secondary-color); font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-shield-alt text-gold" style="color: var(--primary-color); font-size: 1.2rem;"></i> Cấp quyền hệ thống (Role)
+            </label>
+            <select asp-for="Role" asp-items="Html.GetEnumSelectList<UserRole>()" class="form-control"
+                    style="padding: 12px 15px; border-radius: 8px; border: 1px solid #ced4da; width: 100%; outline: none; font-weight: 600; color: var(--secondary-color); background: white; font-family: var(--font-body); cursor: pointer; transition: 0.3s;"
+                    onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='#ced4da'">
+            </select>
+            <small style="color: #888; font-size: 0.85rem; margin-top: 12px; display: block; line-height: 1.5;">
+                * Cẩn trọng khi thay đổi quyền, điều này sẽ ảnh hưởng trực tiếp đến khả năng truy cập và phân cấp bảo mật của người dùng.
+            </small>
+        </div>
+
+    </div>
+
+    <!-- FOOTER NÚT BẤM -->
+    <div style="display: flex; gap: 15px; justify-content: flex-end; padding-top: 25px; border-top: 1px solid #eaeaea;">
+        <button type="button" class="btn" style="background: transparent; color: #666; border: 1px solid #ccc; padding: 12px 30px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; transition: 0.3s;" onclick="closeAdminModal()" onmouseover="this.style.background='#f4f6f8'" onmouseout="this.style.background='transparent'">
+            HỦY BỎ
+        </button>
+        <button type="submit" class="btn" style="background: var(--primary-color); color: white; border: none; padding: 12px 35px; border-radius: 30px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212,175,55,0.3); transition: 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(212,175,55,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(212,175,55,0.3)'">
+            @(isCreate ? "TẠO TÀI KHOẢN" : "LƯU THAY ĐỔI")
+        </button>
+    </div>
+</form> 

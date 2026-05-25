@@ -1,0 +1,105 @@
+﻿@model PBL3_Hotel_System.ViewModels.PayslipViewModel
+
+<style>
+    .payslip-wrapper { font-family: var(--font-body); padding: 10px; }
+    .receipt-box { background: #fff; border: 1px dashed #ccc; border-radius: 8px; padding: 25px; box-shadow: inset 0 0 20px rgba(0,0,0,0.02); }
+    .receipt-header { text-align: center; border-bottom: 2px dashed #eee; padding-bottom: 15px; margin-bottom: 20px; }
+    .receipt-table { width: 100%; font-size: 0.9rem; margin-bottom: 20px; }
+    .receipt-table th { color: #888; text-transform: uppercase; font-size: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 10px; text-align: left;}
+    .receipt-table td { padding: 10px 0; border-bottom: 1px dotted #eee; color: #444; }
+    .receipt-total { background: #fdfbf4; border: 1px solid #f1e5bc; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+</style>
+
+<div class="payslip-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: var(--font-heading); color: var(--secondary-color); margin: 0;">Phiếu Tính Lương</h3>
+        <button type="button" onclick="closeAdminModal()" style="background: none; border: none; font-size: 1.5rem; color: #888; cursor: pointer;">&times;</button>
+    </div>
+
+    <div class="receipt-box">
+        <div class="receipt-header">
+            <h4 style="margin: 0; color: var(--primary-color);">@Model.TenNV</h4>
+            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">Kỳ lương: Tháng @Model.Thang / @Model.Nam</p>
+        </div>
+
+        <div style="max-height: 250px; overflow-y: auto; padding-right: 10px;">
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Ngày làm</th>
+                        <th>Ca làm</th>
+                        <th style="text-align: right;">Đơn giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DanhSachCaLam)
+                    {
+                        <tr>
+                            <td>@item.NgayLam.ToString("dd/MM/yyyy")</td>
+                            <td>@item.CaLam?.TenCa</td>
+                            <td style="text-align: right;">@Model.DonGia.ToString("N0") ₫</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="receipt-total">
+            <div style="color: #666; font-size: 0.9rem;">Tổng số: <strong>@Model.TongSoCa ca</strong></div>
+            <div style="text-align: right;">
+                <small style="color: #888; display: block; text-transform: uppercase;">Thành tiền</small>
+                <strong style="font-size: 1.5rem; color: #2b8a3e; font-family: var(--font-heading);">@Model.TongTien.ToString("N0") ₫</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHU VỰC NÚT BẤM DỰA VÀO ACTION TYPE -->
+    <div style="margin-top: 25px; text-align: center;">
+        @if (Model.ActionType == "chot")
+        {
+            <form asp-action="XacNhanChotLuong" asp-controller="Admin" method="post" class="ajax-form" id="form-chot-luong">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maNV" value="@Model.MaNV" />
+                <input type="hidden" name="thang" value="@Model.Thang" />
+                <input type="hidden" name="nam" value="@Model.Nam" />
+
+                <button type="button" class="btn-action btn-chot" style="padding: 12px 30px; font-size: 1rem;"
+                        onclick="showLuxuryConfirm(this, 'Xác nhận chốt sổ?', 'Sau khi chốt, dữ liệu lương tháng @Model.Thang sẽ được đóng băng và gửi sang bộ phận Kế toán.', 'warning')">
+                    <i class="fas fa-lock"></i> XÁC NHẬN CHỐT LƯƠNG
+                </button>
+            </form>
+        }
+        else if (Model.ActionType == "pay")
+        {
+            <!-- NGHIỆP VỤ: XÁC NHẬN ĐÃ CHUYỂN KHOẢN -->
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #ffe066;">
+                <p style="color: #856404; font-size: 0.9rem; margin: 0 0 10px 0;">
+                    <i class="fas fa-info-circle"></i> Phiếu lương đang chờ kế toán chuyển khoản. Bạn chỉ bấm xác nhận khi đã nhận được báo cáo giao dịch thành công.
+                </p>
+            </div>
+
+            <form asp-action="XacNhanThanhToan" asp-controller="Admin" method="post" class="ajax-form" id="form-pay-luong">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="maNV" value="@Model.MaNV" />
+                <input type="hidden" name="thang" value="@Model.Thang" />
+                <input type="hidden" name="nam" value="@Model.Nam" />
+
+                <button type="button" class="btn-action btn-pay" style="padding: 12px 30px; font-size: 1rem;"
+                        onclick="showLuxuryConfirm(this, 'Xác nhận Đã Thanh Toán?', 'Hành động này sẽ ghi nhận hoàn tất trả lương và không thể hoàn tác.', 'info')">
+                    <i class="fas fa-money-bill-wave"></i> XÁC NHẬN ĐÃ CHUYỂN KHOẢN
+                </button>
+            </form>
+        }
+        else if (Model.ActionType == "view")
+        {
+            <!-- NGHIỆP VỤ: XEM LẠI (ĐÃ HOÀN THÀNH) -->
+            <div class="approved-stamp" style="background: #e8f5e9; padding: 12px 20px; font-size: 1.1rem; justify-content: center;">
+                <i class="fas fa-check" style="width: 30px; height: 30px; font-size: 1rem;"></i> 
+                ĐÃ THANH TOÁN THÀNH CÔNG
+            </div>
+            <p style="color: #888; font-size: 0.85rem; margin-top: 10px;">
+                <i class="fas fa-history"></i> Phiếu lương đã đóng sổ và lưu vào hồ sơ kế toán.
+            </p>
+        }
+    </div>
+</div>

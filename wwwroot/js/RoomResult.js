@@ -100,3 +100,150 @@ function closeRoomModal() {
         modalOverlay.style.display = "none";
     }
 }
+
+// HÀM HIỂN THỊ FORM CHECK-OUT
+function toggleCheckOutForm() {
+    console.log("Đang mở form check-out..."); // Dòng này để bạn kiểm tra trong F12
+    const form = document.getElementById("formCheckOut");
+    const btn = document.getElementById("btnShowCheckOut");
+
+    if (form && btn) {
+        form.style.display = "block"; // Hiện form
+        btn.style.display = "none";    // Ẩn nút bấm cũ đi cho đỡ vướng
+    } else {
+        console.error("Không tìm thấy thẻ có ID formCheckOut hoặc btnShowCheckOut");
+    }
+}
+
+// HÀM ĐÓNG (NÚT HỦY)
+function closeCheckOutForm() {
+    const form = document.getElementById("formCheckOut");
+    const btn = document.getElementById("btnShowCheckOut");
+
+    if (form && btn) {
+        form.style.display = "none";
+        btn.style.display = "flex";
+    }
+}
+
+function loadBookingDetail(id) {
+    const overlay = document.getElementById("bookingModalOverlay");
+    const content = document.getElementById("bookingModalContent");
+
+    overlay.style.display = "flex";
+    content.innerHTML = '<div style="text-align:center; padding: 50px;"><i class="fas fa-spinner fa-spin fa-2x"></i> Đang tải...</div>';
+
+    fetch(`/Booking/GetBookingDetailPartial/${id}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Lỗi");
+            return res.text();
+        })
+        .then(html => content.innerHTML = html)
+        .catch(err => content.innerHTML = '<div style="color:red; text-align:center; padding:30px;">Có lỗi xảy ra!</div>');
+}
+
+function closeBookingModal() {
+    document.getElementById("bookingModalOverlay").style.display = "none";
+}
+
+
+//Hien thi quan ly tai khoan cua Admin
+function loadEditAccount(username) {
+    console.log("--- BẮT ĐẦU DEBUG ---");
+    console.log("1. Đã nhận Username:", username);
+
+    const overlay = document.getElementById("adminModalOverlay");
+    const content = document.getElementById("adminModalContent");
+
+    console.log("2. Kiểm tra Overlay:", overlay);
+    console.log("3. Kiểm tra Content:", content);
+
+    if (!overlay || !content) {
+        console.error("DỪNG LẠI: Không tìm thấy ID 'adminModalOverlay' hoặc 'adminModalContent' trên trang này!");
+        alert("Lỗi: Trang web thiếu khung hiển thị Modal!");
+        return;
+    }
+    overlay.style.display = "flex";
+    content.innerHTML = '<div style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i></div>';
+
+    // Dùng AJAX lên C# lấy form
+    fetch(`/Admin/GetEditAccountPartial?username=${username}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Lỗi");
+            return res.text();
+        })
+        .then(html => content.innerHTML = html)
+        .catch(err => content.innerHTML = '<div style="color:red; padding: 20px; text-align:center;">Có lỗi xảy ra!</div>');
+}
+
+function closeAdminModal() {
+    document.getElementById("adminModalOverlay").style.display = "none";
+}
+
+function loadCreateAccount() {
+    const overlay = document.getElementById("adminModalOverlay");
+    const content = document.getElementById("adminModalContent");
+
+    if (!overlay || !content) return;
+
+    overlay.style.display = "flex";
+    content.innerHTML = '<div style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i></div>';
+
+    // Gọi hàm GetCreateAccountPartial từ AdminController
+    fetch(`/Admin/GetCreateAccountPartial`)
+        .then(res => {
+            if (!res.ok) throw new Error("Lỗi mạng");
+            return res.text();
+        })
+        .then(html => content.innerHTML = html)
+        .catch(err => content.innerHTML = '<div style="color:red; padding: 20px; text-align:center;">Có lỗi xảy ra khi tải form!</div>');
+}
+
+function loadEditNhanVien(id) {
+    const overlay = document.getElementById("adminModalOverlay");
+    const content = document.getElementById("adminModalContent");
+
+    if (!overlay || !content) return;
+    overlay.style.display = "flex";
+    content.innerHTML = '<div style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i></div>';
+
+    // GỌI VỀ ADMIN CONTROLLER ĐỂ LẤY FORM
+    fetch(`/Admin/GetEditNhanVienPartial?id=${id}`)
+        .then(res => res.text())
+        .then(html => content.innerHTML = html);
+}
+
+// UX: Bấm ra ngoài vùng đen để đóng Modal
+var adminOverlay = document.getElementById("adminModalOverlay");
+if (adminOverlay) { // <--- THÊM DÒNG NÀY
+    adminOverlay.addEventListener("click", function (e) {
+        if (e.target === this) closeAdminModal();
+    });
+}
+
+
+function loadStaffShifts(id) {
+    const overlay = document.getElementById("adminModalOverlay");
+    const content = document.getElementById("adminModalContent");
+
+    if (!overlay || !content) {
+        console.error("Thiếu khung Modal adminModalOverlay trong Layout!");
+        return;
+    }
+
+    overlay.style.display = "flex";
+    content.innerHTML = '<div style="text-align:center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i><p>Đang tải lịch làm việc...</p></div>';
+
+    // Gọi AJAX về Controller Admin
+    fetch(`/Admin/GetStaffShiftsPartial?id=${id}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Lỗi tải dữ liệu");
+            return res.text();
+        })
+        .then(html => {
+            content.innerHTML = html;
+        })
+        .catch(err => {
+            content.innerHTML = '<div style="color:red; text-align:center; padding: 20px;">Không thể tải lịch làm lúc này!</div>';
+        });
+}

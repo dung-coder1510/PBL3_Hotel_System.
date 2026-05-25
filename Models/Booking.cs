@@ -1,4 +1,4 @@
-﻿using PBL3_Hotel_System_.Models.UserModels;
+﻿using PBL3_Hotel_System.Models.UserModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 namespace PBL3_Hotel_System.Models
@@ -9,13 +9,27 @@ namespace PBL3_Hotel_System.Models
         ChoXacNhan, 
         
         [Display(Name = "Đã xác nhận")]
-        DaXacNhan, 
-        
+        DaXacNhan,
+
+        [Display(Name = "Sắp đến")]
+        SapDen,
+
+        [Display(Name = "Đang ở")]
+        DangO,
+
         [Display(Name = "Đã hoàn thành")]
-        DaHoanThanh, 
-        
+        DaHoanThanh,
+
+        [Display(Name = "Yêu Cầu Trả Phòng")]
+        YeuCauTraPhong,
+
+        [Display(Name = "Quá hạn")]
+        QuaHan,
+
         [Display(Name = "Đã hủy")]
         DaHuy
+
+
     }
     public class Booking
 
@@ -48,5 +62,10 @@ namespace PBL3_Hotel_System.Models
         [MaxLength(500)] 
         [Display(Name = "Yêu cầu đặc biệt")]
         public string? GhiChu { get; set; } // Dấu ? cho phép Null vì không phải ai cũng có ghi chú
+
+        public DateTime? GioHenNhanPhong { get; set; }
+
+        public DateTime? RealCheckIn { get; set; } // Giờ khách nhận chìa khóa thật
+        public DateTime? RealCheckOut { get; set; } // Giờ khách trả chìa khóa thật
     }
 }

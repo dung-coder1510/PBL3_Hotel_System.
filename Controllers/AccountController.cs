@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PBL3_Hotel_System.Data;       // Thêm dòng này để gọi được HotelDbContext
 using PBL3_Hotel_System.Models;
 using PBL3_Hotel_System.ViewModels; // Thêm dòng này để gọi được LoginViewModel
-using PBL3_Hotel_System_.Models.UserModels;
+using PBL3_Hotel_System.Models.UserModels;
 using System.Security.Claims; 
 
 namespace PBL3_Hotel_System.Controllers
@@ -28,7 +28,7 @@ namespace PBL3_Hotel_System.Controllers
             return Content("Dữ liệu đã tồn tại trong Database, không cần seed thêm.");
         }
 
-        private IActionResult   RedirectByUserRole(string? role)
+        private IActionResult RedirectByUserRole(string? role)
         {
             if (string.IsNullOrEmpty(role))
             {
@@ -61,6 +61,8 @@ namespace PBL3_Hotel_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null) 
         {
+
+
             if (!ModelState.IsValid) return View(model);
 
             var user = _context.Accounts.FirstOrDefault(a =>
@@ -69,6 +71,14 @@ namespace PBL3_Hotel_System.Controllers
 
             if (user != null)
             {
+
+                if (user.IsLocked)
+                {
+                    // Dùng TempData để cái _NotificationPartial của bạn bắt được và hiện Toast
+                    TempData["Error"] = "Tài khoản của bạn đã bị khóa bởi Quản trị viên!";
+
+                    return View(model); // Vẫn dùng View(model) để giữ lại chữ trong ô nhập
+                }
                 // 1. Tạo "Chứng minh thư" (Claims) lưu thông tin cơ bản của User
                 var claims = new List<Claim>
                 {

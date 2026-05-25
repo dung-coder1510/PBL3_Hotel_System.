@@ -1,0 +1,178 @@
+﻿@model IEnumerable<PBL3_Hotel_System.ViewModels.PayrollListViewModel>
+@{
+    Layout = "_AdminDashboardLayout";
+    ViewData["Title"] = "Quản Lý Bảng Lương";
+}
+
+@section Styles {
+    <style>
+        /* CSS Dùng chung phong cách Luxury Card của trang Nhân viên */
+        .toolbar-wrapper { background: #fff; padding: 25px; border-radius: var(--radius-md); box-shadow: var(--shadow-light); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 4px solid var(--primary-color); }
+        .table-wrapper { background: transparent; }
+        .table-luxury { width: 100%; border-collapse: separate !important; border-spacing: 0 15px !important; }
+        .table-luxury th { color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px 25px; border: none; text-align: left; }
+        .table-luxury td { background: #fff; padding: 20px 25px; vertical-align: middle; border-top: 1px solid #f5f5f5; border-bottom: 1px solid #f5f5f5; transition: 0.3s; }
+        .table-luxury td:first-child { border-left: 1px solid #f5f5f5; border-radius: 12px 0 0 12px; }
+        .table-luxury td:last-child { border-right: 1px solid #f5f5f5; border-radius: 0 12px 12px 0; text-align: right; }
+        .table-luxury tr:hover td { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.1); border-color: #d4af37; }
+
+        /* Badge Trạng thái */
+        .badge-status { padding: 8px 16px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; min-width: 130px; }
+        .status-pending { background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; } /* Xám */
+        .status-warning { background: #fff3cd; color: #f39c12; border: 1px solid #ffe066; } /* Vàng */
+        .status-success { background: #ebfbee; color: #2b8a3e; border: 1px solid #b2f2bb; } /* Xanh */
+
+        /* Nút Action đa sắc */
+        .btn-action { padding: 8px 20px; border-radius: 30px; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; text-decoration: none; }
+        .btn-chot { background: #f39c12; color: white; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); }
+        .btn-chot:hover { background: #e67e22; transform: scale(1.05); color: white;}
+        .btn-pay { background: #28a745; color: white; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
+        .btn-pay:hover { background: #218838; transform: scale(1.05); color: white;}
+        .btn-view { background: #e9ecef; color: #495057; }
+        .btn-view:hover { background: #dee2e6; color: #212529;}
+    </style>
+}
+
+<div class="header-text" style="margin-bottom: 2rem;">
+    <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color);">Bảng Lương Tổng Hợp</h2>
+    <p style="color: var(--text-light)">Tính toán, chốt sổ và quản lý thanh toán lương nhân sự theo tháng.</p>
+</div>
+
+<!-- TOOLBAR: BỘ LỌC THÁNG NĂM -->
+<div class="toolbar-wrapper">
+    <form id="filterForm" asp-action="QuanLyLuong" method="get" style="display: flex; gap: 20px; align-items: flex-end;">
+        <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #888; text-transform: uppercase;">Chọn Kỳ Lương</label><br />
+            <!-- Mẹo HTML5: Input type month sinh ra giao diện chọn tháng cực đẹp -->
+            <input type="month" id="monthPicker" value="@ViewBag.MonthPickerValue" 
+                   style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-family: var(--font-heading); font-weight: 600; color: var(--secondary-color); margin-top: 5px;">
+        </div>
+        
+        <!-- Các input ẩn để gửi dữ liệu khi form submit -->
+        <input type="hidden" name="thang" id="inputThang" value="@ViewBag.SelectedMonth" />
+        <input type="hidden" name="nam" id="inputNam" value="@ViewBag.SelectedYear" />
+
+        <button type="button" class="btn-action" style="background: var(--primary-color); color: white; padding: 11px 25px;" onclick="submitFilter()">
+            <i class="fas fa-filter"></i> Lọc Dữ Liệu
+        </button>
+    </form>
+    
+    <div style="text-align: right;">
+        <h4 style="margin: 0; color: var(--primary-color); font-family: var(--font-heading);">Kỳ: Tháng @ViewBag.SelectedMonth / @ViewBag.SelectedYear</h4>
+    </div>
+</div>
+
+<!-- BẢNG DANH SÁCH LƯƠNG -->
+<div class="table-wrapper">
+    <table class="table-luxury">
+        <thead>
+            <tr>
+                <th style="width: 25%;">Nhân Viên</th>
+                <th style="width: 15%; text-align: center;">Số Ca Làm</th>
+                <th style="width: 20%; text-align: right;">Tổng Tiền Lương</th>
+                <th style="width: 20%; text-align: center;">Trạng Thái</th>
+                <th style="width: 20%; text-align: right;">Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(Model != null && Model.Any())
+            {
+                foreach(var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 40px; height: 40px; background: #f4f6f8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-weight: bold;">
+                                    @item.TenNV.Substring(0,1).ToUpper()
+                                </div>
+                                <div>
+                                    <strong style="color: var(--secondary-color); font-size: 1.05rem;">@item.TenNV</strong><br />
+                                    <small style="color: #999;">Mã NV: #@item.MaNV</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <strong style="font-size: 1.1rem; color: #444;">@item.TongSoCa</strong> <small style="color:#aaa">ca</small>
+                        </td>
+                        <td style="text-align: right;">
+                            <strong style="font-size: 1.2rem; color: #2b8a3e; font-family: var(--font-heading);">@item.TongTienFormatted</strong>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge-status @item.CssClassTrangThai">
+                                @item.TrangThaiText
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <!-- HIỂN THỊ NÚT BẤM DỰA TRÊN STATUS CODE -->
+                            @if (item.StatusCode == 0) // Chưa chốt
+                            {
+                                <button type="button" class="btn-action btn-chot" onclick="openPayslipModal(@item.MaNV, @item.Thang, @item.Nam, 'chot')">
+                                    <i class="fas fa-lock"></i> CHỐT SỔ
+                                </button>
+                            }
+                            else if (item.StatusCode == 1) // Chờ thanh toán
+                            {
+                                <button type="button" class="btn-action btn-pay" onclick="openPayslipModal(@item.MaNV, @item.Thang, @item.Nam, 'pay')">
+                                    <i class="fas fa-money-bill-wave"></i> XÁC NHẬN CK
+                                </button>
+                            }
+                            else // Đã thanh toán
+                            {
+                                <button type="button" class="btn-action btn-view" onclick="openPayslipModal(@item.MaNV, @item.Thang, @item.Nam, 'view')">
+                                    <i class="fas fa-eye"></i> XEM PHIẾU
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        // Xử lý tách Tháng và Năm từ ô Input type="month" trước khi Submit
+        function submitFilter() {
+            const pickerVal = document.getElementById("monthPicker").value; // Dạng "2024-04"
+            if (pickerVal) {
+                const parts = pickerVal.split('-');
+                document.getElementById("inputNam").value = parts[0];
+                document.getElementById("inputThang").value = parseInt(parts[1], 10); // Bỏ số 0 ở đầu nếu có
+            }
+            document.getElementById("filterForm").submit();
+        }
+
+        // GỌI AJAX LẤY MODAL CHI TIẾT LƯƠNG
+        function openPayslipModal(maNV, thang, nam, actionType) {
+            const overlay = document.getElementById("adminModalOverlay");
+            const content = document.getElementById("adminModalContent");
+
+            if (!overlay || !content) return;
+
+            overlay.style.display = "flex";
+            content.innerHTML = '<div style="text-align:center; padding: 50px;"><i class="fas fa-spinner fa-spin fa-2x text-gold"></i></div>';
+
+            // Gọi lên hàm GET trong C#
+            const url = `/Admin/GetPayslipPartial?maNV=${maNV}&thang=${thang}&nam=${nam}&actionType=${actionType}`;
+    
+            fetch(url)
+                .then(res => res.text())
+                .then(html => content.innerHTML = html)
+                .catch(err => content.innerHTML = '<div style="color:red; text-align:center;">Lỗi tải dữ liệu!</div>');
+        }
+
+        // BỔ SUNG: KHI AJAX FORM BÊN TRONG MODAL CHẠY XONG THÌ LÀM GÌ?
+        // Vì chúng ta dùng chung hàm fetch ở feature.js, nên sau khi Toast hiện lên,
+        // chúng ta cần nạp lại danh sách lương để thấy trạng thái chuyển thành "Chờ Thanh Toán"
+        document.addEventListener("DOMContentLoaded", function() {
+            // Ghi đè hành vi mặc định của Form AJAX sau khi thành công
+            // Cách dễ nhất là tự động Submit lại form Bộ Lọc để tải lại trang với đúng Tháng/Năm hiện tại
+            window.reloadPayrollTable = function() {
+                setTimeout(() => {
+                    submitFilter(); // Hàm này bạn đã viết ở bài trước
+                }, 1500); // Đợi 1.5s cho Admin đọc xong Toast rồi mới load lại
+            }
+        });
+    </script>
+}

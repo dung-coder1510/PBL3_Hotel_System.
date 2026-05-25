@@ -1,0 +1,70 @@
+﻿<div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); height: 100%;">
+    <h4 class="chart-title-luxury chart-title-center">
+        <div class="chart-icon-box">
+            <i class="fas fa-door-open"></i>
+        </div>
+        <span>Trạng Thái Phòng Trực Tuyến</span>
+    </h4>
+    
+    <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="roomStatusChart"></canvas>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch(`/Admin/GetRoomStatusChartData`)
+            .then(res => res.json())
+            .then(json => {
+                const canvas = document.getElementById('roomStatusChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: json.labels,
+                        datasets: [{
+                            data: json.data,
+                            // Bảng màu: Sẵn sàng (Xanh lá nhạt), Đang ở (Xanh Navy), Dọn dẹp (Vàng Gold), Bảo trì (Đỏ nhạt)
+                            backgroundColor: ['#d4edda', '#2c3e50', '#d4af37', '#f8d7da'],
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%', // Độ rỗng của bánh
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: { family: 'Montserrat, sans-serif', size: 12, weight: '600' }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(44, 62, 80, 0.9)',
+                                titleColor: '#d4af37',
+                                bodyColor: '#fff',
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        let value = context.raw || 0;
+                                        let total = context.chart._metasets[context.datasetIndex].total;
+                                        let percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return ` ${value} phòng (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error("Lỗi vẽ biểu đồ Trạng thái phòng:", err));
+    });
+</script>

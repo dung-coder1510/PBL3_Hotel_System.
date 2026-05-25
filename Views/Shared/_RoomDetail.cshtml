@@ -39,9 +39,41 @@
 
         <p style="color: gray; margin-top: 15px;">Mô tả: Phòng rộng rãi, ban công hướng biển, miễn phí buffet sáng...</p>
 
+       
         <!-- Nút Đặt phòng thực sự (Chuyển sang trang Booking) -->
-        <a asp-controller="Booking" asp-action="Book" asp-route-roomId="@Model.SoPhong" class="btn btn-primary" style="margin-top: 20px; display: block; text-align: center;">
-            ĐẶT PHÒNG NGAY
-        </a>
+        <div style="margin-top: 25px;">
+            @if (User.Identity.IsAuthenticated)
+            {
+                // TẦNG 1: ĐÃ ĐĂNG NHẬP
+                if (User.IsInRole("KhachHang"))
+                {
+                    // CHỈ KHÁCH HÀNG MỚI THẤY NÚT NÀY
+                    <a asp-controller="Booking" asp-action="Book" asp-route-roomId="@Model.SoPhong"
+                           class="btn btn-primary" style="width: 100%; display: block; text-align: center; padding: 12px; font-weight: bold;">
+                        <i class="fas fa-calendar-check"></i> ĐẶT PHÒNG NGAY
+                    </a>
+                }
+                else
+                {
+                    // ADMIN HOẶC NHÂN VIÊN VÔ TÌNH XEM PHÒNG
+                    <div style="background-color: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #ddd; text-align: center; color: #666;">
+                        <i class="fas fa-info-circle"></i> Tài khoản của bạn (Role: <strong>@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</strong>) không có quyền đặt phòng trực tuyến.
+                    </div>
+                }
+            }
+            else
+            {
+                // TẦNG 2: CHƯA ĐĂNG NHẬP (KHÁCH VÃNG LAI)
+                string returnUrl = $"/Booking/Book?roomId={Model.SoPhong}";
+        
+                <a href="/Account/Login?ReturnUrl=@System.Net.WebUtility.UrlEncode(returnUrl)"
+                       class="btn" style="width: 100%; display: block; text-align: center; padding: 12px; background-color: var(--secondary-color); color: white; font-weight: bold;">
+                    <i class="fas fa-sign-in-alt"></i> ĐĂNG NHẬP ĐỂ ĐẶT PHÒNG
+                </a>
+                <small style="color: #888; display: block; text-align: center; margin-top: 8px;">
+                    * Bạn cần tài khoản khách hàng để đặt phòng
+                </small>
+            }
+        </div>
     </div>
 </div>

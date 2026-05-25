@@ -12,22 +12,7 @@
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    @* Nhúng Toast thông báo dùng chung *@
-    @if (TempData["Success"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-success">
-            <i class="fas fa-check-circle"></i> <span>@TempData["Success"]</span>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-error">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>@TempData["Error"]</span>
-            <i class="fas fa-times" onclick="this.parentElement.remove()" style="cursor:pointer; opacity:0.5;"></i>
-        </div>
-    }
-
+    <partial name="_NotificationPartial" />
     <div class="dashboard-wrapper">
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -54,19 +39,19 @@
                 <li>
                     <a asp-controller="NhanVien" asp-action="DatCaLam"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "DatCaLam" ? "active" : "")">
-                        <i class="fas fa-history"></i> Đặt Ca Làm
+                        <i class="fas fa-calendar-alt"></i> Đặt Ca Làm
                     </a>
                 </li>
                 <li>
                     <a asp-controller="NhanVien" asp-action="QuanLyPhong"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "QuanLyPhong" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Phòng
+                        <i class="fas fa-bed"></i> Quản Lý Phòng
                     </a>
                 </li>
                 <li>
                     <a asp-controller="NhanVien" asp-action="QuanLyKhachHang"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "QuanLyKhachHang" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Phòng
+                        <i class="fas fa-users-cog"></i> Quản Lý Khách Hàng
                     </a>
                 </li>
                 <li>
@@ -91,7 +76,7 @@
         </main>
     </div>
 
-    <script src="~/js/feature.js"></script>
+    <script src="~/js/RoomResult.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

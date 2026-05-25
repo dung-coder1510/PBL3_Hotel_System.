@@ -1,4 +1,4 @@
-﻿using PBL3_Hotel_System_.Models.UserModels;
+﻿using PBL3_Hotel_System.Models.UserModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -37,7 +37,8 @@ namespace PBL3_Hotel_System.Models
             ErrorMessage = "Email phải có định dạng TenEmail@gmail.com và không chứa dấu cách")]
         public string Email { get; set; }
 
-            
+        public bool IsLocked { get; set; } = false;
+
         public virtual BaseUser UserProfile { get;set;}
     }
    

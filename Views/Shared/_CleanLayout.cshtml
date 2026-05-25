@@ -14,23 +14,7 @@
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    @if (TempData["Success"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-success">
-            <i class="fas fa-check-circle"></i>
-            <span>@TempData["Success"]</span>
-            <i class="fas fa-times" onclick="this.parentElement.remove()" ></i>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div id="auto-close-toast" class="alert-luxury-toast alert-toast-error">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>@TempData["Error"]</span>
-            <i class="fas fa-times" onclick="this.parentElement.remove()" ></i>
-        </div>
-    }
+    <partial name="_NotificationPartial" />
     <!-- TRANG CỦA BẠN SẼ CHUI VÀO ĐÂY (Không có Header hay Footer thừa thãi nào cả) -->
     @RenderBody()
 
