@@ -32,9 +32,7 @@ namespace PBL3_Hotel_System.Models
     public class Room
     {
         [Key]
-
         [Required(ErrorMessage = "Số phòng không được để trống")]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int SoPhong { get; set; }
 
         [Required(ErrorMessage = "Loại phòng là bắt buộc")]

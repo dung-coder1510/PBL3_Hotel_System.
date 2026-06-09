@@ -802,6 +802,11 @@ namespace PBL3_Hotel_System.Controllers
                 var room = await _db.Rooms.FindAsync(id);
                 if (room == null) return NotFound();
 
+                if (room.TrangThai == RoomStatus.Occupied)
+                {
+                    return Content("<div style='padding:40px; text-align:center; color:red;'><i class='fas fa-ban fa-3x'></i><h4 class='mt-3'>Phòng đang có khách, không thể chỉnh sửa!</h4></div>");
+                }
+
                 ViewBag.IsEdit = true;
                 return PartialView("_RoomFormPartial", room);
             }
@@ -904,7 +909,32 @@ namespace PBL3_Hotel_System.Controllers
 
             return Json(new { success = true, message = $"Đã NGỪNG HOẠT ĐỘNG phòng #{id}. Dữ liệu lịch sử vẫn được giữ nguyên." });
         }
+        public async Task<IActionResult> MoKhoaPhong(int id)
+        {
+            try
+            {
+                var phong = await _db.Rooms.FindAsync(id);
 
+                if (phong == null)
+                    return Json(new { success = false, message = "Không tìm thấy phòng!" });
+
+                if (phong.TrangThai != RoomStatus.Maintenance)
+                {
+                    return Json(new { success = false, message = "Phòng này không ở trạng thái Bảo trì!" });
+                }
+
+                // Chuyển trạng thái về Sẵn Sàng (Trống)
+                phong.TrangThai = RoomStatus.Available;
+
+                await _db.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Đã mở khóa phòng #{id}. Phòng sẵn sàng đón khách!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
         // 5. XÓA NHÂN VIÊN (Và tài khoản đi kèm)
         [HttpPost]
         [ValidateAntiForgeryToken]

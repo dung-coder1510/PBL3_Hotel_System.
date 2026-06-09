@@ -227,3 +227,31 @@ function calculateRoomPrice() {
 
     });
 });
+
+// Lưới bắt form AJAX toàn cục
+document.addEventListener('submit', function (e) {
+    if (e.target && e.target.classList.contains('ajax-form')) {
+        e.preventDefault(); // Chặn việc chuyển sang trang trắng
+
+        const form = e.target;
+
+        fetch(form.action, {
+            method: form.method || "POST",
+            body: new FormData(form)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (typeof triggerToast === 'function') {
+                    triggerToast(data.message, data.success ? 'success' : 'error');
+                }
+                if (data.success) {
+                    if (typeof closeAdminModal === 'function') closeAdminModal();
+                    setTimeout(() => { location.reload(); }, 1000); // F5 lại trang sau 1s
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi AJAX:", err);
+                alert("Có lỗi xảy ra, vui lòng xem Console!");
+            });
+    }
+});

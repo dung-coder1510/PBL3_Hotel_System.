@@ -40,26 +40,26 @@
                 <li>
                     <a asp-controller="Admin" asp-action="QuanLyTaiKhoan"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Accounts" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Tài Khoản
+                        <i class="fa-solid fa-circle-user"></i> Quản Lý Tài Khoản
                     </a>
                 </li>
 
                 <li>
                     <a asp-controller="Admin" asp-action="QuanLyNhanVien"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Staff" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Nhân Viên
+                        <i class="fa-solid fa-person"></i> Quản Lý Nhân Viên
                     </a>
                 </li>
                 <li>
                     <a asp-controller="Admin" asp-action="QuanLyLuong"
-                           class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Staff" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Bảng Lương
+                           class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "Salary" ? "active" : "")">
+                        <i class="fa-solid fa-table"></i> Quản Lý Bảng Lương
                     </a>
                 </li>
                 <li>
                     <a asp-controller="Admin" asp-action="QuanLyHeThong"
                            class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "System" ? "active" : "")">
-                        <i class="fas fa-history"></i> Quản Lý Hệ Thống
+                        <i class="fa-solid fa-hotel"></i> Quản Lý Hệ Thống
                     </a>
                 </li>
 
@@ -92,5 +92,57 @@
     </div>
     <script src="~/js/RoomResult.js"></script>
     @RenderSection("Scripts", required: false)
+    <script>
+            // BƯỚC 1: Lắng nghe sự kiện đổi tài khoản giữa các tab
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'authStatus') {
+                    // Nếu có một tab khác báo là đã đổi trạng thái, tải lại trang này ngay lập tức
+                    console.log("Phát hiện thay đổi xác thực từ tab khác. Đang nạp lại trang...");
+                    window.location.reload();
+                }
+            });
+
+            // BƯỚC 2: Gắn lệnh báo hiệu vào nút Đăng xuất
+            document.addEventListener("DOMContentLoaded", function () {
+                const logoutBtn = document.querySelector('a[href*="Logout"], button[type="submit"]:has(i.fa-sign-out-alt)'); // Tìm nút đăng xuất
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function() {
+                        // Đánh dấu thời điểm đăng xuất (số ngẫu nhiên để ép nó thay đổi)
+                        localStorage.setItem('authStatus', 'logged_out_' + Date.now());
+                    });
+                }
+        
+                // Hoặc gắn vào trang Login khi đăng nhập thành công
+                if (window.location.pathname.includes("Success") || window.location.pathname === "/") {
+                     localStorage.setItem('authStatus', 'logged_in_' + Date.now());
+                }
+            });
+    </script>
+    <script>
+            // BƯỚC 1: Lắng nghe sự kiện đổi tài khoản giữa các tab
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'authStatus') {
+                    // Nếu có một tab khác báo là đã đổi trạng thái, tải lại trang này ngay lập tức
+                    console.log("Phát hiện thay đổi xác thực từ tab khác. Đang nạp lại trang...");
+                    window.location.reload();
+                }
+            });
+
+            // BƯỚC 2: Gắn lệnh báo hiệu vào nút Đăng xuất
+            document.addEventListener("DOMContentLoaded", function () {
+                const logoutBtn = document.querySelector('a[href*="Logout"], button[type="submit"]:has(i.fa-sign-out-alt)'); // Tìm nút đăng xuất
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', function() {
+                        // Đánh dấu thời điểm đăng xuất (số ngẫu nhiên để ép nó thay đổi)
+                        localStorage.setItem('authStatus', 'logged_out_' + Date.now());
+                    });
+                }
+        
+                // Hoặc gắn vào trang Login khi đăng nhập thành công
+                if (window.location.pathname.includes("Success") || window.location.pathname === "/") {
+                     localStorage.setItem('authStatus', 'logged_in_' + Date.now());
+                }
+            });
+    </script>
 </body>
 </html>

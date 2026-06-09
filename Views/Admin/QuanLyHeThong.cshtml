@@ -172,24 +172,57 @@
                             <td class="room-price">@item.GiaPhong.ToString("N0") ₫</td>
                             <td style="text-align: center;">
                                 @{
-                                    string sClass = item.TrangThai == RoomStatus.Available ? "status-success" :
-                                                    item.TrangThai == RoomStatus.Occupied ? "status-info" :
-                                                    item.TrangThai == RoomStatus.Maintenance ? "status-danger" : "status-warning";
+                                    // Gọi hàm Helper để lấy text và class CSS tương ứng
+                                    var statusInfo = PBL3_Hotel_System.Helpers.HotelStatusHelper.GetRoomStatus(item.TrangThai);
                                 }
-                                <span class="badge-status @sClass">@item.TrangThai</span>
+                                <span class="badge-status @statusInfo.CssClass">
+                                    @statusInfo.Text
+                                </span>
                             </td>
                             <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-                                <button type="button" class="btn-action" style="background: #e9ecef; color: #444; border: none; padding: 5px;" 
-                                        onclick="openRoomModal(@item.SoPhong)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <form asp-action="XoaPhong" asp-route-id="@item.SoPhong" method="post" style="display:inline;">
-                                    @Html.AntiForgeryToken()
-                                   <button type="button" class="btn-action" style="background: #ffebee; color: #dc3545; border: none; padding: 5px;" 
-                                            onclick="showLuxuryConfirm(this, 'Xóa phòng @item.SoPhong?', 'Dữ liệu không thể khôi phục. Tiếp tục?', 'danger')">
+                                @if (item.TrangThai == PBL3_Hotel_System.Models.RoomStatus.Occupied)
+                                {
+                                    <button type="button" class="btn-action" style="background: #f8f9fa; color: #ccc; cursor: not-allowed; border: none; outline: none;  padding: 8px 12px; border-radius: 6px;" title="Phòng đang có khách, không thể sửa!">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn-action" style="background: #f8f9fa; color: #ccc; cursor: not-allowed; border: none; outline: none;  padding: 8px 12px; border-radius: 6px;" title="Phòng đang có khách, không thể khóa!">
                                         <i class="fas fa-trash-alt"></i>
-                                   </button>
-                                </form>
+                                    </button>
+                                }
+                                else if (item.TrangThai == PBL3_Hotel_System.Models.RoomStatus.Maintenance)
+                                {
+                                    <button type="button" class="btn-action btn-edit-room"  style="background: #e9ecef; color: #444; border: none; outline: none;  padding: 8px 12px; border-radius: 6px;" onclick="openRoomModal(@item.SoPhong)" title="Sửa thông tin phòng">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <!-- Nút Mở Khóa -->
+                                    <form asp-action="MoKhoaPhong" asp-controller="Admin" method="post" class="ajax-form" id="form-unlock-@item.SoPhong" style="margin: 0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.SoPhong" />
+            
+                                        <button type="button" class="btn-action" style="background-color: #e8f5e9; color: #28a745; width: auto; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;border: none; outline: none;" 
+                                                onclick="showLuxuryConfirm(this, 'Hoạt động lại phòng @item.SoPhong?', 'Phòng đã sửa xong và sẵn sàng đón khách?', 'info')">
+                                            <i class="fas fa-tools"></i> 
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <!-- Nút Sửa bình thường -->
+                                    <button type="button" class="btn-action" style="background: #e9ecef; color: #444; border: none; outline: none;  padding: 8px 12px; border-radius: 6px;" onclick="openRoomModal(@item.SoPhong)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <!-- Nút Khóa bình thường -->
+                                    <form asp-action="XoaPhong" asp-controller="Admin" method="post" class="ajax-form" id="form-del-@item.SoPhong">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.SoPhong" />
+                                        <button type="button" class="btn-action" style="background: #ffebee; color: #dc3545; border: none; outline: none;  padding: 8px 12px; border-radius: 6px;" 
+                                                onclick="showLuxuryConfirm(this, 'Khóa phòng @item.SoPhong?', 'Phòng này sẽ được chuyển sang trạng thái bảo trì.', 'danger')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

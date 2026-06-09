@@ -298,7 +298,7 @@
                 // --- ĐOẠN IF CỦA BẠN ĐẶT Ở ĐÂY ---
                 if (sameDayTotal > 2) {
                     // Gọi hàm triggerToast đã viết ở file RoomResult.js hoặc Layout
-                    triggerToast("Lỗi: Mỗi ngày bạn chỉ được đăng ký tối đa 2 ca làm việc!");
+                    triggerToast("Lỗi: Mỗi ngày bạn chỉ được đăng ký tối đa 2 ca làm việc!", "error");
                     checkbox.checked = false; // Tự động nhả dấu tick ra
                     return;
                 }
@@ -310,7 +310,7 @@
                 
                 // --- ĐOẠN IF THỨ 2 CỦA BẠN ---
                 if (totalRegisteredInWeek + newlySelected > 7) {
-                    triggerToast(`Lỗi: Bạn đã đăng ký ${totalRegisteredInWeek} ca. Không thể chọn thêm quá giới hạn 7 ca/tuần!`);
+                    triggerToast(`Lỗi: Bạn đã đăng ký ${totalRegisteredInWeek} ca. Không thể chọn thêm quá giới hạn 7 ca/tuần!`,"error");
                     checkbox.checked = false; // Tự động nhả dấu tick ra
                 }
             }

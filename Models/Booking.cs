@@ -67,5 +67,6 @@ namespace PBL3_Hotel_System.Models
 
         public DateTime? RealCheckIn { get; set; } // Giờ khách nhận chìa khóa thật
         public DateTime? RealCheckOut { get; set; } // Giờ khách trả chìa khóa thật
+        public bool IsPaid { get; set; } = false;
     }
 }

@@ -38,16 +38,48 @@
 
 <!-- TỔNG KẾT TÀI CHÍNH -->
 <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #eee; padding-top: 20px;">
-    <div>
-        <span style="font-size: 0.85rem; color: #888; text-transform: uppercase; font-weight: 600;">Trạng thái</span><br />
-        <span class="badge-status @Model.CssClassTrangThai" style="margin-top: 5px; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #eee;">
-            @Model.TenTrangThai
-        </span>
+    
+    <!-- CỘT TRÁI: HIỂN THỊ 2 LOẠI TRẠNG THÁI -->
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        
+        <!-- Trạng thái phòng (Ví dụ: Hoàn thành, Đang ở...) -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: bold; width: 140px;">Trạng thái phòng:</span>
+            <span class="badge-status @Model.CssClassTrangThai" style="padding: 4px 12px; font-size: 0.75rem;">
+                @Model.TenTrangThai
+            </span>
+        </div>
+
+        <!-- Trạng thái thanh toán (Chỉ hiện khi đơn không bị hủy) -->
+        @if (Model.TenTrangThai != "Đã hủy" && Model.TenTrangThai != "Chờ duyệt")
+        {
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: bold; width: 140px;">Thanh toán:</span>
+                
+                @if (Model.IsPaid)
+                {
+                    <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-check-circle"></i> ĐÃ NHẬN TIỀN
+                    </span>
+                }
+                else
+                {
+                    <span style="background: #ffebee; color: #c62828; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #ffcdd2;">
+                        <i class="fas fa-exclamation-circle"></i> CHƯA THANH TOÁN
+                    </span>
+                }
+            </div>
+        }
     </div>
+
+    <!-- CỘT PHẢI: TỔNG TIỀN DUY NHẤT -->
     <div style="text-align: right;">
         <span style="font-size: 0.85rem; color: #888; text-transform: uppercase; font-weight: 600;">Tổng thanh toán</span><br />
-        <span style="font-size: 1.8rem; font-weight: bold; color: #dc3545;">@Model.TongTien</span>
+        <span style="font-size: 1.8rem; font-weight: bold; color: #dc3545; font-family: var(--font-heading);">
+            @Model.TongTien
+        </span>
     </div>
+
 </div>
 
 <!-- ======================================================== -->
@@ -170,14 +202,32 @@
                 </div>
             </form>
         }
+        else if (!Model.IsPaid)
+        {
+            <div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+                <p style="color: #888; font-size: 0.85rem; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> Vui lòng kiểm tra tài khoản ngân hàng trước khi xác nhận.
+                </p>
+                <form asp-action="XacNhanDaThuTien" asp-controller="NhanVien" method="post" class="ajax-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="bookingId" value="@Model.BookingID" />
+                    
+                    <button type="button" class="btn-action" style="background: #28a745; color: white; padding: 10px 25px; border: none; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(40,167,69,0.3);"
+                            onclick="showLuxuryConfirm(this, 'Đã nhận được tiền?', 'Xác nhận khách hàng đã chuyển khoản thành công.', 'info')">
+                        <i class="fas fa-hand-holding-usd"></i> XÁC NHẬN ĐÃ THU TIỀN
+                    </button>
+                </form>
+            </div>
+        }
     }
     else
     {
+       
         <!-- ========================================== -->
         <!-- GÓC NHÌN CỦA KHÁCH HÀNG (CHỈ XEM BILL / CẢM ƠN) -->
         <!-- ========================================== -->
         @if (Model.TenTrangThai == "Hoàn thành")
-        {
+        {   
             // 1. CẤU HÌNH THÔNG SỐ NGÂN HÀNG (Có thể đổi theo ý bạn)
             string bankBin = "970436"; // Vietcombank
             string bankAccount = "1028751508"; // Số TK của bạn
@@ -193,50 +243,55 @@
 
             // 3. LINK API TẠO ẢNH QR TỰ ĐỘNG TỪ VIETQR
             string qrUrl = $"https://img.vietqr.io/image/{bankBin}-{bankAccount}-compact2.png?amount={amount}&addInfo={safeAddInfo}&accountName={safeAccountName}";
+            @if (!Model.IsPaid)
+            {
+                            <!-- KHUNG HÓA ĐƠN VÀ QR PAY -->
+                        <div style="background: #fff; border: 1px dashed #d4af37; border-radius: 12px; padding: 20px; margin-top: 25px; margin-bottom: 25px;  position: relative;">
+           
+                            <!-- Nhãn Hóa Đơn Phía Trên Cùng -->
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #d4af37; color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px;">
+                                HÓA ĐƠN THANH TOÁN
+                            </div>
+                
+                                <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
+                
+                                    <!-- Cột 1: Thông tin số tiền -->
+                                    <div style="flex-grow: 1; text-align: center; border-right: 1px dashed #eee; padding-right: 15px;">
+                                        <p style="color: #888; font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase;">Số tiền cần thanh toán</p>
+                                        <h2 style="font-family: var(--font-heading); color: #28a745; margin: 0 0 10px 0; font-size: 1.8rem;">
+                                            @amount.ToString("N0") ₫
+                                        </h2>
+                                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #555; text-align: left;">
+                                            <ul style="margin: 0; padding-left: 15px; line-height: 1.6;">
+                                                <li><strong>Ngân hàng:</strong> Vietcombank</li>
+                                                <li><strong>Chủ TK:</strong> @accountName</li>
+                                                <li><strong>Số TK:</strong> @bankAccount</li>
+                                                <li><strong>Nội dung:</strong> <span style="color: #d4af37; font-weight: bold;">@addInfo</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
 
-            <!-- KHUNG HÓA ĐƠN VÀ QR PAY -->
-            <div style="background: #fff; border: 1px dashed #d4af37; border-radius: 12px; padding: 20px; margin-top: 25px; margin-bottom: 25px;  position: relative;">
-        
-                <!-- Nhãn Hóa Đơn Phía Trên Cùng -->
-                <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #d4af37; color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px;">
-                    HÓA ĐƠN THANH TOÁN
-                </div>
+                                    <!-- Cột 2: Ảnh Mã QR -->
+                                    <div style="flex-shrink: 0; text-align: center; width: 140px;">
+                                        <div style="background: white; padding: 5px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                                            <img src="@qrUrl" alt="Mã QR Thanh Toán" style="width: 100%; height: auto; display: block; border-radius: 5px;" />
+                                        </div>
+                                        <p style="font-size: 0.7rem; font-weight: bold; color: #888; margin: 10px 0 0 0;">
+                                            <i class="fas fa-qrcode"></i> Quét mã để trả tiền
+                                        </p>
+                                    </div>
 
-                <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
-            
-                    <!-- Cột 1: Thông tin số tiền -->
-                    <div style="flex-grow: 1; text-align: center; border-right: 1px dashed #eee; padding-right: 15px;">
-                        <p style="color: #888; font-size: 0.8rem; margin: 0 0 5px 0; text-transform: uppercase;">Số tiền cần thanh toán</p>
-                        <h2 style="font-family: var(--font-heading); color: #28a745; margin: 0 0 10px 0; font-size: 1.8rem;">
-                            @amount.ToString("N0") ₫
-                        </h2>
-                        <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: #555; text-align: left;">
-                            <ul style="margin: 0; padding-left: 15px; line-height: 1.6;">
-                                <li><strong>Ngân hàng:</strong> Vietcombank</li>
-                                <li><strong>Chủ TK:</strong> @accountName</li>
-                                <li><strong>Số TK:</strong> @bankAccount</li>
-                                <li><strong>Nội dung:</strong> <span style="color: #d4af37; font-weight: bold;">@addInfo</span></li>
-                            </ul>
+                                </div>
+               
+                
+               
                         </div>
-                    </div>
-
-                    <!-- Cột 2: Ảnh Mã QR -->
-                    <div style="flex-shrink: 0; text-align: center; width: 140px;">
-                        <div style="background: white; padding: 5px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                            <img src="@qrUrl" alt="Mã QR Thanh Toán" style="width: 100%; height: auto; display: block; border-radius: 5px;" />
-                        </div>
-                        <p style="font-size: 0.7rem; font-weight: bold; color: #888; margin: 10px 0 0 0;">
-                            <i class="fas fa-qrcode"></i> Quét mã để trả tiền
-                        </p>
-                    </div>
-
-                </div>
-            </div>
+                    }
 
             <div style="background: #fdfcf7; padding: 20px; border-radius: 12px; border: 1px solid #f0eedb; text-align: center;">
                 <i class="fas fa-heart text-gold" style="font-size: 2rem; margin-bottom: 10px;"></i>
                 <h4 style="color: var(--secondary-color); font-family: var(--font-heading);">Cảm ơn quý khách!</h4>
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 0;">Hẹn gặp lại quý khách tại Hotel Vip trong những kỳ nghỉ tới.</p>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 0;">   Hẹn gặp lại quý khách tại Hotel Vip trong những kỳ nghỉ tới.</p>
                 <button type="button" class="btn" style="background: var(--primary-color); color: white; margin-top: 15px; border-radius: 30px; padding: 8px 25px;" onclick="window.print()">
                     <i class="fas fa-print"></i> IN HÓA ĐƠN
                 </button>

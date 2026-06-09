@@ -168,7 +168,7 @@
                             </span>
                         </td>
                         <td style="text-align: center;">
-                            @if (item.TrangThaiRaw == "DaXacNhan")
+                            @if (item.TrangThaiRaw == "DaXacNhan" || item.TrangThaiRaw == "SapDen")
                             {
                                 // 1. Lấy ngày hôm nay (00:00:00)
                                 DateTime homNay = DateTime.Today;
@@ -194,7 +194,15 @@
                                     else
                                     {
                                         <span style="color: var(--primary-color); font-size: 0.8rem;">
-                                            <i class="far fa-clock"></i> Đợi đến @item.GioHenNhanPhong.Value.ToString("HH:mm")
+                                            <i class="far fa-clock"></i> 
+                    
+                                            @if (item.GioHenNhanPhong.Value.Date == DateTime.Today) {
+                                                @:Đợi đến: @item.GioHenNhanPhong.Value.ToString("HH:mm") (Hôm nay)
+                                            } else if (item.GioHenNhanPhong.Value.Date == DateTime.Today.AddDays(1)) {
+                                                @:Đợi đến: @item.GioHenNhanPhong.Value.ToString("HH:mm") (Ngày mai)
+                                            } else {
+                                                @:Đợi đến: @item.GioHenNhanPhong.Value.ToString("HH:mm - dd/MM")
+                                            }
                                         </span>
                                     }
                                 }

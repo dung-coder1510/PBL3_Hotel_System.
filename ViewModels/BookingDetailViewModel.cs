@@ -36,5 +36,6 @@
         public DateTime InputRealCheckOut { get; set; } = DateTime.Now;
 
         public DateTime InputGioHen { get; set; } = DateTime.Now; // Mặc định gợi ý 14h
+        public bool IsPaid { get; set; }
     }
 }

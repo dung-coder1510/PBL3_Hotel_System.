@@ -37,8 +37,42 @@ namespace PBL3_Hotel_System_.Controllers
                              .Select(i => startOfWeek.AddDays(i))
                              .ToList();
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var maNV = GetMaNV();
+            var today = DateTime.Today;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
+            var endOfWeek = startOfWeek.AddDays(6);
+
+            // 1. Lấy lịch làm việc của tuần này (Đã duyệt)
+            ViewBag.WeeklyShifts = await _context.DangKyCaLams
+                .Where(c => c.MaNV == maNV && c.TrangThai == ShiftStatus.Approved
+                         && c.NgayLam >= startOfWeek && c.NgayLam <= endOfWeek)
+                .Select(c => new {
+                    MaDK = c.MaDK,
+                    NgayLam = c.NgayLam,
+                    // Chỉ lấy những thông tin cần thiết để tránh vòng lặp
+                    CaLam = new
+                    {
+                        TenCa = c.CaLam.TenCa,
+                        GioBatDau = c.CaLam.GioBatDau.ToString(@"hh\:mm"),
+                        GioKetThuc = c.CaLam.GioKetThuc.ToString(@"hh\:mm")
+                    }
+                })
+                .OrderBy(c => c.NgayLam)
+                .ToListAsync();
+
+            // 2. Thống kê nhanh trạng thái phòng (Dữ liệu cho biểu đồ)
+            ViewBag.RoomStatusData = await _context.Rooms
+                .GroupBy(r => r.TrangThai)
+                .Select(g => new { 
+                    // Chỉ lấy những gì cần thiết, không lấy object cha/con
+                    Count = g.Count() 
+                })
+                .ToListAsync();
+
+           
+
             ViewBag.HoTen = User.Identity?.Name;
             return View();
         }
@@ -131,7 +165,7 @@ namespace PBL3_Hotel_System_.Controllers
                 {
                     TempData["Error"] = $"Ngày {currentDay:dd/MM} bạn đã chọn 3 ca (Tối đa 2 ca/ngày).";
                     return RedirectToAction("DatCaLam");
-                }
+                }   
             }
 
             // Lỗi 4: Ca bị đầy trong lúc khách đang chọn (Chống hack F12)
@@ -234,6 +268,18 @@ namespace PBL3_Hotel_System_.Controllers
 
             foreach (var b in activeBookings)
             {
+                if (b.TrangThaiDat == BookingStatus.ChoXacNhan && b.CheckIn.Date < today)
+                {
+                    b.TrangThaiDat = BookingStatus.DaHuy;
+
+                    // NẾU PHÒNG ĐÃ ĐƯỢC CHỌN TRƯỚC ĐÓ, HÃY TRẢ VỀ TRỐNG
+                    if (b.Room != null)
+                    {
+                        b.Room.TrangThai = RoomStatus.Available;
+                    }
+
+                    hasChanged = true;
+                }
                 // TRƯỜNG HỢP 1: Tự động đổi sang "Sắp đến" (Trong vòng 24h tới)
                 if (b.TrangThaiDat == BookingStatus.DaXacNhan && b.CheckIn <= now.AddDays(1) && b.CheckIn > now)
                 {
@@ -455,6 +501,44 @@ namespace PBL3_Hotel_System_.Controllers
             TempData["Success"] = $"Check-out thành công! Tổng thu cuối cùng: {booking.GiaLucDat:N0}đ.";
 
             return RedirectToAction("QuanLyKhachHang", "NhanVien");
-        }   
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> XacNhanDaThuTien(int bookingId)
+        {
+            try
+            {
+                // 1. Tìm đơn đặt phòng
+                var booking = await _context.Bookings.FindAsync(bookingId);
+
+                if (booking == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy thông tin giao dịch!" });
+                }
+
+                // 2. Chốt chặn bảo mật (Tránh double-click hoặc lỗi F12)
+                if (booking.IsPaid)
+                {
+                    return Json(new { success = false, message = "Đơn hàng này đã được thanh toán từ trước!" });
+                }
+
+                // 3. Thực hiện nghiệp vụ
+                booking.IsPaid = true;
+
+                // (Tùy chọn) Nếu bạn có cột lưu ngày giờ khách trả tiền trong bảng Bookings
+                // booking.NgayThanhToan = DateTime.Now; 
+
+                await _context.SaveChangesAsync();
+
+                // 4. Trả về kết quả thành công cho AJAX xử lý
+                return Json(new { success = true, message = "Xác nhận thu tiền thành công! Giao dịch khép lại." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi Database: " + ex.Message });
+            }
+        }
     }
+
+
 }

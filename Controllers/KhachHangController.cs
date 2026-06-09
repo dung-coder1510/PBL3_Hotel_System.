@@ -191,11 +191,11 @@
 
                 // ========================================================
                 // 2. CÁC CHỐT CHẶN NGHIỆP VỤ (BẢO MẬT TẦNG SERVER)
-                // ========================================================
+                // ======================================================== 
 
                 // Chốt 1: Phải ở trạng thái "Đã duyệt" mới được nhận phòng
-                if (booking.TrangThaiDat != BookingStatus.DaXacNhan)
-                {
+                if (booking.TrangThaiDat != BookingStatus.DaXacNhan && booking.TrangThaiDat != BookingStatus.SapDen)
+            {
                     TempData["Error"] = "Đơn hàng chưa sẵn sàng để nhận phòng!";
                     return RedirectToAction("Index");
                 }
@@ -278,7 +278,8 @@
 
                         // SỬA LỖI TRẠNG THÁI: Gán trực tiếp từ Helper
                         TenTrangThai = statusInfo.Text,       // Trả về "Chờ duyệt", "Đang ở"...
-                        CssClassTrangThai = statusInfo.CssClass // Trả về "status-pending", "status-info"...
+                        CssClassTrangThai = statusInfo.CssClass, // Trả về "status-pending", "status-info"...
+                        IsPaid = b.IsPaid
                     };
                 }).ToList();
             }

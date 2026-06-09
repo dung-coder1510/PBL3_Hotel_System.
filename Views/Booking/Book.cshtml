@@ -302,66 +302,110 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" /> @* Nạp script để bắt lỗi đỏ ngay tại client *@
     <script>
-        // JS XỬ LÝ TÍNH TIỀN REALTIME (BIÊN LAI ĐIỆN TỬ)
-        const checkInInput = document.getElementById('checkIn');
-        const checkOutInput = document.getElementById('checkOut');
+        document.addEventListener("DOMContentLoaded", function () {
+             // Lấy các phần tử DOM
+             const checkInInput = document.getElementById('checkIn');
+             const checkOutInput = document.getElementById('checkOut');
+             const btnSubmit = document.querySelector('.btn-submit');
+            
+             const pricePerNight = parseInt(document.getElementById('price-per-night').getAttribute('data-price')) || 0;
+             const nightCountDisplay = document.getElementById('night-count');
+             const calcRoomPriceDisplay = document.getElementById('calc-room-price');
+             const calcTotalPriceDisplay = document.getElementById('calc-total-price');
 
-        const pricePerNight = parseInt(document.getElementById('price-per-night').getAttribute('data-price')) || 0;
+             // Hàm định dạng tiền tệ VNĐ
+             function formatVND(amount) {
+                 return amount.toLocaleString('vi-VN') + " ₫";
+             }
 
-        const nightCountDisplay = document.getElementById('night-count');
-        const calcRoomPriceDisplay = document.getElementById('calc-room-price');
-        const calcTotalPriceDisplay = document.getElementById('calc-total-price');
+             // ==========================================
+             // LOGIC 1: ĐẶT GIỚI HẠN NGÀY CHỌN (MIN DATE)
+             // ==========================================
+             // Tính ngày hôm nay (YYYY-MM-DD)
+             const todayObj = new Date();
+             const todayString = todayObj.getFullYear() + '-' + String(todayObj.getMonth() + 1).padStart(2, '0') + '-' + String(todayObj.getDate()).padStart(2, '0');
+            
+             // Khóa ngày nhận phòng không được chọn quá khứ
+             checkInInput.setAttribute('min', todayString);
+            
+             // Nếu ngày nhận đang trống, gán mặc định là hôm nay
+             if (!checkInInput.value) {
+                 checkInInput.value = todayString;
+             }
 
-        // Hàm định dạng tiền tệ VNĐ
-        function formatVND(amount) {
-            return amount.toLocaleString('vi-VN') + " ₫";
-        }
+             // Hàm cập nhật giới hạn ngày trả (phải sau ngày nhận ít nhất 1 ngày)
+             function updateMinCheckOutDate() {
+                 if (checkInInput.value) {
+                     const checkInDateObj = new Date(checkInInput.value);
+                     checkInDateObj.setDate(checkInDateObj.getDate() + 1); // Cộng thêm 1 ngày
+                    
+                     const nextDayString = checkInDateObj.getFullYear() + '-' + String(checkInDateObj.getMonth() + 1).padStart(2, '0') + '-' + String(checkInDateObj.getDate()).padStart(2, '0');
+                    
+                     // Khóa ngày trả phòng
+                     checkOutInput.setAttribute('min', nextDayString);
 
-        function calculateTotal() {
-            if (checkInInput.value && checkOutInput.value) {
-                const date1 = new Date(checkInInput.value);
-                const date2 = new Date(checkOutInput.value);
+                     // Tự động đẩy ngày trả phòng lên nếu nó đang <= ngày nhận
+                     if (checkOutInput.value && checkOutInput.value <= checkInInput.value) {
+                         checkOutInput.value = nextDayString;
+                     }
+                 }
+             }
 
-                // Reset giờ về 0 để tính số ngày chính xác
-                date1.setHours(0,0,0,0);
-                date2.setHours(0,0,0,0);
+             // ==========================================
+             // LOGIC 2: TÍNH TIỀN REALTIME
+             // ==========================================
+             function calculateTotal() {
+                 // Ép giới hạn ngày trả trước khi tính toán
+                 updateMinCheckOutDate();
 
-                const diffTime = date2 - date1;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                 if (checkInInput.value && checkOutInput.value) {
+                     const date1 = new Date(checkInInput.value);
+                     const date2 = new Date(checkOutInput.value);
 
-                if (diffDays > 0) {
-                    const total = diffDays * pricePerNight;
+                     date1.setHours(0,0,0,0);
+                     date2.setHours(0,0,0,0);
 
-                    // Cập nhật giao diện biên lai
-                    nightCountDisplay.innerText = diffDays;
-                    calcRoomPriceDisplay.innerText = formatVND(total);
-                    calcTotalPriceDisplay.innerText = formatVND(total);
+                     const diffTime = date2 - date1;
+                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    // Bật lại nút submit nếu bị tắt
-                    document.querySelector('.btn-submit').disabled = false;
-                    document.querySelector('.btn-submit').style.opacity = '1';
+                     if (diffDays > 0) {
+                         const total = diffDays * pricePerNight;
 
-                } else {
-                    // Cảnh báo nếu ngày trả trước ngày nhận
-                    nightCountDisplay.innerText = 0;
-                    calcRoomPriceDisplay.innerText = "Ngày không hợp lệ";
-                    calcRoomPriceDisplay.style.color = "red";
-                    calcTotalPriceDisplay.innerText = "0 ₫";
+                         // Cập nhật giao diện biên lai
+                         nightCountDisplay.innerText = diffDays;
+                         calcRoomPriceDisplay.innerText = formatVND(total);
+                         calcRoomPriceDisplay.style.color = ""; // Bỏ màu đỏ (nếu có)
+                         calcTotalPriceDisplay.innerText = formatVND(total);
 
-                    // Khóa nút submit
-                    document.querySelector('.btn-submit').disabled = true;
-                    document.querySelector('.btn-submit').style.opacity = '0.5';
-                }
-            }
-        }
-        calculateTotal(); 
+                         // Mở khóa nút submit
+                         if(btnSubmit) {
+                             btnSubmit.disabled = false;
+                             btnSubmit.style.opacity = '1';
+                         }
+                     } else {
+                         // Kịch bản này gần như không xảy ra nữa vì đã có updateMinCheckOutDate bảo vệ
+                         nightCountDisplay.innerText = 0;
+                         calcRoomPriceDisplay.innerText = "Ngày không hợp lệ";
+                         calcRoomPriceDisplay.style.color = "red";
+                         calcTotalPriceDisplay.innerText = "0 ₫";
 
-        checkInInput.addEventListener('change', calculateTotal);
-        checkOutInput.addEventListener('change', calculateTotal);
+                         if(btnSubmit) {
+                             btnSubmit.disabled = true;
+                             btnSubmit.style.opacity = '0.5';
+                         }
+                     }
+                 }
+             }
 
-        // Đặt giới hạn ngày check-in không được chọn trong quá khứ
-        const today = new Date().toISOString().split('T')[0];
-        checkInInput.setAttribute('min', today);
-        checkOutInput.setAttribute('min', today);
+             // ==========================================
+             // GẮN SỰ KIỆN (EVENTS)
+             // ==========================================
+             checkInInput.addEventListener('change', calculateTotal);
+             checkOutInput.addEventListener('change', calculateTotal);
+
+             // Khởi chạy 1 lần khi trang vừa load xong
+             calculateTotal();
+         });
+    </script>
     </script>
 }

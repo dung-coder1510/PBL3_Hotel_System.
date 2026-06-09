@@ -143,7 +143,8 @@ namespace PBL3_Hotel_System.Controllers
                            ? booking.RealCheckIn.Value.ToString("dd/MM/yyyy HH:mm")
                            : "Chưa cập nhật",
                 TenTrangThai = statusInfo.Text,       // Trả về "Đang ở", "Chờ duyệt"...
-                CssClassTrangThai = statusInfo.CssClass // Trả về "status-info", "status-pending"...
+                CssClassTrangThai = statusInfo.CssClass, // Trả về "status-info", "status-pending"...
+                IsPaid = booking.IsPaid
             };
 
             return PartialView("_BookingDetailPartial", model);

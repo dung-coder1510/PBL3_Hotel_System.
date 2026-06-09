@@ -124,6 +124,9 @@ namespace PBL3_Hotel_System_.Migrations
                     b.Property<DateTime?>("GioHenNhanPhong")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
                     b.Property<int>("MaKhachHang")
                         .HasColumnType("int");
 
@@ -228,7 +231,10 @@ namespace PBL3_Hotel_System_.Migrations
             modelBuilder.Entity("PBL3_Hotel_System.Models.Room", b =>
                 {
                     b.Property<int>("SoPhong")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SoPhong"));
 
                     b.Property<decimal>("GiaPhong")
                         .HasColumnType("decimal(18,2)");

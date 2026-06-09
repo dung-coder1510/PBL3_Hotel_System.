@@ -239,4 +239,15 @@
             typingTimer = setTimeout(() => { loadTableData(1); }, 500); // Ngừng gõ 0.5s thì tự load
         });
     </script>
+    <script>
+        // Cứ 30 giây tự động lấy lại danh sách đặt phòng một lần ngầm dưới nền
+        setInterval(function() {
+            // Chỉ chạy nếu đang ở trang 1 để không làm phiền khi đang xem trang khác
+            const currentPage = document.querySelector('.btn-page.active')?.innerText;
+            if (currentPage === "1") {
+                console.log("Auto-sync: Đang nạp lại dữ liệu...");
+                loadTableData(1); 
+            }
+        }, 30000); // 30,000 milliseconds = 30s
+    </script>
 }

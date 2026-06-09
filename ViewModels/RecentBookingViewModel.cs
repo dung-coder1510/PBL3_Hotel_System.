@@ -18,6 +18,7 @@
         public DateTime CheckOutDate { get; set; }
         public DateTime? GioHenNhanPhong { get; set; }
         public string CssClassTrangThai { get; set; }
+        public bool IsPaid { get; set; }
     }
     public class DashboardViewModel
     {
