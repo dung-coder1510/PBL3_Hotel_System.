@@ -293,18 +293,18 @@
                     .Include(b => b.kh).ThenInclude(u => u.Account)
                     .FirstOrDefaultAsync(b => b.BookingID == bookingId && b.kh.Account.Username == currentUserName);
 
-                if (booking == null) return NotFound();
+                if (booking == null) return Json(new { success = false, message = "Không tìm thấy giao dịch hoặc bạn không có quyền!" });
 
-                // Chỉ cho phép gửi yêu cầu khi đang ở hoặc đã quá hạn
-                if (booking.TrangThaiDat == BookingStatus.DangO || booking.TrangThaiDat == BookingStatus.QuaHan)
+            // Chỉ cho phép gửi yêu cầu khi đang ở hoặc đã quá hạn
+            if (booking.TrangThaiDat == BookingStatus.DangO || booking.TrangThaiDat == BookingStatus.QuaHan)
                 {
                     booking.TrangThaiDat = BookingStatus.YeuCauTraPhong;
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Đã gửi yêu cầu. Vui lòng mang chìa khóa xuống quầy Lễ tân.";
-                }
-
-                return RedirectToAction("MyHistory"); // Hoặc Index
+                return Json(new { success = true, message = "Đã gửi yêu cầu trả phòng. Vui lòng mang chìa khóa xuống quầy Lễ tân." });
             }
+
+            return Json(new { success = false, message = "Giao dịch này không thể yêu cầu trả phòng lúc này!" });
+        }
 
         }
     }

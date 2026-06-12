@@ -47,11 +47,21 @@
                 // TẦNG 1: ĐÃ ĐĂNG NHẬP
                 if (User.IsInRole("KhachHang"))
                 {
-                    // CHỈ KHÁCH HÀNG MỚI THẤY NÚT NÀY
-                    <a asp-controller="Booking" asp-action="Book" asp-route-roomId="@Model.SoPhong"
-                           class="btn btn-primary" style="width: 100%; display: block; text-align: center; padding: 12px; font-weight: bold;">
-                        <i class="fas fa-calendar-check"></i> ĐẶT PHÒNG NGAY
-                    </a>
+                    @if (Model.TrangThai == PBL3_Hotel_System.Models.RoomStatus.Maintenance)
+                    {
+                        <button type="button" class="btn btn-primary" style="width: 100%; display: block; text-align: center; padding: 12px; font-weight: bold; cursor: not-allowed" disabled>
+                            <i class="fas fa-ban"></i> PHÒNG ĐANG TẠM KHÓA
+                        </button>
+                    }
+                    else
+                    {
+                        // CHỈ KHÁCH HÀNG MỚI THẤY NÚT NÀY
+                        <a asp-controller="Booking" asp-action="Book" asp-route-roomId="@Model.SoPhong"
+                               class="btn btn-primary" style="width: 100%; display: block; text-align: center; padding: 12px; font-weight: bold;">
+                            <i class="fas fa-calendar-check"></i> ĐẶT PHÒNG NGAY
+                        </a>
+                    }
+                   
                 }
                 else
                 {

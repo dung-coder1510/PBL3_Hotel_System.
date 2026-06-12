@@ -22,10 +22,28 @@
     <div class="container">
         <!-- 1. THANH ĐIỀU HƯỚNG -->
         <nav class="top-nav">
-            <a href="/" class="logo">Hotel Vip</a>
-            <a asp-controller="KhachHang" asp-action="Index" class="back-link">
-                <i class="fas fa-arrow-left"></i> Quay lại Dashboard
-            </a>
+            <!-- KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP ĐỂ ĐỔI NÚT QUAY LẠI -->
+            @if (User.Identity.IsAuthenticated)
+            {
+                // Đã đăng nhập: Cho về Dashboard của Khách Hàng
+                <a href="@Url.Action("Index", "KhachHang")" style="text-decoration: none; color: var(--secondary-color); font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='var(--secondary-color)'">
+                    <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+                </a>
+            }
+            else
+            {
+                // Chưa đăng nhập (Vãng lai): Cho về Trang Chủ chính
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <a href="@Url.Action("Index", "Home")" style="text-decoration: none; color: #666; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)'" onmouseout="this.style.color='#666'">
+                        <i class="fas fa-home"></i> Trang Chủ
+                    </a>
+        
+                    <!-- Mẹo UX: Gợi ý khách đăng nhập để có trải nghiệm tốt hơn -->
+                    <a href="@Url.Action("Login", "Account")" style="background: var(--primary-color); color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; text-decoration: none; transition: 0.3s; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                        <i class="fas fa-user-circle"></i> Đăng nhập
+                    </a>
+                </div>
+            }
         </nav>
 
         <!-- 2. KHU VỰC GIỚI THIỆU & GRID HÌNH ẢNH -->

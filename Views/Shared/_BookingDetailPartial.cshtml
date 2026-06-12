@@ -50,6 +50,10 @@
             </span>
         </div>
 
+     
+
+    
+
         <!-- Trạng thái thanh toán (Chỉ hiện khi đơn không bị hủy) -->
         @if (Model.TenTrangThai != "Đã hủy" && Model.TenTrangThai != "Chờ duyệt")
         {
@@ -68,6 +72,15 @@
                         <i class="fas fa-exclamation-circle"></i> CHƯA THANH TOÁN
                     </span>
                 }
+            </div>
+        }
+        @if ((Model.TenTrangThai == "Đã duyệt" || Model.TenTrangThai == "Sắp đến") && Model.InputGioHen != null)
+        {
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: bold; width: 140px;">Giờ Lễ tân hẹn:</span>
+                <span style="color: #d4af37; font-weight: bold; font-size: 0.9rem;">
+                    <i class="far fa-clock"></i> @Model.InputGioHen.ToString("HH:mm - dd/MM/yyyy")
+                </span>
             </div>
         }
     </div>
@@ -297,12 +310,63 @@
                 </button>
             </div>
         }
-        else
+        else if (Model.TenTrangThai == "Đang ở")
         {
-            <!-- Khách hàng đang ở các trạng thái khác (Chờ duyệt, Đang ở...) -->
-            <div style="text-align: center; color: #888; font-style: italic; padding: 15px;">
-                <p style="margin: 0;"><i class="fas fa-info-circle"></i> Vui lòng liên hệ quầy Lễ tân nếu quý khách cần hỗ trợ thêm.</p>
-            </div>
+            <form asp-action="YeuCauTraPhong" asp-controller="KhachHang" method="post" class="ajax-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="bookingId" value="@Model.BookingID" />
+                
+                <button type="button" class="btn-action" style="background: #f39c12; color: white; padding: 12px 35px; border: none; border-radius: 30px; font-weight: bold; font-size: 1rem; box-shadow: 0 4px 10px rgba(243,156,18,0.3);"
+                        onclick="showLuxuryConfirm(this, 'Yêu cầu trả phòng?', 'Bạn muốn gửi yêu cầu trả phòng đến Lễ tân ngay bây giờ?', 'warning')">
+                    <i class="fas fa-bell"></i> YÊU CẦU TRẢ PHÒNG
+                </button>
+            </form>
+            
+            <p style="color: #888; font-size: 0.85rem; margin-top: 15px;">
+                <i class="fas fa-info-circle"></i> Vui lòng mang chìa khóa xuống quầy Lễ tân sau khi gửi yêu cầu.
+            </p>
         }
+
+
+
+
+        <div style="margin-top: 25px; text-align: center;">
+
+            <!-- LOGIC HIỆN NÚT NHẬN PHÒNG HOẶC ĐẾM NGƯỢC -->
+            @if ((Model.TenTrangThai == "Đã duyệt" || Model.TenTrangThai == "Sắp đến") && Model.InputGioHen != null)
+            {
+                <!-- Lấy thời gian hiện tại của Server để so sánh -->
+                var now = DateTime.Now;
+
+                if (now >= Model.InputGioHen)
+                {
+                    <!-- KỊCH BẢN 1: ĐÃ ĐẾN GIỜ -> CHO PHÉP BẤM NHẬN PHÒNG -->
+                    <form asp-action="XacNhanNhanPhong" asp-controller="KhachHang" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="bookingID" value="@Model.BookingID" />
+                        <button type="submit" class="btn-action" style="background: var(--primary-color); color: white; padding: 12px 35px; border-radius: 30px; font-weight: bold; font-size: 1rem; border: none; box-shadow: 0 4px 10px rgba(212,175,55,0.3); transition: 0.3s;">
+                            <i class="fas fa-key"></i> NHẬN PHÒNG NGAY
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <!-- KỊCH BẢN 2: CHƯA ĐẾN GIỜ -> BÁO CHỜ ĐỢI NHẸ NHÀNG -->
+                    <div style="background: #fff9db; border: 1px solid #ffe066; padding: 15px; border-radius: 8px; display: inline-block;">
+                        <p style="color: #856404; font-size: 0.9rem; margin: 0; font-weight: 500;">
+                            <i class="fas fa-hourglass-half fa-spin" style="margin-right: 8px; color: #f39c12;"></i>
+                            Phòng đang được chuẩn bị. Quý khách vui lòng làm thủ tục nhận phòng từ
+                            <strong style="color: #d4af37;">@Model.InputGioHen.ToString("HH:mm")</strong>.
+                        </p>
+                    </div>
+                }
+            }
+
+            <!-- CÁC NÚT KHÁC (YÊU CẦU TRẢ PHÒNG, HỦY ĐƠN...) CỦA BẠN GIỮ NGUYÊN -->
+            <!-- ... -->
+        </div>
+
     }
+
+
 </div>

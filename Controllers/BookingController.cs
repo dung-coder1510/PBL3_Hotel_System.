@@ -27,6 +27,15 @@ namespace PBL3_Hotel_System.Controllers
                 return RedirectToAction("Index", "Room");
             }
 
+            // ==========================================
+            // CHỐT CHẶN BẢO MẬT: CHỐNG ĐẶT PHÒNG BẢO TRÌ
+            // ==========================================
+            if (room.TrangThai == RoomStatus.Maintenance)
+            {
+                TempData["Error"] = $"Rất tiếc! Phòng {roomID} hiện đang tạm khóa (Bảo trì). Vui lòng chọn phòng khác!";
+                return RedirectToAction("Index", "Room"); // Đẩy khách quay lại trang chọn phòng
+            }
+
             var viewmodel = new BookViewModel
             {
                 SoPhong = room.SoPhong,
@@ -144,6 +153,7 @@ namespace PBL3_Hotel_System.Controllers
                            : "Chưa cập nhật",
                 TenTrangThai = statusInfo.Text,       // Trả về "Đang ở", "Chờ duyệt"...
                 CssClassTrangThai = statusInfo.CssClass, // Trả về "status-info", "status-pending"...
+                InputGioHen = booking.GioHenNhanPhong ?? DateTime.Now,
                 IsPaid = booking.IsPaid
             };
 

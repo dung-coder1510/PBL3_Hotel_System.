@@ -226,42 +226,85 @@
                                 // Tích chọn nếu: Đã đăng ký thành công
                                 bool isChecked = isRegistered;
 
-                                <label class="shift-wrapper">
-                                    <input type="checkbox" name="selectedShifts"
-                                           value="@(shift.MaCa)|@(dayStr)"
-                                           class="shift-checkbox"
-                                    @(isDisabled ? "disabled" : "")
-                                    @(isChecked ? "checked" : "")> @* Bổ sung checked ở đây *@
+                                // ==========================================
+                                // LOGIC CHẶN CA TRONG QUÁ KHỨ VÀ CA ĐÃ QUA GIỜ
+                                // ==========================================
+                                bool isPastShift = false;
+                                var now = DateTime.Now;
+
+                                // Nếu ngày của cột này nhỏ hơn ngày hôm nay (Ví dụ: Cột Thứ 2, mà nay là Thứ 3)
+                                if (day.Date < now.Date)
+                                {
+                                    isPastShift = true;
+                                }
+                                // Nếu là ngày hôm nay, nhưng cái giờ bắt đầu ca đó đã đi qua rồi
+                                else if (day.Date == now.Date && shift.GioBatDau <= now.TimeOfDay)
+                                {
+                                    isPastShift = true;
+                                }
+                                if(isPastShift){
+                                    <!-- BỌC BẰNG SHIFT-WRAPPER ĐỂ ĐỒNG BỘ MARGIN-BOTTOM NHƯ CÁC Ô KHÁC -->
+                                    <div class="shift-wrapper" style="cursor: not-allowed;">
         
-                                    @* Thêm class "is-me" nếu là ca của mình để CSS màu xanh lá cho đẹp *@
-                                    <div class="shift-card @(isRegistered ? "is-me" : (isFull ? "full" : ""))">
-                                        <span class="shift-name">@shift.TenCa</span>
-                                        <span class="shift-time">
-                                            @shift.GioBatDau.ToString(@"hh\:mm") - @shift.GioKetThuc.ToString(@"hh\:mm")
-                                        </span>
+                                        <!-- DÙNG LẠI CHÍNH XÁC CLASS SHIFT-CARD VÀ GHI ĐÈ CSS TRONG STYLE -->
+                                        <div class="shift-card" style="border: 1px dashed #ccc; background-color: #fafafa; opacity: 0.5;">
             
-                                        <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 5px;">
-                                            @if (isRegistered)
-                                            {
-                                                <span style="font-size: 0.75rem; color: #28a745; font-weight: 700;">
-                                                    <i class="fas fa-check-circle"></i> Lịch của bạn
+                                            <span class="shift-name" style="color: #999;">@shift.TenCa</span>
+            
+                                            <span class="shift-time" style="color: #aaa;">
+                                                @shift.GioBatDau.ToString(@"hh\:mm") - @shift.GioKetThuc.ToString(@"hh\:mm")
+                                            </span>
+            
+                                            <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 5px;">
+                                                <span style="font-size: 0.75rem; color: #999; font-weight: 500;">
+                                                    <i class="fas fa-lock"></i> Đã hết hạn
                                                 </span>
-                                            }
-                                            else if (isFull)
-                                            {
-                                                <span style="font-size: 0.75rem; color: #dc3545; font-weight: 600;">
-                                                    <i class="fas fa-ban"></i> Hết chỗ
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span style="font-size: 0.75rem; color: var(--primary-color); font-weight: 500;">
-                                                    Còn @remaining / @shift.SoLuongToiDa chỗ
-                                                </span>
-                                            }
+                                            </div>
+            
                                         </div>
+
                                     </div>
-                                </label>
+                                    
+                                }
+                                else{
+                                    <label class="shift-wrapper">
+                                        <input type="checkbox" name="selectedShifts"
+                                               value="@(shift.MaCa)|@(dayStr)"
+                                               class="shift-checkbox"
+                                        @(isDisabled ? "disabled" : "")
+                                        @(isChecked ? "checked" : "")> @* Bổ sung checked ở đây *@
+        
+                                        @* Thêm class "is-me" nếu là ca của mình để CSS màu xanh lá cho đẹp *@
+                                        <div class="shift-card @(isRegistered ? "is-me" : (isFull ? "full" : ""))">
+                                            <span class="shift-name">@shift.TenCa</span>
+                                            <span class="shift-time">
+                                                @shift.GioBatDau.ToString(@"hh\:mm") - @shift.GioKetThuc.ToString(@"hh\:mm")
+                                            </span>
+            
+                                            <div style="margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 5px;">
+                                                @if (isRegistered)
+                                                {
+                                                    <span style="font-size: 0.75rem; color: #28a745; font-weight: 700;">
+                                                        <i class="fas fa-check-circle"></i> Lịch của bạn
+                                                    </span>
+                                                }
+                                                else if (isFull)
+                                                {
+                                                    <span style="font-size: 0.75rem; color: #dc3545; font-weight: 600;">
+                                                        <i class="fas fa-ban"></i> Hết chỗ
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="font-size: 0.75rem; color: var(--primary-color); font-weight: 500;">
+                                                        Còn @remaining / @shift.SoLuongToiDa chỗ
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </label>
+                                }
+                                
                             }
                         </td>
                     }

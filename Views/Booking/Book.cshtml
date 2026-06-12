@@ -216,9 +216,20 @@
 
 <div class="booking-wrapper">
 
-    <div class="page-header">
-        <h2>Hoàn Tất Đặt Phòng</h2>
-        <p>Vui lòng kiểm tra thông tin và chọn ngày lưu trú</p>
+    <!-- KHU VỰC TIÊU ĐỀ VÀ NÚT QUAY LẠI -->
+    <div style="max-width: 1000px; margin: 0 auto 30px auto; position: relative; text-align: center;">
+    
+        <!-- Nút Quay lại (Nằm góc trái) -->
+        <a href="javascript:history.back()" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #666; font-weight: 600; font-size: 0.95rem; transition: 0.3s; padding: 8px 15px; border-radius: 30px; border: 1px solid #e0e0e0; background: #fff;"
+               onmouseover="this.style.backgroundColor='#f4f6f8'; this.style.color='#d4af37'; this.style.borderColor='#d4af37'"
+               onmouseout="this.style.backgroundColor='#fff'; this.style.color='#666'; this.style.borderColor='#e0e0e0'">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+
+        <!-- Tiêu đề chính -->
+        <h2 style="font-family: var(--font-heading); font-size: 2.2rem; color: var(--secondary-color); margin: 0;">Hoàn Tất Đặt Phòng</h2>
+        <p style="color: var(--text-light); margin-top: 5px; font-size: 0.95rem;">Vui lòng kiểm tra thông tin và chọn ngày lưu trú</p>
+
     </div>
 
     <div class="booking-grid">

@@ -130,6 +130,8 @@ namespace PBL3_Hotel_System_.Controllers
                 return RedirectToAction("DatCaLam");
             }
 
+
+
             var requests = selectedShifts.Select(s => {
                 var parts = s.Split('|');
                 return new { MaCa = int.Parse(parts[0]), NgayLam = DateTime.Parse(parts[1]).Date };
@@ -140,10 +142,10 @@ namespace PBL3_Hotel_System_.Controllers
 
             // Lỗi 2: Quá 7 ca / tuần
             int existingWeekCount = await _context.DangKyCaLams
-        .CountAsync(x => x.MaNV == maNV
-                    && x.NgayLam.Date >= weekStart.Date
-                    && x.NgayLam.Date <= weekEnd.Date
-                    && x.TrangThai != ShiftStatus.Rejected);
+                .CountAsync(x => x.MaNV == maNV
+                            && x.NgayLam.Date >= weekStart.Date
+                            && x.NgayLam.Date <= weekEnd.Date
+                            && x.TrangThai != ShiftStatus.Rejected);
 
             if (existingWeekCount + requests.Count > 7)
             {
@@ -153,6 +155,9 @@ namespace PBL3_Hotel_System_.Controllers
 
             // Lỗi 3: Quá 2 ca / ngày
             var dailyGroups = requests.GroupBy(r => r.NgayLam);
+
+            var now = DateTime.Now;
+            var today = now.Date;
             foreach (var group in dailyGroups)
             {
                 DateTime currentDay = group.Key;
@@ -173,6 +178,21 @@ namespace PBL3_Hotel_System_.Controllers
             foreach (var item in requests)
             {
                 var caHienTai = await _context.CaLams.FindAsync(item.MaCa);
+
+                // 1. Nếu ngày làm nhỏ hơn ngày hôm nay -> GIAN LẬN!
+                if (item.NgayLam.Date < today)
+                {
+                    TempData["Error"] = $"Lỗi: Không thể đăng ký ca làm trong quá khứ (Ngày {item.NgayLam:dd/MM}).";
+                    return RedirectToAction("DatCaLam");
+                }
+
+                // 2. Nếu ngày làm là HÔM NAY, nhưng giờ bắt đầu của ca đó đã trôi qua -> GIAN LẬN!
+                if (item.NgayLam.Date == today && caHienTai.GioBatDau <= now.TimeOfDay)
+                {
+                    TempData["Error"] = $"Lỗi: {caHienTai.TenCa} ngày hôm nay đã bắt đầu hoặc đã kết thúc, bạn không thể đăng ký nữa!";
+                    return RedirectToAction("DatCaLam");
+                }
+                    
                 int occupied = await _context.DangKyCaLams.CountAsync(x => x.MaCa == item.MaCa && x.NgayLam == item.NgayLam && x.TrangThai != ShiftStatus.Rejected);
 
                 if (occupied >= caHienTai.SoLuongToiDa)
@@ -436,6 +456,7 @@ namespace PBL3_Hotel_System_.Controllers
 
             return RedirectToAction("QuanLyKhachHang");
         }
+
 
         
 
